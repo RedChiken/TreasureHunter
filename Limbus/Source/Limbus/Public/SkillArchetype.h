@@ -24,8 +24,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	// Called when the Piece use Skill
-	virtual void ActSkill(FVector target);
-	virtual void ActSkill(FVector target1, FVector target2);
+	virtual void ActSkill(FVector target) = 0;
+	virtual void ActSkill(FVector target1, FVector target2) = 0;
 	
 	// TODO : need to add map as a parameter
 	// Called when a player want to use this skill
