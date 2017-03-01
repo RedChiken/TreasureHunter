@@ -63,7 +63,7 @@ TArray<FVector>* APawnArchetype::AttackableArea(const FVector& target, const FVe
 bool APawnArchetype::Movable(const FVector& target, const FVector& me) const {
 	bool ret = false;
 	for (auto i : moveRange) {
-		if (i == (target + me));
+		if (i == (target + me))
 		break;
 	}
 	return ret;
@@ -74,8 +74,12 @@ bool APawnArchetype::Movable(const FVector& target, const FVector& me) const {
 bool APawnArchetype::Attackable(const FVector& target, const FVector& me) const {
 	bool ret = false;
 	for (auto i : attackRange) {
-		if (i == (target + me));
+		if (i == (target + me))
 		break;
 	}
 	return ret;
+}
+
+void APawnArchetype::Intensify() {
+
 }

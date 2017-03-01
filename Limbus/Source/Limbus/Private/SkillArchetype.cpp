@@ -58,3 +58,12 @@ bool USkillArchetype::ActableDistance(const FVector& target, const FVector& me) 
 	}
 	return ret;
 }
+
+
+
+void USkillArchetype::ActSkill(FVector target) {
+
+}
+void USkillArchetype::ActSkill(FVector target1, FVector target2) {
+
+}

@@ -32,7 +32,7 @@ public:
 	TArray<FVector>* AttackableArea(const FVector& target, const FVector& me) const;
 
 	// Called when pawn Intensified
-	virtual void Intensify() = 0;
+	virtual void Intensify();
 
 protected:
 	// Called in movableArea
