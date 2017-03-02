@@ -46,6 +46,7 @@ public:
 	int HEALTH;
 	int ATK;
 	int SACRED;
+	bool player;
 
 protected:
 	TArray<FVector> moveRange;

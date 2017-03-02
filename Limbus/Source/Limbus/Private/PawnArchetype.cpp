@@ -9,7 +9,6 @@ APawnArchetype::APawnArchetype()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
@@ -64,7 +63,7 @@ TArray<FVector>* APawnArchetype::AttackableArea(const FVector& target, const FVe
 bool APawnArchetype::Movable(const FVector& target, const FVector& me) const {
 	bool ret = false;
 	for (auto i : moveRange) {
-		if (i == (target + me));
+		if (i == (target + me))
 		break;
 	}
 	return ret;
@@ -75,8 +74,12 @@ bool APawnArchetype::Movable(const FVector& target, const FVector& me) const {
 bool APawnArchetype::Attackable(const FVector& target, const FVector& me) const {
 	bool ret = false;
 	for (auto i : attackRange) {
-		if (i == (target + me));
+		if (i == (target + me))
 		break;
 	}
 	return ret;
+}
+
+void APawnArchetype::Intensify() {
+
 }
