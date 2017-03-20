@@ -3,12 +3,11 @@
 #include "Limbus.h"
 #include "../Public/Board.h"
 #include "../Public/PawnArchetype.h"
+ABoard::ABoard() {
 
-void ABoard::InitializePawn(FString & file)
-{
 }
 
-void ABoard::SpawnPawn(FVector position, APawnArchetype * pawn)
+void ABoard::InitializePawn(FString & file)
 {
 }
 

@@ -2,7 +2,7 @@
 
 #include "Limbus.h"
 #include "../Public/SkillArchetype.h"
-
+#include "../Public/Board.h"
 
 // Sets default values for this component's properties
 USkillArchetype::USkillArchetype()
@@ -10,7 +10,7 @@ USkillArchetype::USkillArchetype()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
+	this->usable = false;
 	// ...
 }
 
@@ -32,6 +32,7 @@ void USkillArchetype::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	// ...
 }
+
 
 
 // TODO : need to add map as a parameter
@@ -57,13 +58,4 @@ bool USkillArchetype::ActableDistance(const FVector& target, const FVector& me) 
 		}
 	}
 	return ret;
-}
-
-
-
-void USkillArchetype::ActSkill(FVector target) {
-
-}
-void USkillArchetype::ActSkill(FVector target1, FVector target2) {
-
 }
