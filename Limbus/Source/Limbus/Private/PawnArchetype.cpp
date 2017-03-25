@@ -79,7 +79,3 @@ bool APawnArchetype::Attackable(const FVector& target, const FVector& me) const 
 	}
 	return ret;
 }
-
-void APawnArchetype::Intensify() {
-
-}

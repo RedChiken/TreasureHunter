@@ -35,7 +35,8 @@ public:
 
 	// Called when pawn Intensified
 	//UFUNCTION(BlueprintNativeEvent)
-	virtual void Intensify();
+	UFUNCTION(BlueprintImplementableEvent)
+	void Intensify();
 
 protected:
 	// Called in movableArea
@@ -55,6 +56,8 @@ public:
 	int ATK;
 	UPROPERTY(BlueprintReadWrite)
 	int SACRED;
+	UPROPERTY(BlueprintReadWrite)
+	int PIECELEVEL;
 	UPROPERTY(BlueprintReadWrite)
 	bool player;
 

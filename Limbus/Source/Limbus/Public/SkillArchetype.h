@@ -28,8 +28,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 		
-	UFUNCTION(BlueprintCallable)
-	virtual void ActSkill(class ABoard* list, const TArray<FVector>& targets) {}
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActSkill(class ABoard* list, const TArray<FVector>& targets);
 
 	// TODO : need to add map as a parameter
 	// Called when a player want to use this skill
