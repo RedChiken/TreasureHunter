@@ -71,3 +71,4 @@ Limbus/Intermediate/*
 
 # Cache files for the editor to use
 Limbus/DerivedDataCache/*
+Limbus/Content/Skills/NewBlueprint\.uasset
