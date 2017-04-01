@@ -6,7 +6,7 @@
 #include "SkillArchetype.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LIMBUS_API USkillArchetype : public UActorComponent
 {
 	GENERATED_BODY()
