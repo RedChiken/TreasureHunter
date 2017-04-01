@@ -2,7 +2,7 @@
 
 #include "Limbus.h"
 #include "../Public/PawnArchetype.h"
-
+#include "../Public/Skillarchetype.h"
 
 // Sets default values
 APawnArchetype::APawnArchetype()
@@ -35,11 +35,11 @@ void APawnArchetype::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 // TODO : need to add map as a parameter
 // Called when player want to move
-TArray<FVector>* APawnArchetype::MovableArea(const FVector& target, const FVector& me) const {
-	TArray<FVector> *ret = nullptr;
+TArray<FVector> APawnArchetype::MovableArea(const FVector& target, const FVector& me) const {
+	TArray<FVector> ret;
 	for (auto i : moveRange) {
 		if (Movable(target, me)) {
-			(*ret).AddUnique(i);
+			ret.AddUnique(i);
 		}
 	}
 	return ret;
@@ -48,11 +48,11 @@ TArray<FVector>* APawnArchetype::MovableArea(const FVector& target, const FVecto
 
 // TODO : need to add map as a parameter
 // Called when player want to attack
-TArray<FVector>* APawnArchetype::AttackableArea(const FVector& target, const FVector& me) const {
-	TArray<FVector> *ret = nullptr;
+TArray<FVector> APawnArchetype::AttackableArea(const FVector& target, const FVector& me) const {
+	TArray<FVector> ret;
 	for (auto i : moveRange) {
 		if (Attackable(target, me)) {
-			(*ret).AddUnique(i);
+			ret.AddUnique(i);
 		}
 	}
 	return ret;
@@ -78,8 +78,4 @@ bool APawnArchetype::Attackable(const FVector& target, const FVector& me) const 
 		break;
 	}
 	return ret;
-}
-
-void APawnArchetype::Intensify() {
-
 }

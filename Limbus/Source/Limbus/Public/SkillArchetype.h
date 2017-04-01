@@ -6,7 +6,7 @@
 #include "SkillArchetype.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LIMBUS_API USkillArchetype : public UActorComponent
 {
 	GENERATED_BODY()
@@ -18,27 +18,30 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
+	// Called in ActableArea
+	UFUNCTION(BlueprintCallable)
+	bool ActableDistance(const FVector& target, const FVector& me) const;
+
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
-	// Called when the Piece use Skill
-	virtual void ActSkill(FVector target);
-	virtual void ActSkill(FVector target1, FVector target2);
-	
+		
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActSkill(class ABoard* list, const TArray<FVector>& targets);
+
 	// TODO : need to add map as a parameter
 	// Called when a player want to use this skill
+	UFUNCTION(BlueprintCallable)
 	TArray<FVector> ActableArea(const FVector& target, const FVector& me) const;
 
-private:
-	// Called in ActableArea
-	bool ActableDistance(const FVector& target, const FVector& me) const;
-	
 public:
+	UPROPERTY(BlueprintReadWrite)
 	bool usable;
 
 protected:
+	UPROPERTY(BlueprintReadWrite)
 	TArray<FVector> range;
 
 	

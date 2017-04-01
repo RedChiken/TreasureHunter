@@ -8,7 +8,7 @@
 /**
  * 
  */
-UCLASS(BlueprintCallable)
+UCLASS()
 class LIMBUS_API ABoard : public AStaticMeshActor
 {
 	GENERATED_BODY()
@@ -16,21 +16,20 @@ public:
 	ABoard();
 	// Called when map Spawned
 	UFUNCTION(BlueprintCallable)
-
 	void InitializePawn(FString& file);
 
 	// Move Pawn
+	UFUNCTION(BlueprintCallable)
 	void MovePawn(FVector now, FVector target);
 
-	//TODO : attack pawn, skill pawn
-protected:
-	// Spawn Pawn. Called when pawn spawned.
-	void SpawnPawn(FVector position, class APawnArchetype* pawn);
+	//TODO : attack pawn, skill pawn, Spawn pawn in blueprints
 
-private:
-	TMap<FVector, APawnArchetype*> pawnMap;
-	TSet<APawnArchetype*> deadPawn;
+	UPROPERTY(BlueprintReadWrite)
+	TMap<FVector, class APawnArchetype* > pawnMap;
+	UPROPERTY(BlueprintReadWrite)
+	TSet<APawnArchetype* > deadPawn;
 	//TODO : need to make trap(int yet) class
-	TMap<FVector, int*> trapMap;
+	UPROPERTY(BlueprintReadWrite)
+	TMap<FVector, int> trapMap;
 
 };

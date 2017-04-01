@@ -26,30 +26,45 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Called when player want to move
-	TArray<FVector>* MovableArea(const FVector& target, const FVector& me) const;
+	UFUNCTION(BlueprintCallable)
+	TArray<FVector> MovableArea(const FVector& target, const FVector& me) const;
 
 	// Called when player want to attack
-	TArray<FVector>* AttackableArea(const FVector& target, const FVector& me) const;
+	UFUNCTION(BlueprintCallable)
+	TArray<FVector> AttackableArea(const FVector& target, const FVector& me) const;
 
 	// Called when pawn Intensified
-	virtual void Intensify();
+	//UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
+	void Intensify();
 
 protected:
 	// Called in movableArea
+	UFUNCTION(BlueprintCallable)
 	bool Movable(const FVector& target, const FVector& me) const;
 	
 	// Called in attackableArea
+	UFUNCTION(BlueprintCallable)
 	bool Attackable(const FVector& target, const FVector& me) const;
 
 public:
-	TArray<UActorComponent *> skillset;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<class USkillArchetype *> skillset;
+	UPROPERTY(BlueprintReadWrite)
 	int HEALTH;
+	UPROPERTY(BlueprintReadWrite)
 	int ATK;
+	UPROPERTY(BlueprintReadWrite)
 	int SACRED;
+	UPROPERTY(BlueprintReadWrite)
+	int PIECELEVEL;
+	UPROPERTY(BlueprintReadWrite)
 	bool player;
 
 protected:
+	UPROPERTY(BlueprintReadWrite)
 	TArray<FVector> moveRange;
+	UPROPERTY(BlueprintReadWrite)
 	TArray<FVector> attackRange;
 	
 };
