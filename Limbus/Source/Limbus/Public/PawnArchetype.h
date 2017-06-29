@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "GameFramework/Character.h"
+#include "GameFramework/Pawn.h"
 #include "PawnArchetype.generated.h"
 
 UCLASS()
-class LIMBUS_API APawnArchetype : public ACharacter
+class LIMBUS_API APawnArchetype : public APawn
 {
 	GENERATED_BODY()
 
