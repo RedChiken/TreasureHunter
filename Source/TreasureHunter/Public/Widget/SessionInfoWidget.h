@@ -20,6 +20,6 @@ public:
 	UPROPERTY(BlueprintCallable)
 		FOnSelectSession OnSelectSession;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void SetSessionInfo(const FSessionInfo& SessionInfo);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetSessionInfo(const int32& Index, const FSessionInfo& SessionInfo);
 };

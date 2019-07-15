@@ -19,5 +19,7 @@ class TREASUREHUNTER_API UMissionInfoWidget : public UUserWidget
 public:
 	UPROPERTY(BlueprintCallable)
 		FOnSelectMission OnSelectMission;
-	
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetMissionInfo(const FMissionInfo& MissionInfo);	
 };

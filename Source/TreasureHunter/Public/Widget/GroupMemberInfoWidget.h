@@ -19,6 +19,6 @@ public:
 	UPROPERTY(BlueprintCallable)
 		FOnSelectGroupMember OnSelectGroupMember;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void SetSessionInfo(const FGroupMemberInfo& SessionInfo);	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetGroupMemberInfo(const FGroupMemberInfo& GroupMemberInfo);	
 };

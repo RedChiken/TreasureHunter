@@ -19,6 +19,12 @@ struct FSessionInfo {
 
 	UPROPERTY(BlueprintReadOnly)
 		FString HostName;
+
+	UPROPERTY(BlueprintReadOnly)
+		int32 CurrentPlayer;
+	
+	UPROPERTY(BlueprintReadOnly)
+		int32 MaxPlayer;
 };
 
 USTRUCT(BlueprintType)

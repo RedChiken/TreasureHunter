@@ -7,7 +7,7 @@
 #include "THOutGameDefines.h"
 #include "ChatWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSendMessage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSendMessage, FString, Message);
 
 /**
  * 

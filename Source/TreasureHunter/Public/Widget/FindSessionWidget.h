@@ -8,6 +8,7 @@
 #include "FindSessionWidget.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTryConnect, int32, SessionIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenCreateSessionWidget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCancelConnect);
 
 /**
@@ -20,6 +21,9 @@ class TREASUREHUNTER_API UFindSessionWidget : public UUserWidget
 public:
 	UPROPERTY(BlueprintCallable)
 		FOnTryConnect OnTryConnect;
+
+	UPROPERTY(BlueprintCallable)
+		FOnOpenCreateSessionWidget OnOpenCreateSessionWidget;
 
 	UPROPERTY(BlueprintCallable)
 		FOnCancelConnect OnCancelConnect;

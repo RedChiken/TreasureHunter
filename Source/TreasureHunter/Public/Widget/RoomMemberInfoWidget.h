@@ -20,6 +20,6 @@ public:
 	UPROPERTY(BlueprintCallable)
 		FOnSelectRoomMember OnSelectRoomMember;
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void SetSessionInfo(const FGroupMemberInfo& SessionInfo);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetRoomMemberInfo(const int32& Index, const FRoomMemberInfo& RoomMemberInfo);
 };
