@@ -7,8 +7,6 @@
 #include "THOutGameDefines.h"
 #include "SessionInfoWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSelectSession);
-
 /**
  * 
  */
@@ -17,8 +15,6 @@ class TREASUREHUNTER_API USessionInfoWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintCallable)
-		FOnSelectSession OnSelectSession;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void SetSessionInfo(const int32& Index, const FSessionInfo& SessionInfo);

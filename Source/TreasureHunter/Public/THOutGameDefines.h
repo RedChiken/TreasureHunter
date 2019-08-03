@@ -28,7 +28,7 @@ struct FSessionInfo {
 };
 
 USTRUCT(BlueprintType)
-struct FRoomMemberInfo {
+struct FSessionMemberInfo {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)

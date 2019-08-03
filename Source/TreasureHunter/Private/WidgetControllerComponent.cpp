@@ -67,7 +67,7 @@ void UWidgetControllerComponent::InitializeUI(
 
 void UWidgetControllerComponent::Client_ShowSessionWidget_Implementation()
 {
-	ShowLobbyWidget();
+	ShowSessionWidget();
 }
 
 void UWidgetControllerComponent::Client_UpdateSessionMemberDisplay_Implementation(const TArray<FSessionMemberInfo>& RoomMemberInfoArray)
@@ -117,9 +117,6 @@ void UWidgetControllerComponent::BindEventHandlers()
 		FindSessionWidget->OnTryConnect.AddDynamic(this, &UWidgetControllerComponent::OnTryConnect);
 		FindSessionWidget->OnOpenCreateSessionWidget.AddDynamic(this, &UWidgetControllerComponent::OnOpenCreateSessionWidget);
 		FindSessionWidget->OnCancelConnect.AddDynamic(this, &UWidgetControllerComponent::OnCancelConnect);
-
-		//SessionInfoWidget->OnSelectSession.AddDynamic(this, &UWidgetControllerComponent::OnSelectSession);
-		//Bind in FindSessionUI BP
 	}
 	if (CreateSessionWidget) {
 		CreateSessionWidget->OnCreateSession.AddDynamic(this, &UWidgetControllerComponent::OnCreateSession);
@@ -172,7 +169,20 @@ void UWidgetControllerComponent::OnItem()
 
 void UWidgetControllerComponent::OnFindMatch()
 {
-	ChangeWidget(FindSessionWidget);
+	//OnSelectConnect
+	auto* GameMode = GetLobbyGameMode();
+	auto* PC = GetLobbyPlayerController();
+
+	if (GameMode && PC) {
+		GameMode->GetOnFindSessionsComplete().AddUObject(this, &UWidgetControllerComponent::OnFindSessionsComplete);
+
+		constexpr bool bIsLAN = false;
+		constexpr bool bIsPresence = false;
+		GameMode->FindSessions(PC->GetLocalPlayer()->GetPreferredUniqueNetId().GetUniqueNetId(), bIsLAN, bIsPresence);
+
+		FindSessionWidget->DisplaySearchingState();
+		ChangeWidget(FindSessionWidget);
+	}
 }
 
 void UWidgetControllerComponent::OnNextCharacter()
@@ -242,14 +252,10 @@ void UWidgetControllerComponent::OnCreateSession(FString HostName, int32 MaxPlay
 	auto* PC = GetLobbyPlayerController();
 
 	if (GameMode && PC) {
-		GameMode->GetOnFindSessionsComplete().AddUObject(this, &UWidgetControllerComponent::OnFindSessionsComplete);
-
+		const auto& NetId = PC->GetLocalPlayer()->GetPreferredUniqueNetId().GetUniqueNetId();
 		constexpr bool bIsLAN = false;
 		constexpr bool bIsPresence = false;
-		GameMode->FindSessions(PC->GetLocalPlayer()->GetPreferredUniqueNetId().GetUniqueNetId(), bIsLAN, bIsPresence);
-
-		FindSessionWidget->DisplaySearchingState();
-		ChangeWidget(FindSessionWidget);
+		GameMode->HostSession(NetId, GameSessionName, bIsLAN, bIsPresence, MaxPlayer);
 	}
 }
 
@@ -315,7 +321,7 @@ void UWidgetControllerComponent::Server_TryStartGame_Implementation()
 {
 	if (auto GameMode = GetLobbyGameMode()) {
 		//TODO: Change temp_Name to Game Level
-		GameMode->TryStartGame(FString("temp_Name"));
+		GameMode->TryStartGame(FString("StageLevel"));
 	}
 }
 

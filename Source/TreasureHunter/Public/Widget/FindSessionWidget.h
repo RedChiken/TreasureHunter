@@ -30,4 +30,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateRoomList(const TArray<FSessionInfo>& SessionsInfoArray);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void DisplaySearchingState();
 };

@@ -30,5 +30,5 @@ public:
 		void SetReadyState(bool bReady);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void UpdateRoomMemberList(const TArray<FRoomMemberInfo>& RoomMemberInfoArray);
+		void UpdateRoomMemberList(const TArray<FSessionMemberInfo>& RoomMemberInfoArray);
 };
