@@ -7,6 +7,7 @@
 
 ALobbyPlayerController::ALobbyPlayerController() {
 	WidgetController = CreateDefaultSubobject<UWidgetControllerComponent>(TEXT("WidgetController"));
+	bShowMouseCursor = true;
 }
 
 void ALobbyPlayerController::Client_InitializeLobbyUI_Implementation()
