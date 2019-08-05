@@ -47,7 +47,7 @@ bool ALobbyGameMode::HostSession(
 		SessionSettings->NumPublicConnections =				MaxPlayers;
 		SessionSettings->NumPrivateConnections =			0;
 		SessionSettings->bAllowInvites =					true;
-		SessionSettings->bAllowJoinInProgress =				false;
+		SessionSettings->bAllowJoinInProgress =				true;
 		SessionSettings->bShouldAdvertise =					true;
 		SessionSettings->bAllowJoinViaPresence =			true;
 		SessionSettings->bAllowJoinViaPresenceFriendsOnly =	false;

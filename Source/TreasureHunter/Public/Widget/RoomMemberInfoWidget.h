@@ -22,4 +22,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void SetRoomMemberInfo(const int32& Index, const FSessionMemberInfo& RoomMemberInfo);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetReadyState(const bool bReady);
 };

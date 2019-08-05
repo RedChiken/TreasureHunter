@@ -183,6 +183,9 @@ void UWidgetControllerComponent::OnFindMatch()
 		FindSessionWidget->DisplaySearchingState();
 		ChangeWidget(FindSessionWidget);
 	}
+	else{
+		UE_LOG(LogTemp, Log, TEXT("%hs: GameMode or PlayerController is invalid"), __FUNCTION__);
+	}
 }
 
 void UWidgetControllerComponent::OnNextCharacter()
@@ -292,6 +295,7 @@ void UWidgetControllerComponent::OnFindSessionsComplete(bool bWasSuccessful)
 	auto* GameMode = GetLobbyGameMode();
 	if (GameMode) {
 		TArray<FSessionInfo> SessionInfo;
+		UE_LOG(LogTemp, Log, TEXT("%hs: Success to Find Sessions"), __FUNCTION__);
 
 		for (const auto& Result : GameMode->GetSessionSearch()->SearchResults) {
 			FSessionInfo Info;
@@ -300,6 +304,9 @@ void UWidgetControllerComponent::OnFindSessionsComplete(bool bWasSuccessful)
 		}
 
 		FindSessionWidget->UpdateRoomList(SessionInfo);
+	}
+	else{
+		UE_LOG(LogTemp, Log, TEXT("%hs: Fail to Find Sessions"), __FUNCTION__);
 	}
 }
 

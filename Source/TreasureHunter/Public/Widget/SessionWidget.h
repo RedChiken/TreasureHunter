@@ -27,8 +27,5 @@ public:
 		void SetReadyButtonVisual(bool bIsHost);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void SetReadyState(bool bReady);
-
-	UFUNCTION(BlueprintImplementableEvent)
 		void UpdateRoomMemberList(const TArray<FSessionMemberInfo>& RoomMemberInfoArray);
 };
