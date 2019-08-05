@@ -242,8 +242,7 @@ void UWidgetControllerComponent::OnOpenCreateSessionWidget()
 
 void UWidgetControllerComponent::OnCancelConnect()
 {
-	auto GI = GetWorld()->GetGameInstance<UTHGameInstance>();
-	GI->DestroySessionAndLeaveGame();
+	ChangeWidget(LobbyWidget);
 }
 
 void UWidgetControllerComponent::OnCreateSession(FString HostName, int32 MaxPlayer)
