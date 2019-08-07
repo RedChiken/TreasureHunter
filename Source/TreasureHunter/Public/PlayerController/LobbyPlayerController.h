@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "LobbyPlayerController.generated.h"
 
-class ULobbyWidgetControllerComponent;
+class UWidgetControllerComponent;
 
 /**
  * 
@@ -23,7 +23,7 @@ public:
 		void Client_InitializeLobbyUI();
 
 public:
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutlifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	void InitializeLobbyUI();
@@ -33,7 +33,7 @@ protected:
 
 protected:
 	UPROPERTY(Replicated, BlueprintReadOnly)
-		ULobbyWidgetControllerComponent* WidgetController;
+		UWidgetControllerComponent* WidgetController;
 
 	bool bLobbyUIInitialized;
 };

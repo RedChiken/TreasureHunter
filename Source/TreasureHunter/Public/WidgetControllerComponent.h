@@ -47,15 +47,15 @@ public:
 		void Client_ShowSessionWidget();
 
 	UFUNCTION(Client, Reliable)
-		void Client_UpdateSessionMemberDisplay(const TArray<FRoomMemberInfo>& RoomMemberInfoArray);
+		void Client_UpdateSessionMemberDisplay(const TArray<FSessionMemberInfo>& RoomMemberInfoArray);
 
 	UFUNCTION(Client, Reliable)
 		void Client_SetReadyButtonVisual(bool bisHost);
 
-	void ShowLobbyEntry();
+	void ShowLobbyWidget();
 	void ShowSessionWidget();
 
-	inline bool IsReadyRoom() const;
+	inline bool IsReadyInSession() const;
 
 private:
 	void BindEventHandlers();
@@ -107,9 +107,6 @@ private:
 		void OnCancelConnect();
 
 	UFUNCTION()
-		void OnSelectSession();
-
-	UFUNCTION()
 		void OnCreateSession(FString HostName, int32 MaxPlayer);
 
 	UFUNCTION()
@@ -122,7 +119,7 @@ private:
 		void OnCancelSession();
 
 	UFUNCTION()
-		void OnSelectRoomMember();
+		void OnSelectSessionMember();
 
 	UFUNCTION()
 		void OnFindSessionsComplete(bool bWasSuccessful);
@@ -140,7 +137,7 @@ private:
 	bool bInitialized;
 
 	UPROPERTY(Replicated)
-		bool bReadyInRoom;
+		bool bReadyInSession;
 
 	UUserWidget* ActiveWidget;
 
@@ -148,10 +145,13 @@ private:
 		ULobbyWidget* LobbyWidget;
 
 	UPROPERTY()
-		UGroupMemberInfoWidget* GroumPemberInfoWidget;
+		UGroupMemberInfoWidget* GroupMemberInfoWidget;
 
 	UPROPERTY()
 		UMissionInfoWidget* MissionInfoWidget;
+
+	UPROPERTY()
+		UChatWidget* ChatWidget;
 
 	UPROPERTY()
 		UChatInfoWidget* ChatInfoWidget;

@@ -9,7 +9,7 @@
 #include "THOutGameDefines.h"
 #include "LobbyGameMode.generated.h"
 
-class ULobbyPlayerController;
+class UWidgetControllerComponent;
 class FOnlineSessionSettings;
 
 /**
@@ -60,7 +60,7 @@ private:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
 private:
-	void CollectSessionMemberInfo(TArray<FRoomMemberInfo>& OutSessionMemberInfoArray, AController* Ignore = nullptr);
+	void CollectSessionMemberInfo(TArray<FSessionMemberInfo>& OutSessionMemberInfoArray, AController* Ignore = nullptr);
 
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
@@ -76,7 +76,7 @@ private:
 	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
 
-	TSharedPtr<FOnlineSessionSetting> SessionSettings;
+	TSharedPtr<FOnlineSessionSettings> SessionSettings;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// FindSessions

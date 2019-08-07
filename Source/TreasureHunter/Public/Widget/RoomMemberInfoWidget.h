@@ -7,7 +7,7 @@
 #include "THOutGameDefines.h"
 #include "RoomMemberInfoWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSelectRoomMember);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSelectSessionMember);
 
 /**
  * 
@@ -18,8 +18,11 @@ class TREASUREHUNTER_API URoomMemberInfoWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	UPROPERTY(BlueprintCallable)
-		FOnSelectRoomMember OnSelectRoomMember;
+		FOnSelectSessionMember OnSelectSessionMember;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-		void SetRoomMemberInfo(const int32& Index, const FRoomMemberInfo& RoomMemberInfo);
+		void SetRoomMemberInfo(const int32& Index, const FSessionMemberInfo& RoomMemberInfo);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetReadyState(const bool bReady);
 };
