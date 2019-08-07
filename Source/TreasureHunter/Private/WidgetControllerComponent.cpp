@@ -263,9 +263,7 @@ void UWidgetControllerComponent::OnCreateSession(FString HostName, int32 MaxPlay
 
 void UWidgetControllerComponent::OnCancelCreateSession()
 {
-	//TODO: go to find match
-	auto GI = GetWorld()->GetGameInstance<UTHGameInstance>();
-	GI->DestroySessionAndLeaveGame();
+	ChangeWidget(FindSessionWidget);
 }
 
 void UWidgetControllerComponent::OnToggleReady()
@@ -280,7 +278,6 @@ void UWidgetControllerComponent::OnToggleReady()
 
 void UWidgetControllerComponent::OnCancelSession()
 {
-	//TODO: go to find match
 	auto GI = GetWorld()->GetGameInstance<UTHGameInstance>();
 	GI->DestroySessionAndLeaveGame();
 }
