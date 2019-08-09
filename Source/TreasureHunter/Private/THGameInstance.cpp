@@ -42,7 +42,6 @@ void UTHGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSucce
 		if (Sessions.IsValid()) {
 			Sessions->ClearOnDestroySessionCompleteDelegate_Handle(OnDestroySessionCompleteDelegateHandle);
 			if (bWasSuccessful) {
-				//TODO: Change level to lobby level
 				UGameplayStatics::OpenLevel(GetWorld(), "LobbyLevel", true);
 			}
 		}
