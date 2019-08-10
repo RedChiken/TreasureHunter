@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "TreasureHunter.h"
 #include "LobbyPlayerController.generated.h"
 
 class UWidgetControllerComponent;

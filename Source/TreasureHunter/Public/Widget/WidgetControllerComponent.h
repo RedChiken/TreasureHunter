@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "THOutGameDefines.h"
+#include "TreasureHunter.h"
 #include "WidgetControllerComponent.generated.h"
 
 class UUserWidget;

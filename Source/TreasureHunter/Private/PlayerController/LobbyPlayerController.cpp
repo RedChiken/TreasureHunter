@@ -2,7 +2,6 @@
 
 #include "LobbyPlayerController.h"
 #include "WidgetControllerComponent.h"
-#include "TreasureHunter.h"
 #include "UnrealNetwork.h"
 
 ALobbyPlayerController::ALobbyPlayerController() {
@@ -24,7 +23,7 @@ void ALobbyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 void ALobbyPlayerController::InitializeLobbyUI()
 {
 	if (bLobbyUIInitialized) {
-		UE_LOG(LogTemp, Log, TEXT("%hs: Already initialized"), __FUNCTION__);
+		UE_LOG(LogTH_LobbyPlayerController, Log, TEXT("%hs: Already initialized"), __FUNCTION__);
 		return;
 	}
 	ReceiveInitializeLobbyUI();

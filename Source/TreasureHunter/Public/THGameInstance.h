@@ -7,6 +7,7 @@
 #include "Engine/DataTable.h"
 #include "Online.h"
 #include "UnrealNetwork.h"
+#include "TreasureHunter.h"
 #include "THGameInstance.generated.h"
 
 /**

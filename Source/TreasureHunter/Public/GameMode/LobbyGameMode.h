@@ -7,6 +7,7 @@
 #include "UnrealNetwork.h"
 #include "GameFramework/GameModeBase.h"
 #include "THOutGameDefines.h"
+#include "TreasureHunter.h"
 #include "LobbyGameMode.generated.h"
 
 class UWidgetControllerComponent;

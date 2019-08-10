@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "THGameInstance.h"
-#include "TreasureHunter.h"
 #include "Kismet/GameplayStatics.h"
 
 void UTHGameInstance::Init()
@@ -20,7 +19,7 @@ void UTHGameInstance::Shutdown()
 
 void UTHGameInstance::DestroySessionAndLeaveGame()
 {
-	UE_LOG(LogTemp, Log, TEXT("%hs: Trying to destroy the session..."), __FUNCTION__);
+	UE_LOG(LogTH_THGameInstance, Log, TEXT("%hs: Trying to destroy the session..."), __FUNCTION__);
 
 	IOnlineSubsystem* const OnlineSystem = IOnlineSubsystem::Get();
 	if (OnlineSystem) {
@@ -34,7 +33,7 @@ void UTHGameInstance::DestroySessionAndLeaveGame()
 
 void UTHGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
 {
-	UE_LOG(LogTemp, Log, TEXT("%hs: SessionName=%s, bWasSuccessful=%d"), __FUNCTION__, *SessionName.ToString(), bWasSuccessful);
+	UE_LOG(LogTH_THGameInstance, Log, TEXT("%hs: SessionName=%s, bWasSuccessful=%d"), __FUNCTION__, *SessionName.ToString(), bWasSuccessful);
 
 	IOnlineSubsystem* const OnlineSystem = IOnlineSubsystem::Get();
 	if (OnlineSystem) {
