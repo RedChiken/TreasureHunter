@@ -14,4 +14,8 @@ class TREASUREHUNTER_API AStageGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	AStageGameMode();
+	
+	virtual void PostLogin(APlayerController* NewController) override;
 };

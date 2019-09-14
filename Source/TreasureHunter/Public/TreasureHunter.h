@@ -10,3 +10,4 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTH_LobbyPlayerController, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_THGameInstance, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_WidgetControllerComponent, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(ErrorTH_WidgetControllerComponent, Error, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogTH_StageGameMode, Log, All);

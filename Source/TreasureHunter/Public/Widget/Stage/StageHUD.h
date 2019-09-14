@@ -13,5 +13,5 @@ UCLASS()
 class TREASUREHUNTER_API AStageHUD : public AHUD
 {
 	GENERATED_BODY()
-	
+	//TODO: Need to Implement about Timer, Map, Missions, etc.
 };

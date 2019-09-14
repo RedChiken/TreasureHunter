@@ -11,3 +11,4 @@ DEFINE_LOG_CATEGORY(LogTH_LobbyPlayerController);
 DEFINE_LOG_CATEGORY(LogTH_THGameInstance);
 DEFINE_LOG_CATEGORY(LogTH_WidgetControllerComponent);
 DEFINE_LOG_CATEGORY(ErrorTH_WidgetControllerComponent);
+DEFINE_LOG_CATEGORY(LogTH_StageGameMode);
