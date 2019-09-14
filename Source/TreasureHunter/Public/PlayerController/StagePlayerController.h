@@ -22,9 +22,12 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupInputComponent() override;
 
+	/*UFUNCTION(Client, Reliable)
+		void Client_PlayAnim_MissionComplete();*/
+
 protected:
-	/*UFUNCTION(BlueprintImplementableEvent)
-		UStageHUDWidget* CreateHUD();*/
+	UFUNCTION(BlueprintImplementableEvent)
+		UStageHUDWidget* CreateHUD();
 
 private:
 	bool InitializeHUD();
@@ -36,12 +39,8 @@ private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_ExcuteInteractionTrigger(AInteractionTrigger* Trigger);
 	*/
-	UFUNCTION()
-		void RequestFinalizeCurrentStage();
 
 protected:
-	/*
 	UPROPERTY()
-	UStageHUDWidget* HUD;
-	*/
+		UStageHUDWidget* HUD;
 };
