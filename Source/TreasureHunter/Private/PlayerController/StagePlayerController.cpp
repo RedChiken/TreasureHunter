@@ -31,7 +31,6 @@ void AStagePlayerController::Tick(float DeltaSeconds)
 void AStagePlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	//TODO: BindAction
 }
 
 bool AStagePlayerController::InitializeHUD()

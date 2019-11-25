@@ -55,6 +55,11 @@ ATHCharacterBase::ATHCharacterBase()
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 }
 
+void ATHCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
 // Called when the game starts or when spawned
 void ATHCharacterBase::BeginPlay()
 {
