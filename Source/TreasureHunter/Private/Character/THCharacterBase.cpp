@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "net/UnrealNetwork.h"
@@ -24,14 +25,22 @@ ATHCharacterBase::ATHCharacterBase()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-	//TODO: Set TP Camera Component
 
 	FPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	FPCameraComponent->SetupAttachment(GetCapsuleComponent());
-	FPCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
+	TPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
+
+	SpringArm->SetupAttachment(GetCapsuleComponent());
+	SpringArm->TargetArmLength = 400.0f;
+	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
+	//FPCameraComponent->SetupAttachment(GetCapsuleComponent());
+	FPCameraComponent->SetupAttachment(SpringArm);
+	//FPCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
+	//If it's false, Character cannot look upside or downside
 	FPCameraComponent->bUsePawnControlRotation = true;
 	FPCameraComponent->SetFieldOfView(90.0f);
-	
+	//TODO: Set TP Camera Component
+
 	/*
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
 	//GetMesh()->SetupAttachment(FPCameraComponent);
