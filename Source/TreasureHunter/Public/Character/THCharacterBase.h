@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-//#include "DataType/*"
 #include "DataType/THIdleType.h"
 #include "DataType/THMovementType.h"
 #include "DataType/THEnterDirection.h"
@@ -36,6 +35,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		class USkeletalMeshComponent* TP_Mesh;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FPCameraComponent;
 
@@ -124,6 +126,25 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateMovementType(EMovementType type);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateMovementType(EMovementType type);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateIdleType(EIdleType type);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateIdleType(EIdleType type);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateSpeedRate(float rate);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateSpeedRate(float rate);
+
+
 	//TODO: Replicate update HP
 
 	void OnToggleCrouch();
@@ -136,6 +157,9 @@ protected:
 
 	void MoveForward(float val);
 	void MoveRight(float val);
-	void TurnAtRate(float Rate);
-	void LookUpAtRate(float Rate);
+	void Turn(float val);
+	void LookUp(float val);
+
+private:
+	void AddMovement(const FVector vector, float val);
 };
