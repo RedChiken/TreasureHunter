@@ -28,31 +28,35 @@ ATHCharacterBase::ATHCharacterBase()
 
 	FPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	TPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
+	
+	/*
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
-
 	SpringArm->SetupAttachment(GetCapsuleComponent());
 	SpringArm->TargetArmLength = 400.0f;
 	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
-	//FPCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FPCameraComponent->SetupAttachment(SpringArm);
-	//FPCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
+	*/
+
+	FPCameraComponent->SetupAttachment(GetCapsuleComponent());
+	FPCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
 	//If it's false, Character cannot look upside or downside
 	FPCameraComponent->bUsePawnControlRotation = true;
 	FPCameraComponent->SetFieldOfView(90.0f);
 	//TODO: Set TP Camera Component
 
-	/*
+	
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
-	//GetMesh()->SetupAttachment(FPCameraComponent);
+	GetMesh()->SetupAttachment(FPCameraComponent);
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
-	*/
 
+	/*
 	TP_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShownCharacter"));
 	TP_Mesh->SetupAttachment(FPCameraComponent);
-	TP_Mesh->SetRelativeLocationAndRotation(FVector(-0.5f, -4.4f, -155.7f), FRotator(0.0f, -90.0f, 0.0f));
+	TP_Mesh->SetRelativeLocationAndRotation(FVector(-0.5f, -4.4f, 0.0f), FRotator(0.0f, -90.0f, 0.0f));
 	TP_Mesh->SetIsReplicated(true);
 	TP_Mesh->SetOwnerNoSee(true);
+	*/
 
 	HitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitBox"));
 	HitBox->BodyInstance.SetCollisionProfileName("NormalHitBox");
