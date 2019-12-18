@@ -6,6 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "DataType/THIdleType.h"
 #include "DataType/THMovementType.h"
+#include "DataType/THMovingDirection.h"
 #include "DataType/THEnterDirection.h"
 #include "DataType/THExitDirection.h"
 #include "DataType/THLayeredAction.h"
@@ -31,6 +32,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
 		EMovementType MovementType;
+
+	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
+		EMovingDirection MovingDirection;
 
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
 		bool bJump;

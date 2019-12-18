@@ -16,6 +16,7 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 			CurrentSpeed = Character->getCurrentSpeed();
 			IdleType = Character->getIdleType();
 			MovementType = Character->getMovementType();
+			MovingDirection = Character->getMovingDirection();
 			bJump = Character->getbJump();
 			bFall = Character->getIsFalling();
 			EnterDirection = Character->getEnterDirection();
