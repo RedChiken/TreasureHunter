@@ -2,6 +2,7 @@
 
 
 #include "THCharacterBase.h"
+#include "TreasureHunter.h"
 #include "ConstructorHelpers.h"
 #include "Animation/THAnimInstanceBase.h"
 #include "camera/CameraComponent.h"
@@ -14,13 +15,14 @@
 #include "net/UnrealNetwork.h"
 #include "Engine.h"
 
+#define GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetEnumName((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
+
 // Sets default values
 ATHCharacterBase::ATHCharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.f);
-	//GetCapsuleComponent()->SetupAttachment(RootComponent);
 	CrouchedEyeHeight = 32.f;
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -28,14 +30,6 @@ ATHCharacterBase::ATHCharacterBase()
 
 	FPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	TPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
-	
-	/*
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
-	SpringArm->SetupAttachment(GetCapsuleComponent());
-	SpringArm->TargetArmLength = 400.0f;
-	SpringArm->SetRelativeRotation(FRotator(-15.0f, 0.0f, 0.0f));
-	FPCameraComponent->SetupAttachment(SpringArm);
-	*/
 
 	FPCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FPCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f));
@@ -45,18 +39,10 @@ ATHCharacterBase::ATHCharacterBase()
 	//TODO: Set TP Camera Component
 
 	
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeLocationAndRotation(FVector(27.5f, 0.0f, -164.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetupAttachment(FPCameraComponent);
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
-
-	/*
-	TP_Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShownCharacter"));
-	TP_Mesh->SetupAttachment(FPCameraComponent);
-	TP_Mesh->SetRelativeLocationAndRotation(FVector(-0.5f, -4.4f, 0.0f), FRotator(0.0f, -90.0f, 0.0f));
-	TP_Mesh->SetIsReplicated(true);
-	TP_Mesh->SetOwnerNoSee(true);
-	*/
 
 	HitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitBox"));
 	HitBox->BodyInstance.SetCollisionProfileName("NormalHitBox");
@@ -72,6 +58,7 @@ ATHCharacterBase::ATHCharacterBase()
 	bJump = false;
 	IdleType = EIdleType::STAND;
 	MovementType = EMovementType::DEFAULT;
+	MovingDirection = EMovingDirection::DEFAULT;
 	EnterDirection = EEnterDirection::DEFAULT;
 	ExitDirection = EExitDirection::DEFAULT;
 	bFullBodyMotion = false;
@@ -101,6 +88,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, SpeedRate);
 	DOREPLIFETIME(ATHCharacterBase, IdleType);
 	DOREPLIFETIME(ATHCharacterBase, MovementType);
+	DOREPLIFETIME(ATHCharacterBase, MovingDirection);
 	DOREPLIFETIME(ATHCharacterBase, bJump);
 	DOREPLIFETIME(ATHCharacterBase, EnterDirection);
 	DOREPLIFETIME(ATHCharacterBase, bUpward);
@@ -120,6 +108,10 @@ void ATHCharacterBase::Tick(float DeltaTime)
 	if ((MovementType != EMovementType::DEFAULT) && (getCurrentSpeed() < 0.001))
 	{
 		ServerUpdateMovementType(EMovementType::DEFAULT);
+	}
+	if (bLayeredMotion)
+	{
+		bLayeredMotion = false;
 	}
 }
 
@@ -155,6 +147,11 @@ EIdleType ATHCharacterBase::getIdleType()
 EMovementType ATHCharacterBase::getMovementType()
 {
 	return MovementType;
+}
+
+EMovingDirection ATHCharacterBase::getMovingDirection()
+{
+	return MovingDirection;
 }
 
 bool ATHCharacterBase::getbJump()
@@ -258,7 +255,24 @@ bool ATHCharacterBase::ServerUpdateMovementType_Validate(EMovementType type)
 
 void ATHCharacterBase::MulticastUpdateMovementType_Implementation(EMovementType type)
 {
+	UE_LOG(LogTH_PlayerBase_MovementType, Verbose, TEXT("MovementType change from %s to %s"), *GETENUMSTRING("EMovementType", MovementType), *GETENUMSTRING("EMovementType", type));
 	MovementType = type;
+}
+
+void ATHCharacterBase::ServerUpdateMovingDirection_Implementation(EMovingDirection direction)
+{
+	MulticastUpdateMovingDirection(direction);
+}
+
+bool ATHCharacterBase::ServerUpdateMovingDirection_Validate(EMovingDirection direction)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateMovingDirection_Implementation(EMovingDirection direction)
+{
+	UE_LOG(LogTH_PlayerBase_MovingDirection, Verbose, TEXT("MovingDirection change from %s to %s"), *GETENUMSTRING("EMovingDirection", MovingDirection), *GETENUMSTRING("EMovingDirection", direction));
+	MovingDirection = direction;
 }
 
 void ATHCharacterBase::ServerUpdateIdleType_Implementation(EIdleType type)
@@ -273,6 +287,7 @@ bool ATHCharacterBase::ServerUpdateIdleType_Validate(EIdleType type)
 
 void ATHCharacterBase::MulticastUpdateIdleType_Implementation(EIdleType type)
 {
+	UE_LOG(LogTH_PlayerBase_IdleType, Verbose, TEXT("IdleType change from %s to %s"), *GETENUMSTRING("EIdleType", IdleType), *GETENUMSTRING("EIdleType", type));
 	IdleType = type;
 }
 
@@ -364,24 +379,130 @@ void ATHCharacterBase::OnInteraction()
 void ATHCharacterBase::MoveForward(float val)
 {
 	AddMovement(GetActorForwardVector(), val);
-	//LaunchCharacter(GetActorForwardVector(), false, false);
+	if (val > 0)
+	{
+		switch (MovingDirection)
+		{
+		case EMovingDirection::DEFAULT:
+			ServerUpdateMovingDirection(EMovingDirection::FRONT);
+			break;
+		case EMovingDirection::RIGHT:
+			ServerUpdateMovingDirection(EMovingDirection::FRONTRIGHT);
+			break;
+		case EMovingDirection::LEFT:
+			ServerUpdateMovingDirection(EMovingDirection::FRONTLEFT);
+			break;
+		}
+	}
+	else if (val < 0)
+	{
+		switch (MovingDirection)
+		{
+		case EMovingDirection::DEFAULT:
+			ServerUpdateMovingDirection(EMovingDirection::BACK);
+			break;
+		case EMovingDirection::RIGHT:
+			ServerUpdateMovingDirection(EMovingDirection::BACKRIGHT);
+			break;
+		case EMovingDirection::LEFT:
+			ServerUpdateMovingDirection(EMovingDirection::BACKLEFT);
+			break;
+		}
+	}
+	else
+	{
+		switch (MovingDirection)
+		{
+		case EMovingDirection::FRONT:
+			ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+			break;
+		case EMovingDirection::FRONTRIGHT:
+			ServerUpdateMovingDirection(EMovingDirection::RIGHT);
+			break;
+		case EMovingDirection::BACKRIGHT:
+			ServerUpdateMovingDirection(EMovingDirection::RIGHT);
+			break;
+		case EMovingDirection::BACK:
+			ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+			break;
+		case EMovingDirection::BACKLEFT:
+			ServerUpdateMovingDirection(EMovingDirection::LEFT);
+			break;
+		case EMovingDirection::FRONTLEFT:
+			ServerUpdateMovingDirection(EMovingDirection::LEFT);
+			break;
+		}
+	}
 }
 
 void ATHCharacterBase::MoveRight(float val)
 {
 	AddMovement(GetActorRightVector(), val);
-	//LaunchCharacter(GetActorRightVector(), false, false);
+	if (val > 0)
+	{
+		switch (MovingDirection)
+		{
+		case EMovingDirection::DEFAULT:
+			ServerUpdateMovingDirection(EMovingDirection::RIGHT);
+			break;
+		case EMovingDirection::FRONT:
+			ServerUpdateMovingDirection(EMovingDirection::FRONTRIGHT);
+			break;
+		case EMovingDirection::BACK:
+			ServerUpdateMovingDirection(EMovingDirection::BACKRIGHT);
+			break;
+		}
+	}
+	else if (val < 0)
+	{
+		switch (MovingDirection)
+		{
+		case EMovingDirection::DEFAULT:
+			ServerUpdateMovingDirection(EMovingDirection::LEFT);
+			break;
+		case EMovingDirection::FRONT:
+			ServerUpdateMovingDirection(EMovingDirection::FRONTLEFT);
+			break;
+		case EMovingDirection::BACK:
+			ServerUpdateMovingDirection(EMovingDirection::BACKLEFT);
+			break;
+		}
+	}
+	else
+	{
+		switch (MovingDirection)
+		{
+		case EMovingDirection::FRONTRIGHT:
+			ServerUpdateMovingDirection(EMovingDirection::FRONT);
+			break;
+		case EMovingDirection::RIGHT:
+			ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+			break;
+		case EMovingDirection::BACKRIGHT:
+			ServerUpdateMovingDirection(EMovingDirection::BACK);
+			break;
+		case EMovingDirection::BACKLEFT:
+			ServerUpdateMovingDirection(EMovingDirection::BACK);
+			break;
+		case EMovingDirection::LEFT:
+			ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+			break;
+		case EMovingDirection::FRONTLEFT:
+			ServerUpdateMovingDirection(EMovingDirection::FRONT);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void ATHCharacterBase::Turn(float val)
 {
-	//GetCapsuleComponent()->AddRelativeRotation(FQuat(FVector::UpVector, val));
 	AddControllerYawInput(val);
 }
 
 void ATHCharacterBase::LookUp(float val)
 {
-	//GetCapsuleComponent()->AddRelativeRotation(FQuat(FVector::RightVector, val));
 	AddControllerPitchInput(val);
 }
 
@@ -393,16 +514,19 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 		{
 			//TODO: Add Climb
 		}
-		else if (IdleType == EIdleType::STAND)
+		else if ((IdleType == EIdleType::STAND))
 		{
-			if (bStandToSprint)
-			{	// Sprint
-				bStandToSprint = false;
-				ServerUpdateMovementType(EMovementType::SPRINT);
-			}
-			else
-			{	// Walk
-				ServerUpdateMovementType(EMovementType::WALK);
+			if (MovementType == EMovementType::DEFAULT)
+			{
+				if (bStandToSprint)
+				{	// Sprint
+					bStandToSprint = false;
+					ServerUpdateMovementType(EMovementType::SPRINT);
+				}
+				else
+				{	// Walk
+					ServerUpdateMovementType(EMovementType::WALK);
+				}
 			}
 			AddMovementInput(vector, val);
 		}

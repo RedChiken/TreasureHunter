@@ -9,6 +9,7 @@
 #include "DataType/THEnterDirection.h"
 #include "DataType/THExitDirection.h"
 #include "DataType/THLayeredAction.h"
+#include "DataType/THMovingDirection.h"
 #include "THCharacterBase.generated.h"
 
 UCLASS()
@@ -35,9 +36,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USkeletalMeshComponent* TP_Mesh;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* SpringArm;
 
@@ -74,6 +72,9 @@ private:
 		EMovementType MovementType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		EMovingDirection MovingDirection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bJump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -107,6 +108,7 @@ public:
 	float getCurrentSpeed();
 	EIdleType getIdleType();
 	EMovementType getMovementType();
+	EMovingDirection getMovingDirection();
 	bool getbJump();
 	bool getIsFalling();
 	EEnterDirection getEnterDirection();
@@ -134,6 +136,12 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateMovementType(EMovementType type);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateMovingDirection(EMovingDirection direction);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateMovingDirection(EMovingDirection direction);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdateIdleType(EIdleType type);
