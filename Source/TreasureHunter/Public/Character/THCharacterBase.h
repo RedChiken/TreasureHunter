@@ -61,10 +61,6 @@ public:
 		class UAnimMontage* Interaction;
 
 private:
-	//TODO: Add Getter Function
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		float SpeedRate;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EIdleType IdleType;
 
@@ -132,6 +128,12 @@ protected:
 		void MulticastPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
 
 	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerStopMontage(float blendOut, UAnimMontage* MontageToStop);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastStopMontage(float blendOut, UAnimMontage* MontageToStop);
+
+	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdateMovementType(EMovementType type);
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -150,10 +152,10 @@ protected:
 		void MulticastUpdateIdleType(EIdleType type);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateSpeedRate(float rate);
+		void ServerUpdateSpeed(float rate);
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdateSpeedRate(float rate);
+		void MulticastUpdateSpeed(float rate);
 
 
 	//TODO: Replicate update HP
@@ -163,8 +165,10 @@ protected:
 	void OnSlide();
 	void OnJump();
 
-	void OnMeleeAttack();
-	void OnInteraction();
+	void OnMeleeAttackPressed();
+	void OnMeleeAttackReleased();
+	void OnInteractionPressed();
+	void OnInteractionReleased();
 
 	void MoveForward(float val);
 	void MoveRight(float val);

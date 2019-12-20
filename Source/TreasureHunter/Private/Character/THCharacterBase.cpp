@@ -39,7 +39,7 @@ ATHCharacterBase::ATHCharacterBase()
 	//TODO: Set TP Camera Component
 
 	
-	GetMesh()->SetRelativeLocationAndRotation(FVector(27.5f, 0.0f, -164.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeLocationAndRotation(FVector(35.0f, -3.5f, -164.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetupAttachment(FPCameraComponent);
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
@@ -54,7 +54,6 @@ ATHCharacterBase::ATHCharacterBase()
 	bReplicates = true;
 	bReplicateMovement = true;
 
-	SpeedRate = 1.0f;
 	bJump = false;
 	IdleType = EIdleType::STAND;
 	MovementType = EMovementType::DEFAULT;
@@ -85,7 +84,6 @@ void ATHCharacterBase::BeginPlay()
 void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ATHCharacterBase, SpeedRate);
 	DOREPLIFETIME(ATHCharacterBase, IdleType);
 	DOREPLIFETIME(ATHCharacterBase, MovementType);
 	DOREPLIFETIME(ATHCharacterBase, MovingDirection);
@@ -113,6 +111,11 @@ void ATHCharacterBase::Tick(float DeltaTime)
 	{
 		bLayeredMotion = false;
 	}
+	if (!(GetMovementComponent()->IsFalling()))
+	{
+		bJump = false;
+	}
+
 }
 
 // Called to bind functionality to input
@@ -123,8 +126,10 @@ void ATHCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//TODO: Add Slide
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ATHCharacterBase::OnToggleSprint);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATHCharacterBase::OnJump);
-	PlayerInputComponent->BindAction("MeleeAttack", IE_Pressed, this, &ATHCharacterBase::OnMeleeAttack);
-	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &ATHCharacterBase::OnInteraction);
+	PlayerInputComponent->BindAction("MeleeAttack", IE_Pressed, this, &ATHCharacterBase::OnMeleeAttackPressed);
+	PlayerInputComponent->BindAction("MeleeAttack", IE_Released, this, &ATHCharacterBase::OnMeleeAttackReleased);
+	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &ATHCharacterBase::OnInteractionPressed);
+	PlayerInputComponent->BindAction("Interaction", IE_Released, this, &ATHCharacterBase::OnInteractionReleased);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &ATHCharacterBase::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ATHCharacterBase::MoveRight);
@@ -136,7 +141,7 @@ void ATHCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 float ATHCharacterBase::getCurrentSpeed()
 {
-	return this->GetVelocity().Size() * SpeedRate;
+	return this->GetVelocity().Size();
 }
 
 EIdleType ATHCharacterBase::getIdleType()
@@ -243,6 +248,25 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 	}
 }
 
+void ATHCharacterBase::ServerStopMontage_Implementation(float blendOut, UAnimMontage* MontageToStop)
+{
+	MulticastStopMontage(blendOut, MontageToStop);
+}
+
+bool ATHCharacterBase::ServerStopMontage_Validate(float blendOut, UAnimMontage* MontageToStop)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastStopMontage_Implementation(float blendOut, UAnimMontage* MontageToStop)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != NULL)
+	{
+		AnimInstance->Montage_Stop(blendOut, Interaction);
+	}
+}
+
 void ATHCharacterBase::ServerUpdateMovementType_Implementation(EMovementType type)
 {
 	MulticastUpdateMovementType(type);
@@ -291,19 +315,19 @@ void ATHCharacterBase::MulticastUpdateIdleType_Implementation(EIdleType type)
 	IdleType = type;
 }
 
-void ATHCharacterBase::ServerUpdateSpeedRate_Implementation(float rate)
+void ATHCharacterBase::ServerUpdateSpeed_Implementation(float rate)
 {
-	MulticastUpdateSpeedRate(rate);
+	MulticastUpdateSpeed(rate);
 }
 
-bool ATHCharacterBase::ServerUpdateSpeedRate_Validate(float rate)
+bool ATHCharacterBase::ServerUpdateSpeed_Validate(float rate)
 {
 	return true;
 }
 
-void ATHCharacterBase::MulticastUpdateSpeedRate_Implementation(float rate)
+void ATHCharacterBase::MulticastUpdateSpeed_Implementation(float rate)
 {
-	SpeedRate *= rate;
+	GetCharacterMovement()->MaxWalkSpeed *= rate;
 }
 
 void ATHCharacterBase::OnToggleCrouch()
@@ -314,13 +338,13 @@ void ATHCharacterBase::OnToggleCrouch()
 		{
 			ServerUpdateIdleType(EIdleType::CROUCH);
 			IdleType = EIdleType::CROUCH;
-			SpeedRate *= 0.5;
+			ServerUpdateSpeed(0.5);
 		}
 	}
 	else if(IdleType == EIdleType::CROUCH)
 	{
 		ServerUpdateIdleType(EIdleType::STAND);
-		ServerUpdateSpeedRate(2.0);
+		ServerUpdateSpeed(2.0);
 	}
 }
 
@@ -331,16 +355,16 @@ void ATHCharacterBase::OnToggleSprint()
 		if (MovementType == EMovementType::WALK)
 		{
 			ServerUpdateMovementType(EMovementType::SPRINT);
-			ServerUpdateSpeedRate(2.0);
+			ServerUpdateSpeed(2.0);
 		}
 		else if (MovementType == EMovementType::SPRINT)
 		{
 			ServerUpdateMovementType(EMovementType::WALK);
-			ServerUpdateSpeedRate(0.5);
+			ServerUpdateSpeed(0.5);
 		}
 		else if (MovementType == EMovementType::DEFAULT)
 		{
-			ServerUpdateSpeedRate(2.0);
+			ServerUpdateSpeed(2.0);
 			bStandToSprint = true;
 		}
 	}
@@ -357,23 +381,37 @@ void ATHCharacterBase::OnSlide()
 
 void ATHCharacterBase::OnJump()
 {
-	bFullBodyMotion = true;
+	//bFullBodyMotion = true;
 	bJump = true;
+	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
+	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("falling is %s"), (getIsFalling() ? TEXT("On") : TEXT("Off")));
 	Super::Jump();
 }
 
-void ATHCharacterBase::OnMeleeAttack()
+void ATHCharacterBase::OnMeleeAttackPressed()
 {
 	bLayeredMotion = true;
 	ServerPlayMontage(MeleeAttack);
 	//TODO: Give Damage when hit enemy
 }
 
-void ATHCharacterBase::OnInteraction()
+void ATHCharacterBase::OnMeleeAttackReleased()
+{
+	bLayeredMotion = false;
+}
+
+void ATHCharacterBase::OnInteractionPressed()
 {
 	bLayeredMotion = true;
 	//TODO: Condition - when character in proper area
 	ServerPlayMontage(Interaction);
+}
+
+void ATHCharacterBase::OnInteractionReleased()
+{
+	bLayeredMotion = false;
+	ServerStopMontage(0.25f, Interaction);
+	//Stop Montage Play
 }
 
 void ATHCharacterBase::MoveForward(float val)
