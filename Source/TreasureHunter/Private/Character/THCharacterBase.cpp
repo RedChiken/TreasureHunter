@@ -15,7 +15,7 @@
 #include "net/UnrealNetwork.h"
 #include "Engine.h"
 
-#define GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetEnumName((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
+#define GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetNameStringByIndex((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
 
 // Sets default values
 ATHCharacterBase::ATHCharacterBase()
@@ -54,6 +54,8 @@ ATHCharacterBase::ATHCharacterBase()
 	bReplicates = true;
 	bReplicateMovement = true;
 
+	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+
 	bJump = false;
 	IdleType = EIdleType::STAND;
 	MovementType = EMovementType::DEFAULT;
@@ -66,7 +68,7 @@ ATHCharacterBase::ATHCharacterBase()
 	bDead = false;
 	bLayeredMotion = false;
 	bStandToSprint = false;
-	GetCharacterMovement()->JumpZVelocity = 800.0f;
+	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
 
 void ATHCharacterBase::PostInitializeComponents()
@@ -105,17 +107,12 @@ void ATHCharacterBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if ((MovementType != EMovementType::DEFAULT) && (getCurrentSpeed() < 0.001))
 	{
+		if (MovementType == EMovementType::SPRINT)
+		{
+			ServerUpdateSpeed(0.5f);
+		}
 		ServerUpdateMovementType(EMovementType::DEFAULT);
 	}
-	if (bLayeredMotion)
-	{
-		bLayeredMotion = false;
-	}
-	if (!(GetMovementComponent()->IsFalling()))
-	{
-		bJump = false;
-	}
-
 }
 
 // Called to bind functionality to input
@@ -125,7 +122,8 @@ void ATHCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ATHCharacterBase::OnToggleCrouch);
 	//TODO: Add Slide
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ATHCharacterBase::OnToggleSprint);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATHCharacterBase::OnJump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATHCharacterBase::OnJumpPressed);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ATHCharacterBase::OnJumpReleased);
 	PlayerInputComponent->BindAction("MeleeAttack", IE_Pressed, this, &ATHCharacterBase::OnMeleeAttackPressed);
 	PlayerInputComponent->BindAction("MeleeAttack", IE_Released, this, &ATHCharacterBase::OnMeleeAttackReleased);
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &ATHCharacterBase::OnInteractionPressed);
@@ -330,6 +328,141 @@ void ATHCharacterBase::MulticastUpdateSpeed_Implementation(float rate)
 	GetCharacterMovement()->MaxWalkSpeed *= rate;
 }
 
+void ATHCharacterBase::ServerUpdatebJump_Implementation(bool isJump)
+{
+	MulticastUpdatebJump(isJump);
+}
+
+bool ATHCharacterBase::ServerUpdatebJump_Validate(bool isJump)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebJump_Implementation(bool isJump)
+{
+	bJump = isJump;
+}
+
+void ATHCharacterBase::ServerUpdateEnterDirection_Implementation(EEnterDirection Direction)
+{
+	MulticastUpdateEnterDirection(Direction);
+}
+
+bool ATHCharacterBase::ServerUpdateEnterDirection_Validate(EEnterDirection Direction)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateEnterDirection_Implementation(EEnterDirection Direction)
+{
+	EnterDirection = Direction;
+}
+
+void ATHCharacterBase::ServerUpdatebUpward_Implementation(bool Upward)
+{
+	MulticastUpdatebUpward(Upward);
+}
+
+bool ATHCharacterBase::ServerUpdatebUpward_Validate(bool Upward)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebUpward_Implementation(bool Upward)
+{
+	bUpward = Upward;
+}
+
+void ATHCharacterBase::ServerUpdateExitDirection_Implementation(EExitDirection Direction)
+{
+	MulticastUpdateExitDirection(Direction);
+}
+
+bool ATHCharacterBase::ServerUpdateExitDirection_Validate(EExitDirection Direction)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateExitDirection_Implementation(EExitDirection Direction)
+{
+	ExitDirection = Direction;
+}
+
+void ATHCharacterBase::ServerUpdateLayeredAction_Implementation(ELayeredAction Action)
+{
+	MulticastUpdateLayeredAction(Action);
+}
+
+bool ATHCharacterBase::ServerUpdateLayeredAction_Validate(ELayeredAction Action)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateLayeredAction_Implementation(ELayeredAction Action)
+{
+	LayeredAction = Action;
+}
+
+void ATHCharacterBase::ServerUpdatebFullBodyMotion_Implementation(bool FullBodyMotion)
+{
+	MulticastUpdatebFullBodyMotion(FullBodyMotion);
+}
+
+bool ATHCharacterBase::ServerUpdatebFullBodyMotion_Validate(bool FullBodyMotion)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebFullBodyMotion_Implementation(bool FullBodyMotion)
+{
+	bFullBodyMotion = FullBodyMotion;
+}
+
+void ATHCharacterBase::ServerUpdatebLayeredMotion_Implementation(bool LayeredMotion)
+{
+	MulticastUpdatebLayeredMotion(LayeredMotion);
+}
+
+bool ATHCharacterBase::ServerUpdatebLayeredMotion_Validate(bool LayeredMotion)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebLayeredMotion_Implementation(bool LayeredMotion)
+{
+	bLayeredMotion = LayeredMotion;
+}
+
+void ATHCharacterBase::ServerUpdatebClimb_Implementation(bool Climb)
+{
+	MulticastUpdatebClimb(Climb);
+}
+
+bool ATHCharacterBase::ServerUpdatebClimb_Validate(bool Climb)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebClimb_Implementation(bool Climb)
+{
+	bClimb = Climb;
+}
+
+void ATHCharacterBase::ServerUpdatebDead_Implementation(bool Dead)
+{
+	MulticastUpdatebDead(Dead);
+}
+
+bool ATHCharacterBase::ServerUpdatebDead_Validate(bool Dead)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebDead_Implementation(bool Dead)
+{
+	bDead = Dead;
+}
+
 void ATHCharacterBase::OnToggleCrouch()
 {
 	if (IdleType == EIdleType::STAND)
@@ -379,13 +512,30 @@ void ATHCharacterBase::OnSlide()
 	}
 }
 
-void ATHCharacterBase::OnJump()
+void ATHCharacterBase::OnJumpPressed()
 {
-	//bFullBodyMotion = true;
-	bJump = true;
-	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
-	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("falling is %s"), (getIsFalling() ? TEXT("On") : TEXT("Off")));
-	Super::Jump();
+	if (IdleType != EIdleType::CROUCH)
+	{
+		ServerUpdatebJump(true);
+		//bJump = true;
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
+		UE_LOG(LogTH_PlayerBase_MovementType, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+		UE_LOG(LogTH_PlayerBase_IdleType, Verbose, TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType));
+		Super::Jump();
+	}
+}
+
+void ATHCharacterBase::OnJumpReleased()
+{
+	if (IdleType != EIdleType::CROUCH)
+	{
+		ServerUpdatebJump(false);
+		//bJump = false;
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
+		UE_LOG(LogTH_PlayerBase_MovementType, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+		UE_LOG(LogTH_PlayerBase_IdleType, Verbose, TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType));
+		Super::StopJumping();
+	}
 }
 
 void ATHCharacterBase::OnMeleeAttackPressed()

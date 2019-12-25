@@ -157,13 +157,68 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateSpeed(float rate);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebJump(bool isJump);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebJump(bool isJump);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateEnterDirection(EEnterDirection Direction);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateEnterDirection(EEnterDirection Direction);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebUpward(bool Upward);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebUpward(bool Upward);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateExitDirection(EExitDirection Direction);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateExitDirection(EExitDirection Direction);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateLayeredAction(ELayeredAction Action);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateLayeredAction(ELayeredAction Action);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebFullBodyMotion(bool FullBodyMotion);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebFullBodyMotion(bool FullBodyMotion);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebLayeredMotion(bool LayeredMotion);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebLayeredMotion(bool LayeredMotion);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebClimb(bool Climb);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebClimb(bool Climb);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebDead(bool Dead);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebDead(bool Dead);
+
 
 	//TODO: Replicate update HP
 
 	void OnToggleCrouch();
 	void OnToggleSprint();
 	void OnSlide();
-	void OnJump();
+	void OnJumpPressed();
+	void OnJumpReleased();
 
 	void OnMeleeAttackPressed();
 	void OnMeleeAttackReleased();
