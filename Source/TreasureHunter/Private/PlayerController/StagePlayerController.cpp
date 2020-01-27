@@ -35,7 +35,8 @@ void AStagePlayerController::SetupInputComponent()
 
 bool AStagePlayerController::InitializeHUD()
 {
-	UE_LOG(LogTH_StagePlayerController, Verbose, TEXT("%hs: NetMode=%d Role=%d RemoteRole=%d"), __FUNCTION__, (int32)GetNetMode(), (int32)Role, (int32)GetRemoteRole());
+	UE_LOG(LogTH_StagePlayerController, Verbose, TEXT("%hs: NetMode=%d Role=%d RemoteRole=%d"), 
+		__FUNCTION__, (int32)GetNetMode(), (int32)GetLocalRole(), (int32)GetRemoteRole());
 	if ((GetNetMode() == NM_DedicatedServer) || ((GetNetMode() == NM_ListenServer) && (GetRemoteRole() != ROLE_SimulatedProxy)))
 	{
 		return false;

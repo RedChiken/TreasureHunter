@@ -254,8 +254,8 @@ void UWidgetControllerComponent::OnCreateSession(FString HostName, int32 MaxPlay
 
 	if (GameMode && PC) {
 		const auto& NetId = PC->GetLocalPlayer()->GetPreferredUniqueNetId().GetUniqueNetId();
-		constexpr bool bIsLAN = false;
-		constexpr bool bIsPresence = false;
+		constexpr bool bIsLAN = true;
+		constexpr bool bIsPresence = true;
 		GameMode->HostSession(NetId, GameSessionName, bIsLAN, bIsPresence, MaxPlayer);
 	}
 }
@@ -296,6 +296,9 @@ void UWidgetControllerComponent::OnFindSessionsComplete(bool bWasSuccessful)
 		for (const auto& Result : GameMode->GetSessionSearch()->SearchResults) {
 			FSessionInfo Info;
 			Info.HostName = Result.Session.OwningUserName;
+			//TODO: Need to get these information
+			Info.MaxPlayer = (int32)10;
+			Info.SessionName = TEXT("OnFindSessionsComplete, UWidgetControllerComplete");
 			SessionInfo.Emplace(Info);
 		}
 
