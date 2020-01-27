@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* Interaction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
+		class UAnimMontage* LandFromJump;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EIdleType IdleType;

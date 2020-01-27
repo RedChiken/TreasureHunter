@@ -52,9 +52,9 @@ ATHCharacterBase::ATHCharacterBase()
 	HitBox->SetupAttachment(RootComponent);
 
 	bReplicates = true;
-	bReplicateMovement = true;
+	SetReplicatingMovement(true);
 
-	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 800.0f;
 
 	bJump = false;
 	IdleType = EIdleType::STAND;
@@ -517,11 +517,13 @@ void ATHCharacterBase::OnJumpPressed()
 	if (IdleType != EIdleType::CROUCH)
 	{
 		ServerUpdatebJump(true);
-		//bJump = true;
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
-		UE_LOG(LogTH_PlayerBase_MovementType, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
-		UE_LOG(LogTH_PlayerBase_IdleType, Verbose, TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType));
+		
+		//bool bOnLand = GetMesh()->GetAnimInstance()->Montage_IsPlaying(LandFromJump);
+		//float OnLandPlayRate = GetMesh()->GetAnimInstance()->Montage_GetPlayRate(LandFromJump);
+		
 		Super::Jump();
+		//	TODO: Repeat with delay
 	}
 }
 
@@ -530,10 +532,7 @@ void ATHCharacterBase::OnJumpReleased()
 	if (IdleType != EIdleType::CROUCH)
 	{
 		ServerUpdatebJump(false);
-		//bJump = false;
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
-		UE_LOG(LogTH_PlayerBase_MovementType, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
-		UE_LOG(LogTH_PlayerBase_IdleType, Verbose, TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType));
 		Super::StopJumping();
 	}
 }
