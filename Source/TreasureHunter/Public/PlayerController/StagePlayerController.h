@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "StagePlayerController.generated.h"
 
+class UStageHUDWidget;
+
 /**
  * 
  */
@@ -13,5 +15,32 @@ UCLASS()
 class TREASUREHUNTER_API AStagePlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+public:
+	AStagePlayerController();
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void SetupInputComponent() override;
+
+	/*UFUNCTION(Client, Reliable)
+		void Client_PlayAnim_MissionComplete();*/
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+		UStageHUDWidget* CreateHUD();
+
+private:
+	bool InitializeHUD();
+	void TickHUD(float DeltaSeconds);
+
+	//void CheckInteractionTriggers();
+
+	/*
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_ExcuteInteractionTrigger(AInteractionTrigger* Trigger);
+	*/
+
+protected:
+	UPROPERTY()
+		UStageHUDWidget* HUD;
 };

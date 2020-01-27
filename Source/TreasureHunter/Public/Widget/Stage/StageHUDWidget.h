@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/HUD.h"
-#include "StageHUD.generated.h"
+#include "Blueprint/UserWidget.h"
+#include "StageHUDWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API AStageHUD : public AHUD
+class TREASUREHUNTER_API UStageHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	

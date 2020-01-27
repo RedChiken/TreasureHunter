@@ -130,7 +130,7 @@ void ALobbyGameMode::TryStartGame(const FString & MapName)
 			break;
 		}
 
-		const bool bIsHostPC = (PS->GetOwner()->Role == ROLE_Authority) && (PS->GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy);
+		const bool bIsHostPC = (PS->GetOwner()->GetLocalRole() == ROLE_Authority) && (PS->GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy);
 
 		if ((bIsHostPC == false) && LWC->IsReadyInSession() == false) {
 			UE_LOG(ErrorTH_LobbyGameMode, Error, TEXT("%hs: This client is not ready"), __FUNCTION__);
@@ -261,7 +261,7 @@ void ALobbyGameMode::PostLogin(APlayerController * NewPlayer)
 		LPC->Client_InitializeLobbyUI();
 	}
 
-	const bool bIsHostPC = (NewPlayer->Role == ROLE_Authority) && (NewPlayer->GetRemoteRole() == ROLE_SimulatedProxy);
+	const bool bIsHostPC = (NewPlayer->GetLocalRole() == ROLE_Authority) && (NewPlayer->GetRemoteRole() == ROLE_SimulatedProxy);
 
 	UWidgetControllerComponent* WidgetController = NewPlayer->FindComponentByClass<UWidgetControllerComponent>();
 	if (WidgetController) {

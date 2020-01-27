@@ -13,5 +13,14 @@ UCLASS()
 class TREASUREHUNTER_API AStageGameState : public AGameStateBase
 {
 	GENERATED_BODY()
+public:
+	AStageGameState();
+
+	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
+private:
+
+protected:
+	FString NextLevelOnExit;
 };
