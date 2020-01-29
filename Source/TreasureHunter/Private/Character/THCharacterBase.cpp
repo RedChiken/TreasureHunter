@@ -22,7 +22,7 @@ ATHCharacterBase::ATHCharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.f);
+	GetCapsuleComponent()->InitCapsuleSize(35.f, 96.f);
 	CrouchedEyeHeight = 32.f;
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -44,12 +44,19 @@ ATHCharacterBase::ATHCharacterBase()
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
 
-	HitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitBox"));
-	HitBox->BodyInstance.SetCollisionProfileName("NormalHitBox");
-	//TODO: Add Collision
-	HitBox->InitCapsuleSize(55.f, 96.f);
-	//TODO: Add OnOverlapWithitBox Dynamic
-	HitBox->SetupAttachment(RootComponent);
+	BodyHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyHitBox"));
+	BodyHitBox->BodyInstance.SetCollisionProfileName("NormalHitBox");
+	BodyHitBox->InitCapsuleSize(35.f, 96.f);
+	BodyHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithNormalHitBox);
+	BodyHitBox->SetupAttachment(RootComponent);
+
+	HeadHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HeadHitBox"));
+	HeadHitBox->BodyInstance.SetCollisionProfileName("CriticalHitBox");
+	HeadHitBox->InitCapsuleSize(7.f, 12.f);
+	HeadHitBox->AddRelativeLocation(FVector(0.0f, 0.0f, 60.0f));
+	HeadHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithCriticalHitBox);
+	HeadHitBox->SetupAttachment(RootComponent);
+	
 
 	bReplicates = true;
 	SetReplicatingMovement(true);
@@ -212,17 +219,14 @@ bool ATHCharacterBase::getbStandToSprint()
 	return bStandToSprint;
 }
 
-void ATHCharacterBase::OnOverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnOverlapWithNormalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherComp)
-	{
-		auto melee = Cast<ATHCharacterBase>(OtherActor);
-		if (melee)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Hit Character"));
-			//serve damage
-		}
-	}
+	OverlapWithHitBox(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult, false);
+}
+
+void ATHCharacterBase::OnOverlapWithCriticalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	OverlapWithHitBox(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult, true);
 }
 
 void ATHCharacterBase::ServerPlayMontage_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
@@ -518,10 +522,7 @@ void ATHCharacterBase::OnJumpPressed()
 	{
 		ServerUpdatebJump(true);
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
-		
-		//bool bOnLand = GetMesh()->GetAnimInstance()->Montage_IsPlaying(LandFromJump);
-		//float OnLandPlayRate = GetMesh()->GetAnimInstance()->Montage_GetPlayRate(LandFromJump);
-		
+	
 		Super::Jump();
 		//	TODO: Repeat with delay
 	}
@@ -723,5 +724,24 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 			ServerUpdateMovementType(EMovementType::WALK);
 			AddMovementInput(vector, val);
 		}
+	}
+}
+
+void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical)
+{
+	if (OtherActor)
+	{
+		auto melee = Cast<ATHCharacterBase>(OtherActor);
+		if (melee)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Hit Character"));
+			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
+			//serve damage
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("No Collision"));
+		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("No Collision"));
 	}
 }

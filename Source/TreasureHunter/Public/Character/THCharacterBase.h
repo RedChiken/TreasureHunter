@@ -51,8 +51,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitBox)
-		class UCapsuleComponent* HitBox;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* BodyHitBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* HeadHitBox;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* MeleeAttack;
@@ -122,7 +125,10 @@ public:
 
 protected:
 	UFUNCTION()
-		void OnOverlapWithHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void OnOverlapWithNormalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnOverlapWithCriticalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
@@ -234,5 +240,7 @@ protected:
 	void LookUp(float val);
 
 private:
-	void AddMovement(const FVector vector, float val);
+	void AddMovement(const FVector vector, float val); 
+	
+	void OverlapWithHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical);
 };
