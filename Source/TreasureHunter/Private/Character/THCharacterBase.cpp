@@ -22,7 +22,7 @@ ATHCharacterBase::ATHCharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	GetCapsuleComponent()->InitCapsuleSize(35.f, 96.f);
+	GetCapsuleComponent()->InitCapsuleSize(20.f, 96.f);
 	CrouchedEyeHeight = 32.f;
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -46,7 +46,7 @@ ATHCharacterBase::ATHCharacterBase()
 
 	BodyHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyHitBox"));
 	BodyHitBox->BodyInstance.SetCollisionProfileName("NormalHitBox");
-	BodyHitBox->InitCapsuleSize(35.f, 96.f);
+	BodyHitBox->InitCapsuleSize(20.f, 96.f);
 	BodyHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithNormalHitBox);
 	BodyHitBox->SetupAttachment(RootComponent);
 
@@ -56,6 +56,14 @@ ATHCharacterBase::ATHCharacterBase()
 	HeadHitBox->AddRelativeLocation(FVector(0.0f, 0.0f, 60.0f));
 	HeadHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithCriticalHitBox);
 	HeadHitBox->SetupAttachment(RootComponent);
+	
+	MeleeLeft = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftMeleeHitBox"));
+	MeleeLeft->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
+	MeleeLeft->InitCapsuleSize(3.f, 2.f);
+
+	MeleeRight = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightMeleeHitBox"));
+	MeleeRight->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
+	MeleeRight->InitCapsuleSize(3.f, 2.f);
 	
 
 	bReplicates = true;
@@ -87,7 +95,8 @@ void ATHCharacterBase::PostInitializeComponents()
 void ATHCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	MeleeLeft->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("socket_melee_l"));
+	MeleeRight->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("socket_melee_r"));
 }
 
 void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -734,14 +743,24 @@ void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AA
 		auto melee = Cast<ATHCharacterBase>(OtherActor);
 		if (melee)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Hit Character"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
+			//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Hit Character"));
+			//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
 			//serve damage
 		}
 	}
-	else
+	if (OtherComp)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("No Collision"));
-		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("No Collision"));
+		auto melee = Cast<UCapsuleComponent>(OtherComp);
+		if (melee)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("Hit Character"));
+			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
+			//serve damage
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("No Collision"));
+			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("No Collision"));
+		}
 	}
 }

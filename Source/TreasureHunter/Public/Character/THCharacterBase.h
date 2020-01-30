@@ -57,6 +57,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
 		class UCapsuleComponent* HeadHitBox;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* MeleeLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* MeleeRight;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* MeleeAttack;
 
