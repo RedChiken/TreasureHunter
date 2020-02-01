@@ -18,8 +18,8 @@ ATHTriggerBase::ATHTriggerBase()
 	Area->SetBoxExtent(Extent);
 	Area->AddRelativeLocation(Location);
 	Area->SetBoundsScale(5.0f);
-	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHTriggerBase::OnOverlap);
-	//Area->SetupAttachment(RootComponent);
+	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHTriggerBase::OnComponentBeginOverlap);
+	RootComponent = Area;
 }
 
 // Called when the game starts or when spawned
@@ -44,14 +44,14 @@ void ATHTriggerBase::Tick(float DeltaTime)
 
 }
 
-void ATHTriggerBase::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHTriggerBase::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
 	{
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
 		if (Character)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Character gets in to the Interaction Area"));
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Character gets in to the Interaction Area"));
 		}
 	}
 }

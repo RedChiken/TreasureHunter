@@ -27,6 +27,7 @@ ATHCharacterBase::ATHCharacterBase()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
+	RootComponent = GetCapsuleComponent();
 
 	FPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	TPCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
@@ -46,25 +47,27 @@ ATHCharacterBase::ATHCharacterBase()
 
 	BodyHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyHitBox"));
 	BodyHitBox->BodyInstance.SetCollisionProfileName("NormalHitBox");
-	BodyHitBox->InitCapsuleSize(20.f, 96.f);
+	BodyHitBox->InitCapsuleSize(21.f, 80.f);
+	BodyHitBox->SetRelativeLocation(FVector(-10.f, 0.f, -22.5f));
 	BodyHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithNormalHitBox);
 	BodyHitBox->SetupAttachment(RootComponent);
 
 	HeadHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HeadHitBox"));
 	HeadHitBox->BodyInstance.SetCollisionProfileName("CriticalHitBox");
-	HeadHitBox->InitCapsuleSize(7.f, 12.f);
-	HeadHitBox->AddRelativeLocation(FVector(0.0f, 0.0f, 60.0f));
+	HeadHitBox->InitCapsuleSize(10.f, 12.f);
+	HeadHitBox->AddRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
 	HeadHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithCriticalHitBox);
 	HeadHitBox->SetupAttachment(RootComponent);
 	
 	MeleeLeft = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftMeleeHitBox"));
 	MeleeLeft->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
-	MeleeLeft->InitCapsuleSize(3.f, 2.f);
+	MeleeLeft->InitCapsuleSize(6.f, 8.f);
+	MeleeLeft->SetupAttachment(GetMesh(), TEXT("socket_melee_l"));
 
 	MeleeRight = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightMeleeHitBox"));
 	MeleeRight->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
-	MeleeRight->InitCapsuleSize(3.f, 2.f);
-	
+	MeleeRight->InitCapsuleSize(6.f, 8.f);
+	MeleeRight->SetupAttachment(GetMesh(), TEXT("socket_melee_r"));
 
 	bReplicates = true;
 	SetReplicatingMovement(true);
@@ -95,8 +98,6 @@ void ATHCharacterBase::PostInitializeComponents()
 void ATHCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	MeleeLeft->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("socket_melee_l"));
-	MeleeRight->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("socket_melee_r"));
 }
 
 void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -549,26 +550,27 @@ void ATHCharacterBase::OnJumpReleased()
 
 void ATHCharacterBase::OnMeleeAttackPressed()
 {
-	bLayeredMotion = true;
+	ServerUpdatebLayeredMotion(true);
 	ServerPlayMontage(MeleeAttack);
 	//TODO: Give Damage when hit enemy
 }
 
 void ATHCharacterBase::OnMeleeAttackReleased()
 {
-	bLayeredMotion = false;
+	ServerUpdatebLayeredMotion(false);
+	ServerStopMontage(0.25f, MeleeAttack);
 }
 
 void ATHCharacterBase::OnInteractionPressed()
 {
-	bLayeredMotion = true;
+	ServerUpdatebLayeredMotion(true);
 	//TODO: Condition - when character in proper area
 	ServerPlayMontage(Interaction);
 }
 
 void ATHCharacterBase::OnInteractionReleased()
 {
-	bLayeredMotion = false;
+	ServerUpdatebLayeredMotion(false);
 	ServerStopMontage(0.25f, Interaction);
 	//Stop Montage Play
 }
@@ -753,13 +755,40 @@ void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AA
 		auto melee = Cast<UCapsuleComponent>(OtherComp);
 		if (melee)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("Hit Character"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
-			//serve damage
+			auto hitboxParents = BodyHitBox->GetAttachmentRoot();
+			auto damageboxParents = melee->GetAttachmentRoot();
+			if (hitboxParents != damageboxParents)
+			{
+				auto collision = melee->GetCollisionProfileName();
+				if (collision == FName(TEXT("DamageBox")))
+				{
+					if (!bLayeredMotion)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("Hit Character"));
+						UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
+					}
+					else
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("DamageBox has collision without melee attack"));
+						UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("DamageBox has collision without melee attack"));
+					}
+					//serve damage
+				}
+				else
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("collision is not DamageBox"));
+					UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("collision is not DamageBox"));
+				}
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("HitBox and Damage Box have same Root Component"));
+				UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("HitBox and Damage Box have same Root Component"));
+			}
 		}
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, TEXT("No Collision"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No Collision"));
 			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("No Collision"));
 		}
 	}
