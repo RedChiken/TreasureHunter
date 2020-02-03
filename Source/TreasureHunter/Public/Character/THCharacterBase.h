@@ -112,6 +112,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bStandToSprint;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		float HP;
+
 public:
 	float getCurrentSpeed();
 	EIdleType getIdleType();
@@ -128,6 +131,7 @@ public:
 	bool getbClimb();
 	bool getbDead();
 	bool getbStandToSprint();
+	float getHP();
 
 protected:
 	UFUNCTION()
@@ -226,8 +230,11 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebDead(bool Dead);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateHP(float HPChanged);
 
-	//TODO: Replicate update HP
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateHP(float HPChanged);
 
 	void OnToggleCrouch();
 	void OnToggleSprint();
@@ -249,4 +256,6 @@ private:
 	void AddMovement(const FVector vector, float val); 
 	
 	void OverlapWithHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical);
+
+	void SetCharacterDead();
 };

@@ -65,7 +65,9 @@ ATHCharacterBase::ATHCharacterBase()
 	MeleeLeft->SetupAttachment(GetMesh(), TEXT("socket_melee_l"));
 
 	MeleeRight = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightMeleeHitBox"));
-	MeleeRight->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
+	//MeleeRight->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
+	//Right hand is not used to melee attack. so 
+	MeleeRight->BodyInstance.SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MeleeRight->InitCapsuleSize(6.f, 8.f);
 	MeleeRight->SetupAttachment(GetMesh(), TEXT("socket_melee_r"));
 
@@ -86,6 +88,7 @@ ATHCharacterBase::ATHCharacterBase()
 	bDead = false;
 	bLayeredMotion = false;
 	bStandToSprint = false;
+	HP = 100;
 	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
 
@@ -116,6 +119,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bClimb);
 	DOREPLIFETIME(ATHCharacterBase, bDead);
 	DOREPLIFETIME(ATHCharacterBase, bStandToSprint);
+	DOREPLIFETIME(ATHCharacterBase, HP);
 }
 
 // Called every frame
@@ -227,6 +231,11 @@ bool ATHCharacterBase::getbDead()
 bool ATHCharacterBase::getbStandToSprint()
 {
 	return bStandToSprint;
+}
+
+float ATHCharacterBase::getHP()
+{
+	return HP;
 }
 
 void ATHCharacterBase::OnOverlapWithNormalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -475,6 +484,21 @@ bool ATHCharacterBase::ServerUpdatebDead_Validate(bool Dead)
 void ATHCharacterBase::MulticastUpdatebDead_Implementation(bool Dead)
 {
 	bDead = Dead;
+}
+
+void ATHCharacterBase::ServerUpdateHP_Implementation(float HPChanged)
+{
+	MulticastUpdateHP(HPChanged);
+}
+
+bool ATHCharacterBase::ServerUpdateHP_Validate(float HPChanged)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateHP_Implementation(float HPChanged)
+{
+	HP += HPChanged;
 }
 
 void ATHCharacterBase::OnToggleCrouch()
@@ -766,30 +790,55 @@ void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AA
 					{
 						GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("Hit Character"));
 						UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
+
+						ServerUpdateHP((bCritical ? -50.0f : -20.0f));
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Rest HP is %f"), HP));
+						UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Rest HP is %f"), HP);
+
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("HP: %f, bDead is %s"), HP, 
+							(bDead ? TEXT("True") : TEXT("False"))));
+						if (!bDead && (HP <= 0.0f))
+						{
+							SetCharacterDead();
+						}
 					}
 					else
 					{
 						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("DamageBox has collision without melee attack"));
-						UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("DamageBox has collision without melee attack"));
+						//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("DamageBox has collision without melee attack"));
 					}
 					//serve damage
 				}
 				else
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("collision is not DamageBox"));
-					UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("collision is not DamageBox"));
+					//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("collision is not DamageBox"));
+					//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("collision is not DamageBox"));
 				}
 			}
 			else
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("HitBox and Damage Box have same Root Component"));
-				UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("HitBox and Damage Box have same Root Component"));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("HitBox and Damage Box have same Root Component"));
+				//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("HitBox and Damage Box have same Root Component"));
 			}
 		}
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No Collision"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("No Collision"));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No Collision"));
+			//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("No Collision"));
 		}
 	}
+}
+
+void ATHCharacterBase::SetCharacterDead()
+{
+	ServerUpdatebFullBodyMotion(true);
+	ServerUpdatebDead(true);
+	SetActorEnableCollision(false);
+	BodyHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HeadHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeLeft->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeleeRight->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false"))));
+	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false")));
 }

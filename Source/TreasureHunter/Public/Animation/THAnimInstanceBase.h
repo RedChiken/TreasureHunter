@@ -65,4 +65,7 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
 		bool bStandToSprint;
+
+	UPROPERTY(BlueprintReadOnly, Category = Status)
+		float HP;
 };
