@@ -26,6 +26,7 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 			bDead = Character->getbDead();
 			bLayeredMotion = Character->getbLayeredMotion();
 			bStandToSprint = Character->getbStandToSprint();
+			bInInteractionRange = Character->getbInInteractionRange();
 			HP = Character->getHP();
 		}
 	}

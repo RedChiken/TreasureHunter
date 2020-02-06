@@ -88,6 +88,7 @@ ATHCharacterBase::ATHCharacterBase()
 	bDead = false;
 	bLayeredMotion = false;
 	bStandToSprint = false;
+	bInInteractionRange = false;
 	HP = 100;
 	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
@@ -119,6 +120,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bClimb);
 	DOREPLIFETIME(ATHCharacterBase, bDead);
 	DOREPLIFETIME(ATHCharacterBase, bStandToSprint);
+	DOREPLIFETIME(ATHCharacterBase, bInInteractionRange);
 	DOREPLIFETIME(ATHCharacterBase, HP);
 }
 
@@ -236,6 +238,21 @@ bool ATHCharacterBase::getbStandToSprint()
 float ATHCharacterBase::getHP()
 {
 	return HP;
+}
+
+bool ATHCharacterBase::getbInInteractionRange()
+{
+	return bInInteractionRange;
+}
+
+void ATHCharacterBase::setbInInteractionRange(bool InInteractionRange)
+{
+	ServerUpdatebInInteractionRange(InInteractionRange);
+}
+
+void ATHCharacterBase::StopInteraction()
+{
+	OnInteractionReleased();
 }
 
 void ATHCharacterBase::OnOverlapWithNormalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -501,6 +518,21 @@ void ATHCharacterBase::MulticastUpdateHP_Implementation(float HPChanged)
 	HP += HPChanged;
 }
 
+void ATHCharacterBase::ServerUpdatebInInteractionRange_Implementation(bool InInteractionRange)
+{
+	MulticastUpdatebInInteractionRange(InInteractionRange);
+}
+
+bool ATHCharacterBase::ServerUpdatebInInteractionRange_Validate(bool InInteractionRange)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebInInteractionRange_Implementation(bool InInteractionRange)
+{
+	bInInteractionRange = InInteractionRange;
+}
+
 void ATHCharacterBase::OnToggleCrouch()
 {
 	if (IdleType == EIdleType::STAND)
@@ -587,15 +619,19 @@ void ATHCharacterBase::OnMeleeAttackReleased()
 
 void ATHCharacterBase::OnInteractionPressed()
 {
-	ServerUpdatebLayeredMotion(true);
-	//TODO: Condition - when character in proper area
-	ServerPlayMontage(Interaction);
+	if (bInInteractionRange)
+	{
+		ServerUpdatebLayeredMotion(true);
+		ServerPlayMontage(Interaction);
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
+	}
 }
 
 void ATHCharacterBase::OnInteractionReleased()
 {
 	ServerUpdatebLayeredMotion(false);
 	ServerStopMontage(0.25f, Interaction);
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction End"));
 	//Stop Montage Play
 }
 
@@ -764,16 +800,6 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 
 void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical)
 {
-	if (OtherActor)
-	{
-		auto melee = Cast<ATHCharacterBase>(OtherActor);
-		if (melee)
-		{
-			//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Hit Character"));
-			//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
-			//serve damage
-		}
-	}
 	if (OtherComp)
 	{
 		auto melee = Cast<UCapsuleComponent>(OtherComp);

@@ -68,4 +68,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = Status)
 		float HP;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bInInteractionRange;
 };

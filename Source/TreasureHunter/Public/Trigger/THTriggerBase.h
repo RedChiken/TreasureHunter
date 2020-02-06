@@ -25,10 +25,6 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
-	UFUNCTION()
-		void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = InteractionArea)
 		class UStaticMeshComponent* Core;
 
@@ -36,6 +32,14 @@ public:
 		class UBoxComponent* Area;
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = AreaSize, meta = (AllowPrivateAccess = "true"))
+		float Width;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = AreaSize, meta = (AllowPrivateAccess = "true"))
+		float Depth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = AreaSize, meta = (AllowPrivateAccess = "true"))
+		float Height;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = AreaSize, meta = (AllowPrivateAccess = "true"))
 		FVector Location;

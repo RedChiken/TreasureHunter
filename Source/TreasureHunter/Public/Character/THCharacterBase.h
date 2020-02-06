@@ -115,6 +115,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		float HP;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bInInteractionRange;
+
 public:
 	float getCurrentSpeed();
 	EIdleType getIdleType();
@@ -132,6 +135,9 @@ public:
 	bool getbDead();
 	bool getbStandToSprint();
 	float getHP();
+	bool getbInInteractionRange();
+	void setbInInteractionRange(bool InInteractionRange);
+	void StopInteraction();
 
 protected:
 	UFUNCTION()
@@ -235,6 +241,12 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateHP(float HPChanged);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebInInteractionRange(bool InInteractionRange);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebInInteractionRange(bool InInteractionRange);
 
 	void OnToggleCrouch();
 	void OnToggleSprint();
