@@ -81,7 +81,6 @@ ATHCharacterBase::ATHCharacterBase()
 	MovementType = EMovementType::DEFAULT;
 	MovingDirection = EMovingDirection::DEFAULT;
 	EnterDirection = EEnterDirection::DEFAULT;
-	ExitDirection = EExitDirection::DEFAULT;
 	bFullBodyMotion = false;
 	bClimb = false;
 	bUpward = false;
@@ -113,7 +112,6 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bJump);
 	DOREPLIFETIME(ATHCharacterBase, EnterDirection);
 	DOREPLIFETIME(ATHCharacterBase, bUpward);
-	DOREPLIFETIME(ATHCharacterBase, ExitDirection);
 	DOREPLIFETIME(ATHCharacterBase, LayeredAction);
 	DOREPLIFETIME(ATHCharacterBase, bFullBodyMotion);
 	DOREPLIFETIME(ATHCharacterBase, bLayeredMotion);
@@ -198,11 +196,6 @@ EEnterDirection ATHCharacterBase::getEnterDirection()
 bool ATHCharacterBase::getbUpward()
 {
 	return bUpward;
-}
-
-EExitDirection ATHCharacterBase::getExitDirection()
-{
-	return ExitDirection;
 }
 
 ELayeredAction ATHCharacterBase::getLayeredAction()
@@ -411,21 +404,6 @@ bool ATHCharacterBase::ServerUpdatebUpward_Validate(bool Upward)
 void ATHCharacterBase::MulticastUpdatebUpward_Implementation(bool Upward)
 {
 	bUpward = Upward;
-}
-
-void ATHCharacterBase::ServerUpdateExitDirection_Implementation(EExitDirection Direction)
-{
-	MulticastUpdateExitDirection(Direction);
-}
-
-bool ATHCharacterBase::ServerUpdateExitDirection_Validate(EExitDirection Direction)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdateExitDirection_Implementation(EExitDirection Direction)
-{
-	ExitDirection = Direction;
 }
 
 void ATHCharacterBase::ServerUpdateLayeredAction_Implementation(ELayeredAction Action)
@@ -828,29 +806,8 @@ void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AA
 							SetCharacterDead();
 						}
 					}
-					else
-					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("DamageBox has collision without melee attack"));
-						//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("DamageBox has collision without melee attack"));
-					}
-					//serve damage
-				}
-				else
-				{
-					//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("collision is not DamageBox"));
-					//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("collision is not DamageBox"));
 				}
 			}
-			else
-			{
-				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("HitBox and Damage Box have same Root Component"));
-				//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("HitBox and Damage Box have same Root Component"));
-			}
-		}
-		else
-		{
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No Collision"));
-			//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("No Collision"));
 		}
 	}
 }

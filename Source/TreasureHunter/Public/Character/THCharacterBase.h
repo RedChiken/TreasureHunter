@@ -92,9 +92,6 @@ private:
 		bool bUpward;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		EExitDirection ExitDirection;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		ELayeredAction LayeredAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -127,7 +124,6 @@ public:
 	bool getIsFalling();
 	EEnterDirection getEnterDirection();
 	bool getbUpward();
-	EExitDirection getExitDirection();
 	ELayeredAction getLayeredAction();
 	bool getbFullBodyMotion();
 	bool getbLayeredMotion();
@@ -199,12 +195,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebUpward(bool Upward);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateExitDirection(EExitDirection Direction);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdateExitDirection(EExitDirection Direction);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdateLayeredAction(ELayeredAction Action);
