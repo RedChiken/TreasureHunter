@@ -3,18 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Trigger/THTriggerBase.h"
-#include "THInRangeTriggerBase.generated.h"
+#include "Object/THActorBase.h"
+#include "THInRangeExample.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API ATHInRangeTriggerBase : public ATHTriggerBase
+class TREASUREHUNTER_API ATHInRangeExample : public ATHActorBase
 {
 	GENERATED_BODY()
 public:
-    ATHInRangeTriggerBase();
+    ATHInRangeExample();
 
 private:
     UFUNCTION()

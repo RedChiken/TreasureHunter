@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Trigger/THTriggerBase.h"
-#include "THInteractionTriggerBase.generated.h"
+#include "Object/THActorBase.h"
+#include "THInteractionExample.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API ATHInteractionTriggerBase : public ATHTriggerBase
+class TREASUREHUNTER_API ATHInteractionExample : public ATHActorBase
 {
 	GENERATED_BODY()
 public:
-    ATHInteractionTriggerBase();
+    ATHInteractionExample();
 
-private:
+private: 
     UFUNCTION()
         void OnCharacterNearbyObject(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
