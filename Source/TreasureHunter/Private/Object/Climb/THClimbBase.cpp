@@ -7,9 +7,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
-#include "DataType/THEnterDirection.h"
-#include "DataType/THExitDirection.h"
-#include "DataType/THMovementType.h"
 
 ATHClimbBase::ATHClimbBase() : ATHActorBase()
 {
@@ -44,12 +41,16 @@ void ATHClimbBase::OnClimbAtTop(UPrimitiveComponent* OverlappedComp, AActor* Oth
 			{
 			case(EEnterDirection::TOP):
 				//위에서 사다리 탔다가 다시 위로 나옴
+				ExitClimb(Character, EExitDirection::BOTTOM);
 				break;
 			case(EEnterDirection::DEFAULT):
 				//위에서 사다리 타려고 함.
+				Character->UpdatebAbleToClimb(true);
+				EnterClimb(Character, EEnterDirection::TOP);
 				break;
 			case(EEnterDirection::BOTTOM):
 				//밑에서 사다리 탔다가 위로 나옴
+				ExitClimb(Character, EExitDirection::TOP);
 				break;
 			}
 		}
@@ -69,12 +70,16 @@ void ATHClimbBase::OnClimbAtBottom(UPrimitiveComponent* OverlappedComp, AActor* 
 			{
 			case(EEnterDirection::TOP):
 				//밑에서 사다리 탔다가 위로 나옴
+				ExitClimb(Character, EExitDirection::TOP);
 				break;
 			case(EEnterDirection::DEFAULT):
 				//밑에서 사다리 타려고 함.
+				Character->UpdatebAbleToClimb(true);
+				EnterClimb(Character, EEnterDirection::BOTTOM);
 				break;
 			case(EEnterDirection::BOTTOM):
 				//밑에서 사다리 탔다가 다시 밑으로 나옴
+				ExitClimb(Character, EExitDirection::BOTTOM);
 				break;
 			}
 
@@ -92,6 +97,30 @@ void ATHClimbBase::OnClimbAtMiddle(UPrimitiveComponent* OverlappedComp, AActor* 
 		if (Character && (Collision == FName(TEXT("NormalHitBox"))))
 		{
 			//어느 상황이든 사다리 중간에 매달리기.
+			Character->UpdatebAbleToClimb(true);
+			EnterClimb(Character, EEnterDirection::MIDDLE);
 		}
 	}
+}
+
+void ATHClimbBase::OnCharacterOutofClimbArea(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		auto character = Cast<ATHCharacterBase>(OtherActor);
+		if (character)
+		{
+			character->UpdatebAbleToClimb(false);
+		}
+	}
+}
+
+void ATHClimbBase::ExitClimb(ATHCharacterBase* Character, EExitDirection Exit)
+{
+	Character->ExitFromClimb(Exit);
+}
+
+void ATHClimbBase::EnterClimb(ATHCharacterBase* Character, EEnterDirection Enter)
+{
+	Character->EnterToClimb(Enter);
 }

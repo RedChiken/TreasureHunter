@@ -52,9 +52,6 @@ protected:
 		bool bFullBodyMotion;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
-		bool bClimb;
-
-	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bUpward;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)

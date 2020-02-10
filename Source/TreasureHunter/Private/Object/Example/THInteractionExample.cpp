@@ -24,7 +24,7 @@ void ATHInteractionExample::OnCharacterNearbyObject(class UPrimitiveComponent* O
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
 		if (Character)
 		{
-			Character->setbInInteractionRange(true);
+			Character->UpdatebInInteractionRange(true);
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("bInInteractionRange in Character: %s"), Character->getbInInteractionRange() ? TEXT("true") : TEXT("false")));
 		}
 	}
@@ -37,7 +37,7 @@ void ATHInteractionExample::OnCharacterOutofObject(UPrimitiveComponent* Overlapp
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
 		if (Character)
 		{
-			Character->setbInInteractionRange(false);
+			Character->UpdatebInInteractionRange(false);
 			Character->StopInteraction();
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("bInInteractionRange in Character: %s"), Character->getbInInteractionRange() ? TEXT("true") : TEXT("false")));
 		}

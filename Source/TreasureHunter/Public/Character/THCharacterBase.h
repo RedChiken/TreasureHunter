@@ -89,6 +89,9 @@ private:
 		EEnterDirection EnterDirection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		EExitDirection ExitDirection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bUpward;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -99,9 +102,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bLayeredMotion;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		bool bClimb;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bDead;
@@ -115,6 +115,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bInInteractionRange;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bAbleToClimb;
+
 public:
 	float getCurrentSpeed();
 	EIdleType getIdleType();
@@ -123,17 +126,25 @@ public:
 	bool getbJump();
 	bool getIsFalling();
 	EEnterDirection getEnterDirection();
+	EExitDirection getExitDirection();
 	bool getbUpward();
 	ELayeredAction getLayeredAction();
 	bool getbFullBodyMotion();
 	bool getbLayeredMotion();
-	bool getbClimb();
 	bool getbDead();
 	bool getbStandToSprint();
 	float getHP();
 	bool getbInInteractionRange();
-	void setbInInteractionRange(bool InInteractionRange);
+	bool getbAbleToClimb();
+
 	void StopInteraction();
+
+	void UpdatebInInteractionRange(bool InInteractionRange);
+	void UpdatebAbleToClimb(bool climb);
+	void UpdateIdleType(EIdleType Idle);
+
+	void ExitFromClimb(EExitDirection Exit);
+	void EnterToClimb(EEnterDirection Enter);
 
 protected:
 	UFUNCTION()
@@ -191,6 +202,12 @@ protected:
 		void MulticastUpdateEnterDirection(EEnterDirection Direction);
 
 	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateExitDirection(EExitDirection Direction);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateExitDirection(EExitDirection Direction);
+
+	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdatebUpward(bool Upward);
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -215,12 +232,6 @@ protected:
 		void MulticastUpdatebLayeredMotion(bool LayeredMotion);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebClimb(bool Climb);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebClimb(bool Climb);
-
-	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdatebDead(bool Dead);
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -237,6 +248,12 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebInInteractionRange(bool InInteractionRange);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebAbleToClimb(bool Climb);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebAbleToClimb(bool Climb);
 
 	void OnToggleCrouch();
 	void OnToggleSprint();

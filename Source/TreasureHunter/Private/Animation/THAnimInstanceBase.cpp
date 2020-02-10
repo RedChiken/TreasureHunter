@@ -21,8 +21,6 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 			bFall = Character->getIsFalling();
 			EnterDirection = Character->getEnterDirection();
 			bFullBodyMotion = Character->getbFullBodyMotion();
-			bClimb = Character->getbClimb();
-			bUpward = Character->getbClimb();
 			bDead = Character->getbDead();
 			bLayeredMotion = Character->getbLayeredMotion();
 			bStandToSprint = Character->getbStandToSprint();
