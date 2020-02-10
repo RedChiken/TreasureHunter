@@ -13,8 +13,9 @@
 UENUM(BlueprintType)
 enum class EExitDirection : uint8 
 {
-	BOTTOM	UMETA(DisplayName = "Bottom"),
 	TOP		UMETA(DisplayName = "Top"),
+	MIDDLE	UMETA(DisplayName = "Middle"),
+	BOTTOM	UMETA(DisplayName = "Bottom"),
 	DEFAULT	UMETA(DisplayName = "Default")
 };
 
