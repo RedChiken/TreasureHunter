@@ -68,4 +68,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bInInteractionRange;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bAbleToClimb;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bClimbing;
 };

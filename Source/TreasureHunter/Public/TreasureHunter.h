@@ -17,3 +17,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_MovementType, Verbose, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_IdleType, Verbose, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_CheckValue, Verbose, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_CheckOverlap, Verbose, All);
+
+#define GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetNameStringByIndex((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
+
+#define GETBOOLSTRING(bvalue) (bvalue ? TEXT("true") : TEXT("false"))

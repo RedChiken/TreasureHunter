@@ -4,8 +4,7 @@
 #include "THLadderBase.h"
 #include "Character/THCharacterBase.h"
 
-void ATHLadderBase::EnterClimb(class ATHCharacterBase* Character, EEnterDirection Enter)
+ATHLadderBase::ATHLadderBase() : ATHClimbBase()
 {
-	Super::EnterClimb(Character, Enter);
-	Character->UpdateIdleType(EIdleType::LADDER);
+	type = EIdleType::LADDER;
 }

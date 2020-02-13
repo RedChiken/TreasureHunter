@@ -77,6 +77,9 @@ private:
 		EIdleType IdleType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		EIdleType NearbyIdleType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EMovementType MovementType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -118,6 +121,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bAbleToClimb;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bClimbing;
+
 public:
 	float getCurrentSpeed();
 	EIdleType getIdleType();
@@ -136,15 +142,17 @@ public:
 	float getHP();
 	bool getbInInteractionRange();
 	bool getbAbleToClimb();
+	bool getbClimbing();
 
 	void StopInteraction();
 
 	void UpdatebInInteractionRange(bool InInteractionRange);
-	void UpdatebAbleToClimb(bool climb);
 	void UpdateIdleType(EIdleType Idle);
-
+	void UpdateNearbyIdleType(EIdleType Idle);
+	void UpdateExitDirection(EExitDirection Exit);
 	void ExitFromClimb(EExitDirection Exit);
-	void EnterToClimb(EEnterDirection Enter);
+	void EnterToClimb(EEnterDirection Enter, EIdleType Nearby);
+	void GetOutofClimbArea();
 
 protected:
 	UFUNCTION()
@@ -182,6 +190,12 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateIdleType(EIdleType type);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateNearbyIdleType(EIdleType type);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateNearbyIdleType(EIdleType type);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdateSpeed(float rate);
@@ -254,6 +268,12 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebAbleToClimb(bool Climb);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebClimbing(bool Climb);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebClimbing(bool Climb);
 
 	void OnToggleCrouch();
 	void OnToggleSprint();

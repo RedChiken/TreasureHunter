@@ -14,6 +14,6 @@ class TREASUREHUNTER_API ATHRopeBase : public ATHClimbBase
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void EnterClimb(class ATHCharacterBase* Character, EEnterDirection Enter);
+public:
+	ATHRopeBase();
 };

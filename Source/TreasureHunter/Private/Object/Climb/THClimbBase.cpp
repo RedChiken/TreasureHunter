@@ -19,8 +19,12 @@ ATHClimbBase::ATHClimbBase() : ATHActorBase()
 	UpsideArea->SetCollisionProfileName("Trigger");
 	DownsideArea->SetCollisionProfileName("Trigger");
 	UpsideArea->OnComponentBeginOverlap.AddDynamic(this, &ATHClimbBase::OnClimbAtTop);
+	UpsideArea->OnComponentEndOverlap.AddDynamic(this, &ATHClimbBase::OnCharacterOutofClimbArea);
 	DownsideArea->OnComponentBeginOverlap.AddDynamic(this, &ATHClimbBase::OnClimbAtBottom);
+	DownsideArea->OnComponentEndOverlap.AddDynamic(this, &ATHClimbBase::OnCharacterOutofClimbArea);
 	InteractionRange->OnComponentBeginOverlap.AddDynamic(this, &ATHClimbBase::OnClimbAtMiddle);
+	InteractionRange->OnComponentEndOverlap.AddDynamic(this, &ATHClimbBase::OnCharacterOutofClimbArea);
+	type = EIdleType::DEFAULT;
 }
 
 void ATHClimbBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -30,28 +34,18 @@ void ATHClimbBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 void ATHClimbBase::OnClimbAtTop(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherComp)
+	if (OtherActor)
 	{
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
-		auto Comp = Cast<UBoxComponent>(OtherComp);
-		auto Collision = OtherComp->GetCollisionProfileName();
-		if (Character && (Collision == FName(TEXT("NormalHitBox"))))
+		if (Character)
 		{
-			switch (Character->getEnterDirection())
+			if (Character->getbClimbing())
 			{
-			case(EEnterDirection::TOP):
-				//위에서 사다리 탔다가 다시 위로 나옴
-				ExitClimb(Character, EExitDirection::BOTTOM);
-				break;
-			case(EEnterDirection::DEFAULT):
-				//위에서 사다리 타려고 함.
-				Character->UpdatebAbleToClimb(true);
-				EnterClimb(Character, EEnterDirection::TOP);
-				break;
-			case(EEnterDirection::BOTTOM):
-				//밑에서 사다리 탔다가 위로 나옴
 				ExitClimb(Character, EExitDirection::TOP);
-				break;
+			}
+			else
+			{
+				EnterClimb(Character, EEnterDirection::TOP);
 			}
 		}
 	}
@@ -59,46 +53,38 @@ void ATHClimbBase::OnClimbAtTop(UPrimitiveComponent* OverlappedComp, AActor* Oth
 
 void ATHClimbBase::OnClimbAtBottom(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherComp)
+	if (OtherActor)
 	{
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
-		auto Comp = Cast<UBoxComponent>(OtherComp);
-		auto Collision = OtherComp->GetCollisionProfileName();
-		if (Character && (Collision == FName(TEXT("NormalHitBox"))))
+		if (Character)
 		{
-			switch (Character->getEnterDirection())
+			if (Character->getbClimbing())
 			{
-			case(EEnterDirection::TOP):
-				//밑에서 사다리 탔다가 위로 나옴
-				ExitClimb(Character, EExitDirection::TOP);
-				break;
-			case(EEnterDirection::DEFAULT):
-				//밑에서 사다리 타려고 함.
-				Character->UpdatebAbleToClimb(true);
-				EnterClimb(Character, EEnterDirection::BOTTOM);
-				break;
-			case(EEnterDirection::BOTTOM):
-				//밑에서 사다리 탔다가 다시 밑으로 나옴
 				ExitClimb(Character, EExitDirection::BOTTOM);
-				break;
 			}
-
+			else
+			{
+				EnterClimb(Character, EEnterDirection::BOTTOM);
+			}
 		}
 	}
 }
 
 void ATHClimbBase::OnClimbAtMiddle(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && OtherComp)
+	if (OtherActor)
 	{
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
-		auto Comp = Cast<UBoxComponent>(OtherComp);
-		auto Collision = OtherComp->GetCollisionProfileName();
-		if (Character && (Collision == FName(TEXT("NormalHitBox"))))
+		if (Character)
 		{
-			//어느 상황이든 사다리 중간에 매달리기.
-			Character->UpdatebAbleToClimb(true);
-			EnterClimb(Character, EEnterDirection::MIDDLE);
+			if (Character->getbClimbing())
+			{
+				Character->UpdateExitDirection(EExitDirection::MIDDLE);
+			}
+			else
+			{
+				EnterClimb(Character, EEnterDirection::TOP);
+			}
 		}
 	}
 }
@@ -107,10 +93,13 @@ void ATHClimbBase::OnCharacterOutofClimbArea(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor)
 	{
-		auto character = Cast<ATHCharacterBase>(OtherActor);
-		if (character)
+		auto Character = Cast<ATHCharacterBase>(OtherActor);
+		if (Character)
 		{
-			character->UpdatebAbleToClimb(false);
+			if (Character->getEnterDirection() == EEnterDirection::DEFAULT)
+			{
+				Character->GetOutofClimbArea();
+			}
 		}
 	}
 }
@@ -122,5 +111,5 @@ void ATHClimbBase::ExitClimb(ATHCharacterBase* Character, EExitDirection Exit)
 
 void ATHClimbBase::EnterClimb(ATHCharacterBase* Character, EEnterDirection Enter)
 {
-	Character->EnterToClimb(Enter);
+	Character->EnterToClimb(Enter, type);
 }

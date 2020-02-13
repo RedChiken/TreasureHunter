@@ -4,8 +4,7 @@
 #include "THRopeBase.h"
 #include "Character/THCharacterBase.h"
 
-void ATHRopeBase::EnterClimb(class ATHCharacterBase* Character, EEnterDirection Enter)
+ATHRopeBase::ATHRopeBase() : ATHClimbBase()
 {
-	Super::EnterClimb(Character, Enter);
-	Character->UpdateIdleType(EIdleType::ROPE);
+	type = EIdleType::ROPE;
 }

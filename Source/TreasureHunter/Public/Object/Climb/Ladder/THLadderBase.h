@@ -13,7 +13,6 @@ UCLASS()
 class TREASUREHUNTER_API ATHLadderBase : public ATHClimbBase
 {
 	GENERATED_BODY()
-
-protected:
-	virtual void EnterClimb(class ATHCharacterBase* Character, EEnterDirection Enter);
+public:
+	ATHLadderBase();
 };
