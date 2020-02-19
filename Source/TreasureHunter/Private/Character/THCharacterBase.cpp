@@ -106,10 +106,12 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHCharacterBase, IdleType);
+	DOREPLIFETIME(ATHCharacterBase, NearbyIdleType);
 	DOREPLIFETIME(ATHCharacterBase, MovementType);
 	DOREPLIFETIME(ATHCharacterBase, MovingDirection);
 	DOREPLIFETIME(ATHCharacterBase, bJump);
 	DOREPLIFETIME(ATHCharacterBase, EnterDirection);
+	DOREPLIFETIME(ATHCharacterBase, ExitDirection);
 	DOREPLIFETIME(ATHCharacterBase, bUpward);
 	DOREPLIFETIME(ATHCharacterBase, LayeredAction);
 	DOREPLIFETIME(ATHCharacterBase, bFullBodyMotion);
@@ -119,6 +121,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bInInteractionRange);
 	DOREPLIFETIME(ATHCharacterBase, bAbleToClimb);
 	DOREPLIFETIME(ATHCharacterBase, HP);
+	DOREPLIFETIME(ATHCharacterBase, bClimbing);
 }
 
 // Called every frame
@@ -279,12 +282,16 @@ void ATHCharacterBase::ExitFromClimb(EExitDirection Exit)
 	ServerUpdateIdleType(EIdleType::STAND);
 	ServerUpdateEnterDirection(EEnterDirection::DEFAULT);
 	ServerUpdateExitDirection(Exit);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
+	/*
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue,	FString::Printf(TEXT("ExitDirection: %s"),*GETENUMSTRING("EExitDirection", ExitDirection)));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
+	*/
 }
 
 void ATHCharacterBase::EnterToClimb(EEnterDirection Enter, EIdleType Nearby)
@@ -293,11 +300,13 @@ void ATHCharacterBase::EnterToClimb(EEnterDirection Enter, EIdleType Nearby)
 	ServerUpdatebAbleToClimb(true);
 	ServerUpdateEnterDirection(Enter);
 	ServerUpdateNearbyIdleType(Nearby);
-
+	
+	/*
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bInInteractionRange: %s"), (GETBOOLSTRING(bInInteractionRange))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
+	*/
 }
 
 void ATHCharacterBase::GetOutofClimbArea()
@@ -307,11 +316,11 @@ void ATHCharacterBase::GetOutofClimbArea()
 	ServerUpdateEnterDirection(EEnterDirection::DEFAULT);
 	ServerUpdateNearbyIdleType(EIdleType::DEFAULT);
 
-
+	/*
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("bInInteractionRange: %s"), (GETBOOLSTRING(bInInteractionRange))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("bAbleToClimb: %s"), (GETBOOLSTRING(bAbleToClimb))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));*/
 }
 
 void ATHCharacterBase::OnOverlapWithNormalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -366,7 +375,9 @@ void ATHCharacterBase::MulticastStopMontage_Implementation(float blendOut, UAnim
 
 void ATHCharacterBase::ServerUpdateMovementType_Implementation(EMovementType type)
 {
+	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Server before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 	MulticastUpdateMovementType(type);
+	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Server after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 }
 
 bool ATHCharacterBase::ServerUpdateMovementType_Validate(EMovementType type)
@@ -376,8 +387,10 @@ bool ATHCharacterBase::ServerUpdateMovementType_Validate(EMovementType type)
 
 void ATHCharacterBase::MulticastUpdateMovementType_Implementation(EMovementType type)
 {
-	UE_LOG(LogTH_PlayerBase_MovementType, Verbose, TEXT("MovementType change from %s to %s"), *GETENUMSTRING("EMovementType", MovementType), *GETENUMSTRING("EMovementType", type));
+	//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("MovementType change from %s to %s"), *GETENUMSTRING("EMovementType", MovementType), *GETENUMSTRING("EMovementType", type));
+	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Multicast before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 	MovementType = type;
+	UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Multicast after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 }
 
 void ATHCharacterBase::ServerUpdateMovingDirection_Implementation(EMovingDirection direction)
@@ -678,6 +691,8 @@ void ATHCharacterBase::OnJumpPressed()
 		if (ExitDirection == EExitDirection::DEFAULT)
 		{
 			ExitFromClimb(EExitDirection::MIDDLE);
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
 		}
 		ServerUpdatebJump(true);
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
@@ -719,11 +734,16 @@ void ATHCharacterBase::OnInteractionPressed()
 			ServerUpdateIdleType(NearbyIdleType);
 			ServerUpdateExitDirection(EExitDirection::DEFAULT);
 			ServerUpdatebClimbing(true);
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 
+			
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("ExitDirection: %s"), *GETENUMSTRING("EExitDirection", ExitDirection)));
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("bLayeredMotion: %s"), (GETBOOLSTRING(bLayeredMotion))));
+			
 		}
 		else
 		{
@@ -738,16 +758,21 @@ void ATHCharacterBase::OnInteractionReleased()
 {
 	ServerUpdatebLayeredMotion(false);
 	ServerStopMontage(0.25f, Interaction);
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction End"));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("ExitDirection: %s"), *GETENUMSTRING("EExitDirection", ExitDirection)));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
+	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bLayeredMotion: %s"), (GETBOOLSTRING(bLayeredMotion))));
+	
 	//Stop Montage Play
 }
 
 void ATHCharacterBase::MoveForward(float val)
 {
-	if (ExitDirection == EExitDirection::DEFAULT)
+	if (bClimbing)
 	{
 		ServerUpdatebUpward(val > 0);
-		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Purple, FString::Printf(TEXT("bUpward: %s"), (GETBOOLSTRING(bUpward))));
 		AddMovement(GetActorUpVector(), val);
 	}
 	else
@@ -812,68 +837,78 @@ void ATHCharacterBase::MoveForward(float val)
 
 void ATHCharacterBase::MoveRight(float val)
 {
-	AddMovement(GetActorRightVector(), val);
-	if (val > 0)
+	if (!bClimbing)
 	{
-		switch (MovingDirection)
+		AddMovement(GetActorRightVector(), val);
+		if (val > 0)
 		{
-		case EMovingDirection::DEFAULT:
-			ServerUpdateMovingDirection(EMovingDirection::RIGHT);
-			break;
-		case EMovingDirection::FRONT:
-			ServerUpdateMovingDirection(EMovingDirection::FRONTRIGHT);
-			break;
-		case EMovingDirection::BACK:
-			ServerUpdateMovingDirection(EMovingDirection::BACKRIGHT);
-			break;
+			switch (MovingDirection)
+			{
+			case EMovingDirection::DEFAULT:
+				ServerUpdateMovingDirection(EMovingDirection::RIGHT);
+				break;
+			case EMovingDirection::FRONT:
+				ServerUpdateMovingDirection(EMovingDirection::FRONTRIGHT);
+				break;
+			case EMovingDirection::BACK:
+				ServerUpdateMovingDirection(EMovingDirection::BACKRIGHT);
+				break;
+			}
 		}
-	}
-	else if (val < 0)
-	{
-		switch (MovingDirection)
+		else if (val < 0)
 		{
-		case EMovingDirection::DEFAULT:
-			ServerUpdateMovingDirection(EMovingDirection::LEFT);
-			break;
-		case EMovingDirection::FRONT:
-			ServerUpdateMovingDirection(EMovingDirection::FRONTLEFT);
-			break;
-		case EMovingDirection::BACK:
-			ServerUpdateMovingDirection(EMovingDirection::BACKLEFT);
-			break;
+			switch (MovingDirection)
+			{
+			case EMovingDirection::DEFAULT:
+				ServerUpdateMovingDirection(EMovingDirection::LEFT);
+				break;
+			case EMovingDirection::FRONT:
+				ServerUpdateMovingDirection(EMovingDirection::FRONTLEFT);
+				break;
+			case EMovingDirection::BACK:
+				ServerUpdateMovingDirection(EMovingDirection::BACKLEFT);
+				break;
+			}
 		}
-	}
-	else
-	{
-		switch (MovingDirection)
+		else
 		{
-		case EMovingDirection::FRONTRIGHT:
-			ServerUpdateMovingDirection(EMovingDirection::FRONT);
-			break;
-		case EMovingDirection::RIGHT:
-			ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
-			break;
-		case EMovingDirection::BACKRIGHT:
-			ServerUpdateMovingDirection(EMovingDirection::BACK);
-			break;
-		case EMovingDirection::BACKLEFT:
-			ServerUpdateMovingDirection(EMovingDirection::BACK);
-			break;
-		case EMovingDirection::LEFT:
-			ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
-			break;
-		case EMovingDirection::FRONTLEFT:
-			ServerUpdateMovingDirection(EMovingDirection::FRONT);
-			break;
-		default:
-			break;
+			switch (MovingDirection)
+			{
+			case EMovingDirection::FRONTRIGHT:
+				ServerUpdateMovingDirection(EMovingDirection::FRONT);
+				break;
+			case EMovingDirection::RIGHT:
+				ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+				break;
+			case EMovingDirection::BACKRIGHT:
+				ServerUpdateMovingDirection(EMovingDirection::BACK);
+				break;
+			case EMovingDirection::BACKLEFT:
+				ServerUpdateMovingDirection(EMovingDirection::BACK);
+				break;
+			case EMovingDirection::LEFT:
+				ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+				break;
+			case EMovingDirection::FRONTLEFT:
+				ServerUpdateMovingDirection(EMovingDirection::FRONT);
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }
 
 void ATHCharacterBase::Turn(float val)
 {
-	AddControllerYawInput(val);
+	if (!bClimbing)
+	{
+		AddControllerYawInput(val);
+	}
+	else
+	{
+		// TODO: Turn Camera With Head
+	}
 }
 
 void ATHCharacterBase::LookUp(float val)
@@ -899,6 +934,7 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 					else
 					{	// Walk
 						ServerUpdateMovementType(EMovementType::WALK);
+						UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 					}
 				}
 				AddMovementInput(vector, val); 
@@ -914,12 +950,38 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 			break;
 
 		case EIdleType::LADDER:
-		case EIdleType::ROPE:
-		case EIdleType::WALL:
+			if (bClimbing)
 			{
+				//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType)));
+				//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+				if (MovementType == EMovementType::CLIMB)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("before value is Climb!"));
+					UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("before value is Climb!"));
+				}
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AddMovement after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 				ServerUpdateMovementType(EMovementType::CLIMB);
-				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Purple, FString::Printf(TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType)));
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AddMovement before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+				//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Purple, FString::Printf(TEXT("after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType)));
+				//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 				//TODO: Make Character go UP and DOWN
+				if (MovementType == EMovementType::CLIMB)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("after value is Climb!"));
+					UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("after value is Climb!"));
+				}
+				AddMovementInput(vector, val);
+			}
+			break;
+		case EIdleType::ROPE:
+			if (bClimbing)
+			{
+				AddMovementInput(vector, val);
+			}
+			break;
+		case EIdleType::WALL:
+			if (bClimbing)
+			{
 				AddMovementInput(vector, val);
 			}
 			break;
