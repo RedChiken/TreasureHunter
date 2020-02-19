@@ -52,9 +52,6 @@ protected:
 		bool bFullBodyMotion;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
-		bool bClimb;
-
-	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bUpward;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
@@ -65,4 +62,16 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
 		bool bStandToSprint;
+
+	UPROPERTY(BlueprintReadOnly, Category = Status)
+		float HP;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bInInteractionRange;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bAbleToClimb;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bClimbing;
 };

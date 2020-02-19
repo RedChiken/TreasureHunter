@@ -17,3 +17,4 @@ DEFINE_LOG_CATEGORY(LogTH_PlayerBase_MovingDirection);
 DEFINE_LOG_CATEGORY(LogTH_PlayerBase_MovementType);
 DEFINE_LOG_CATEGORY(LogTH_PlayerBase_IdleType);
 DEFINE_LOG_CATEGORY(LogTH_PlayerBase_CheckValue);
+DEFINE_LOG_CATEGORY(LogTH_PlayerBase_CheckOverlap);

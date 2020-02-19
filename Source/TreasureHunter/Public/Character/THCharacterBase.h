@@ -51,8 +51,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitBox)
-		class UCapsuleComponent* HitBox;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* BodyHitBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* HeadHitBox;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* MeleeLeft;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
+		class UCapsuleComponent* MeleeRight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* MeleeAttack;
@@ -68,6 +77,9 @@ private:
 		EIdleType IdleType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		EIdleType NearbyIdleType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EMovementType MovementType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -80,10 +92,10 @@ private:
 		EEnterDirection EnterDirection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		bool bUpward;
+		EExitDirection ExitDirection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		EExitDirection ExitDirection;
+		bool bUpward;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		ELayeredAction LayeredAction;
@@ -95,13 +107,22 @@ private:
 		bool bLayeredMotion;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		bool bClimb;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bDead;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bStandToSprint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		float HP;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bInInteractionRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bAbleToClimb;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bClimbing;
 
 public:
 	float getCurrentSpeed();
@@ -111,18 +132,34 @@ public:
 	bool getbJump();
 	bool getIsFalling();
 	EEnterDirection getEnterDirection();
-	bool getbUpward();
 	EExitDirection getExitDirection();
+	bool getbUpward();
 	ELayeredAction getLayeredAction();
 	bool getbFullBodyMotion();
 	bool getbLayeredMotion();
-	bool getbClimb();
 	bool getbDead();
 	bool getbStandToSprint();
+	float getHP();
+	bool getbInInteractionRange();
+	bool getbAbleToClimb();
+	bool getbClimbing();
+
+	void StopInteraction();
+
+	void UpdatebInInteractionRange(bool InInteractionRange);
+	void UpdateIdleType(EIdleType Idle);
+	void UpdateNearbyIdleType(EIdleType Idle);
+	void UpdateExitDirection(EExitDirection Exit);
+	void ExitFromClimb(EExitDirection Exit);
+	void EnterToClimb(EEnterDirection Enter, EIdleType Nearby);
+	void GetOutofClimbArea();
 
 protected:
 	UFUNCTION()
-		void OnOverlapWithHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void OnOverlapWithNormalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnOverlapWithCriticalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
@@ -155,6 +192,12 @@ protected:
 		void MulticastUpdateIdleType(EIdleType type);
 
 	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateNearbyIdleType(EIdleType type);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateNearbyIdleType(EIdleType type);
+
+	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdateSpeed(float rate);
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -173,16 +216,16 @@ protected:
 		void MulticastUpdateEnterDirection(EEnterDirection Direction);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebUpward(bool Upward);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebUpward(bool Upward);
-
-	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdateExitDirection(EExitDirection Direction);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateExitDirection(EExitDirection Direction);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebUpward(bool Upward);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebUpward(bool Upward);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdateLayeredAction(ELayeredAction Action);
@@ -203,19 +246,34 @@ protected:
 		void MulticastUpdatebLayeredMotion(bool LayeredMotion);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebClimb(bool Climb);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebClimb(bool Climb);
-
-	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerUpdatebDead(bool Dead);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebDead(bool Dead);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdateHP(float HPChanged);
 
-	//TODO: Replicate update HP
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateHP(float HPChanged);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebInInteractionRange(bool InInteractionRange);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebInInteractionRange(bool InInteractionRange);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebAbleToClimb(bool Climb);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebAbleToClimb(bool Climb);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerUpdatebClimbing(bool Climb);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebClimbing(bool Climb);
 
 	void OnToggleCrouch();
 	void OnToggleSprint();
@@ -234,5 +292,9 @@ protected:
 	void LookUp(float val);
 
 private:
-	void AddMovement(const FVector vector, float val);
+	void AddMovement(const FVector vector, float val); 
+	
+	void OverlapWithHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical);
+
+	void SetCharacterDead();
 };
