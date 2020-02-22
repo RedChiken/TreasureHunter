@@ -40,6 +40,8 @@ void ATHActorBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHActorBase, AreaSize);
 	DOREPLIFETIME(ATHActorBase, AreaLocation);
+	DOREPLIFETIME(ATHActorBase, Object);
+	DOREPLIFETIME(ATHActorBase, InteractionRange);
 }
 
 // Called every frame
