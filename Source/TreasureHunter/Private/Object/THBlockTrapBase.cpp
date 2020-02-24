@@ -11,8 +11,8 @@
 
 ATHBlockTrapBase::ATHBlockTrapBase() : ATHActorBase()
 {
-	InArea = false;
-	InteractionRange->OnComponentBeginOverlap.AddDynamic(this, &ATHBlockTrapBase::OnCharacterInRange);
+	bInArea = false;
+	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHBlockTrapBase::OnCharacterInRange);
 }
 
 void ATHBlockTrapBase::Tick(float DeltaTime)
@@ -30,7 +30,7 @@ void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHBlockTrapBase, WallList);
 	DOREPLIFETIME(ATHBlockTrapBase, DestinationList);
-	DOREPLIFETIME(ATHBlockTrapBase, InArea);
+	DOREPLIFETIME(ATHBlockTrapBase, bInArea);
 }
 
 void ATHBlockTrapBase::MoveAllWall(float DeltaTime)
@@ -46,19 +46,19 @@ void ATHBlockTrapBase::MoveAllWall(float DeltaTime)
 	}
 }
 
-void ATHBlockTrapBase::ServerUpdateInArea_Implementation(bool area)
+void ATHBlockTrapBase::ServerUpdatebInArea_Implementation(bool inArea)
 {
-	MulticastUpdateInArea(area);
+	MulticastUpdatebInArea(inArea);
 }
 
-bool ATHBlockTrapBase::ServerUpdateInArea_Validate(bool area)
+bool ATHBlockTrapBase::ServerUpdatebInArea_Validate(bool inArea)
 {
 	return true;
 }
 
-void ATHBlockTrapBase::MulticastUpdateInArea_Implementation(bool area)
+void ATHBlockTrapBase::MulticastUpdatebInArea_Implementation(bool inArea)
 {
-	InArea = area;
+	bInArea = inArea;
 }
 
 void ATHBlockTrapBase::OnCharacterInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -68,8 +68,8 @@ void ATHBlockTrapBase::OnCharacterInRange(UPrimitiveComponent* OverlappedComp, A
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
 		if (Character)
 		{
-			ServerUpdateInArea(true);
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("InArea : %s"), InArea ? TEXT("true") : TEXT("false")));
+			ServerUpdatebInArea(true);
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("InArea : %s"), bInArea ? TEXT("true") : TEXT("false")));
 		}
 	}
 }

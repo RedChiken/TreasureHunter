@@ -21,7 +21,7 @@ public:
         TArray<FVector> DestinationList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        bool InArea;
+        bool bInArea;
 
 private:
     FVector nowLocation;
@@ -40,10 +40,10 @@ protected:
         void MoveAllWall(float DeltaTime);
 
     UFUNCTION(Server, Reliable, WithValidation)
-        void ServerUpdateInArea(bool area);
+        void ServerUpdatebInArea(bool inArea);
 
     UFUNCTION(NetMulticast, Reliable)
-        void MulticastUpdateInArea(bool area);
+        void MulticastUpdatebInArea(bool inArea);
 
     UFUNCTION(BlueprintImplementableEvent)
         bool IsWallNearTheEnd(int index);

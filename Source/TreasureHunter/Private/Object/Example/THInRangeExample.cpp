@@ -9,7 +9,7 @@
 
 ATHInRangeExample::ATHInRangeExample() : ATHActorBase()
 {
-	InteractionRange->OnComponentBeginOverlap.AddDynamic(this, &ATHInRangeExample::OnCharacterInRange);
+	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHInRangeExample::OnCharacterInRange);
 }
 
 void ATHInRangeExample::OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

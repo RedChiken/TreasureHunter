@@ -25,24 +25,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-		void SetRangeSize(const FVector& size);
-
-	UFUNCTION()
-		void SetRangeLocation(const FVector& size);
-
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Actor)
 		class UStaticMeshComponent* Object;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Range)
-		class UBoxComponent* InteractionRange;
-
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Range, meta = (AllowPrivateAccess = "true"))
-		FVector AreaSize;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Range, meta = (AllowPrivateAccess = "true"))
-		FVector AreaLocation;
-
+		class UBoxComponent* Area;
 };
