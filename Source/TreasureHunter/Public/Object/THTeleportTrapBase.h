@@ -21,12 +21,6 @@ protected:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-    UFUNCTION(Server, Reliable, WithValidation)
-        void ServerUpdatebActive(bool active);
-
-    UFUNCTION(NetMulticast, Reliable)
-        void MulticastUpdatebActive(bool active);
-
 private:
     UFUNCTION(BlueprintCallable)
         void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -34,7 +28,4 @@ private:
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Actor)
         class ATHTeleportTrapBase* Pair;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Active)
-        bool bActive;
 };

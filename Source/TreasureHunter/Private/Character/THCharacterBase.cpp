@@ -6,6 +6,7 @@
 #include "ConstructorHelpers.h"
 #include "Animation/THAnimInstanceBase.h"
 #include "camera/CameraComponent.h"
+#include "Object/THProjectileBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
@@ -321,6 +322,23 @@ void ATHCharacterBase::GetOutofClimbArea()
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("bAbleToClimb: %s"), (GETBOOLSTRING(bAbleToClimb))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));*/
+}
+
+void ATHCharacterBase::ReceiveDamage(float damage, bool bCritical)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("Hit Character"));
+	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
+
+	ServerUpdateHP((bCritical ? 2.5f : 1.0f) * damage);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit bullet! Rest HP is %f"), HP));
+	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("hit bullet! Rest HP is %f"), HP);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("HP: %f, bDead is %s"), HP,
+		(bDead ? TEXT("True") : TEXT("False"))));
+	if (!bDead && (HP <= 0.0f))
+	{
+		SetCharacterDead();
+	}
 }
 
 void ATHCharacterBase::OnOverlapWithNormalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -1005,19 +1023,7 @@ void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AA
 				{
 					if (!bLayeredMotion)
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("Hit Character"));
-						UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
-
-						ServerUpdateHP((bCritical ? -50.0f : -20.0f));
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Rest HP is %f"), HP));
-						UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Rest HP is %f"), HP);
-
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("HP: %f, bDead is %s"), HP, 
-							(bDead ? TEXT("True") : TEXT("False"))));
-						if (!bDead && (HP <= 0.0f))
-						{
-							SetCharacterDead();
-						}
+						ReceiveDamage(-20.0f, bCritical);
 					}
 				}
 			}

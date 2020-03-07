@@ -21,6 +21,7 @@ ATHActorBase::ATHActorBase()
 	Area->SetupAttachment(RootComponent);
 	Area->SetVisibility(true);
 	Area->SetCollisionProfileName("Trigger");
+	bActive = true;
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +36,7 @@ void ATHActorBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHActorBase, Object);
 	DOREPLIFETIME(ATHActorBase, Area);
+	DOREPLIFETIME(ATHActorBase, bActive);
 }
 
 // Called every frame
@@ -42,5 +44,20 @@ void ATHActorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ATHActorBase::ServerUpdatebActive_Implementation(bool active)
+{
+	MulticastUpdatebActive(active);
+}
+
+bool ATHActorBase::ServerUpdatebActive_Validate(bool active)
+{
+	return true;
+}
+
+void ATHActorBase::MulticastUpdatebActive_Implementation(bool active)
+{
+	bActive = active;
 }
 

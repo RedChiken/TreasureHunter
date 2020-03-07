@@ -25,10 +25,19 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerUpdatebActive(bool active);
+
+	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+		void MulticastUpdatebActive(bool active);
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Actor)
 		class UStaticMeshComponent* Object;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Range)
 		class UBoxComponent* Area;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Spawn)
+		bool bActive;
 };

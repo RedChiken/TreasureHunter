@@ -25,35 +25,45 @@ void ATHSpawnTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHSpawnTrapBase, SpawnedActor);
 }
 
-void ATHSpawnTrapBase::ActivateActor(int index)
+void ATHSpawnTrapBase::ActivateActor(AActor* actor)
 {
-	auto actor = SpawnedActor[index];
 	actor->SetActorHiddenInGame(false);
 	actor->SetActorEnableCollision(true);
 	actor->SetActorTickEnabled(true);
+}
+
+void ATHSpawnTrapBase::ActivateActorByIndex(int index)
+{
+	auto actor = SpawnedActor[index];
+	ActivateActor(actor);
 }
 
 void ATHSpawnTrapBase::ActivateAllActor()
 {
 	for (int i = 0; i < SpawnedActor.Num(); ++i)
 	{
-		ActivateActor(i);
+		ActivateActorByIndex(i);
 	}
 }
 
-void ATHSpawnTrapBase::DeactivateActor(int index)
+void ATHSpawnTrapBase::DeactivateActor(AActor* actor)
 {
-	auto actor = SpawnedActor[index];
 	actor->SetActorHiddenInGame(true);
 	actor->SetActorEnableCollision(false);
 	actor->SetActorTickEnabled(false);
+}
+
+void ATHSpawnTrapBase::DeactivateActorByIndex(int index)
+{
+	auto actor = SpawnedActor[index];
+	DeactivateActor(actor);
 }
 
 void ATHSpawnTrapBase::DeactivateAllActor()
 {
 	for (int i = 0; i < SpawnedActor.Num(); ++i)
 	{
-		DeactivateActor(i);
+		DeactivateActorByIndex(i);
 	}
 }
 

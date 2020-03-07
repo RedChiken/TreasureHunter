@@ -23,15 +23,19 @@ protected:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
+    virtual void ActivateActor(AActor* actor);
+
+    virtual void DeactivateActor(AActor* actor);
+
 public:
     UFUNCTION(BlueprintCallable)
-        void ActivateActor(int index);
+        void ActivateActorByIndex(int index);
 
     UFUNCTION(BlueprintCallable)
         void ActivateAllActor();
 
     UFUNCTION(BlueprintCallable)
-        void DeactivateActor(int index);
+        void DeactivateActorByIndex(int index);
 
     UFUNCTION(BlueprintCallable)
         void DeactivateAllActor();

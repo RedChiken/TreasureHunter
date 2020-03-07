@@ -23,22 +23,6 @@ void ATHTeleportTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHTeleportTrapBase, Pair);
-	DOREPLIFETIME(ATHTeleportTrapBase, bActive);
-}
-
-void ATHTeleportTrapBase::ServerUpdatebActive_Implementation(bool active)
-{
-	MulticastUpdatebActive(active);
-}
-
-bool ATHTeleportTrapBase::ServerUpdatebActive_Validate(bool active)
-{
-	return true;
-}
-
-void ATHTeleportTrapBase::MulticastUpdatebActive_Implementation(bool active)
-{
-	bActive = active;
 }
 
 void ATHTeleportTrapBase::OnCharacterInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

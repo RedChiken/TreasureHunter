@@ -70,6 +70,7 @@ void ATHBlockTrapBase::OnCharacterInRange(UPrimitiveComponent* OverlappedComp, A
 		{
 			ServerUpdatebInArea(true);
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("InArea : %s"), bInArea ? TEXT("true") : TEXT("false")));
+			ServerUpdatebActive(false);
 		}
 	}
 }
