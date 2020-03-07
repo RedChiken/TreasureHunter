@@ -15,17 +15,13 @@ ATHActorBase::ATHActorBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Object = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Object"));
-	InteractionRange = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionRange"));
+	Area = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractionRange"));
 
-	RootComponent = InteractionRange;
-	Object->SetupAttachment(RootComponent);
-	InteractionRange->SetVisibility(true);
-	InteractionRange->SetCollisionProfileName("Trigger");
-
-	AreaSize = FVector(300.0f, 300.0f, 200.0f);
-	AreaLocation = FVector(0.f, 0.f, 200.0f);
-	SetRangeSize(AreaSize);
-	SetRangeLocation(AreaLocation);
+	RootComponent = Object;
+	Area->SetupAttachment(RootComponent);
+	Area->SetVisibility(true);
+	Area->SetCollisionProfileName("Trigger");
+	bActive = true;
 }
 
 // Called when the game starts or when spawned
@@ -38,8 +34,9 @@ void ATHActorBase::BeginPlay()
 void ATHActorBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ATHActorBase, AreaSize);
-	DOREPLIFETIME(ATHActorBase, AreaLocation);
+	DOREPLIFETIME(ATHActorBase, Object);
+	DOREPLIFETIME(ATHActorBase, Area);
+	DOREPLIFETIME(ATHActorBase, bActive);
 }
 
 // Called every frame
@@ -49,13 +46,18 @@ void ATHActorBase::Tick(float DeltaTime)
 
 }
 
-void ATHActorBase::SetRangeSize(const FVector& size)
+void ATHActorBase::ServerUpdatebActive_Implementation(bool active)
 {
-	InteractionRange->SetBoxExtent(AreaSize);
+	MulticastUpdatebActive(active);
 }
 
-void ATHActorBase::SetRangeLocation(const FVector& size)
+bool ATHActorBase::ServerUpdatebActive_Validate(bool active)
 {
-	InteractionRange->SetRelativeLocation(AreaLocation);
+	return true;
+}
+
+void ATHActorBase::MulticastUpdatebActive_Implementation(bool active)
+{
+	bActive = active;
 }
 

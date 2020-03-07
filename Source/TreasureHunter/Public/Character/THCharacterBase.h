@@ -10,6 +10,7 @@
 #include "DataType/THExitDirection.h"
 #include "DataType/THLayeredAction.h"
 #include "DataType/THMovingDirection.h"
+#include "Animation/AnimInstance.h"
 #include "THCharacterBase.generated.h"
 
 UCLASS()
@@ -153,6 +154,8 @@ public:
 	void ExitFromClimb(EExitDirection Exit);
 	void EnterToClimb(EEnterDirection Enter, EIdleType Nearby);
 	void GetOutofClimbArea();
+
+	void ReceiveDamage(float damage, bool bCritical = false);
 
 protected:
 	UFUNCTION()

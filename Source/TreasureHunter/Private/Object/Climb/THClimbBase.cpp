@@ -22,8 +22,8 @@ ATHClimbBase::ATHClimbBase() : ATHActorBase()
 	UpsideArea->OnComponentEndOverlap.AddDynamic(this, &ATHClimbBase::OnCharacterOutofClimbArea);
 	DownsideArea->OnComponentBeginOverlap.AddDynamic(this, &ATHClimbBase::OnClimbAtBottom);
 	DownsideArea->OnComponentEndOverlap.AddDynamic(this, &ATHClimbBase::OnCharacterOutofClimbArea);
-	InteractionRange->OnComponentBeginOverlap.AddDynamic(this, &ATHClimbBase::OnClimbAtMiddle);
-	InteractionRange->OnComponentEndOverlap.AddDynamic(this, &ATHClimbBase::OnCharacterOutofClimbArea);
+	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHClimbBase::OnClimbAtMiddle);
+	Area->OnComponentEndOverlap.AddDynamic(this, &ATHClimbBase::OnCharacterOutofClimbArea);
 	type = EIdleType::DEFAULT;
 }
 

@@ -9,12 +9,10 @@
 
 ATHInteractionExample::ATHInteractionExample() : ATHActorBase()
 {
-	AreaSize = FVector(125.0f, 125.0f, 100.0f);
-	AreaLocation = FVector(0.f, 0.f, 100.0f);
-	SetRangeLocation(AreaLocation);
-	SetRangeSize(AreaSize);
-	InteractionRange->OnComponentBeginOverlap.AddDynamic(this, &ATHInteractionExample::OnCharacterNearbyObject);
-	InteractionRange->OnComponentEndOverlap.AddDynamic(this, &ATHInteractionExample::OnCharacterOutofObject);
+	Area->SetRelativeLocation(FVector(0.f, 0.f, 100.0f));
+	Area->SetRelativeScale3D(FVector(125.0f, 125.0f, 100.0f));
+	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHInteractionExample::OnCharacterNearbyObject);
+	Area->OnComponentEndOverlap.AddDynamic(this, &ATHInteractionExample::OnCharacterOutofObject);
 }
 
 void ATHInteractionExample::OnCharacterNearbyObject(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
