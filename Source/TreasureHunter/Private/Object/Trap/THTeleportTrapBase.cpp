@@ -24,21 +24,3 @@ void ATHTeleportTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHTeleportTrapBase, Pair);
 }
-
-void ATHTeleportTrapBase::OnCharacterInRange(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor)
-	{
-		auto Character = Cast<ATHCharacterBase>(OtherActor);
-		if (Character)
-		{
-			if (bActive)
-			{
-				ServerUpdatebActive(false);
-				Pair->ServerUpdatebActive(false);
-				Character->SetActorLocation(Pair->Object->GetRelativeLocation());
-				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, "Overlap with Area");
-			}
-		}
-	}
-}

@@ -19,6 +19,9 @@ public:
 
     virtual void Tick(float DeltaTime) override;
 
+    UFUNCTION(BlueprintImplementableEvent)
+        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 protected:
     virtual void BeginPlay() override;
 
@@ -35,9 +38,6 @@ protected:
 
     UFUNCTION(BlueprintCallable)
         void AppearAllBrush();
-
-    UFUNCTION(BlueprintImplementableEvent)
-        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
     UFUNCTION(BlueprintCallable)
         void SpawnBrush();

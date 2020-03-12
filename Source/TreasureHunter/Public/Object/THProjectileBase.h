@@ -25,7 +25,7 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
-    UFUNCTION(Server, Reliable, WithValidation)
+    UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
         void ServerUpdateDamage(float damage);
 
     UFUNCTION(NetMulticast, Reliable)

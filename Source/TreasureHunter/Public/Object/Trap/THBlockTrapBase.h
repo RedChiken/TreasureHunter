@@ -31,6 +31,9 @@ public:
 
     virtual void Tick(float DeltaTime) override;
 
+    UFUNCTION(BlueprintImplementableEvent)
+        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 protected:
     virtual void BeginPlay() override;
 
@@ -39,7 +42,7 @@ protected:
     UFUNCTION(BlueprintCallable)
         void MoveAllWall(float DeltaTime);
 
-    UFUNCTION(Server, Reliable, WithValidation)
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
         void ServerUpdatebInArea(bool inArea);
 
     UFUNCTION(NetMulticast, Reliable)
@@ -47,8 +50,4 @@ protected:
 
     UFUNCTION(BlueprintImplementableEvent)
         bool IsWallNearTheEnd(int index);
-
-private:
-    UFUNCTION()
-        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
