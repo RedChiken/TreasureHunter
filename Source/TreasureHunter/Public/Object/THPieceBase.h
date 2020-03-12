@@ -3,27 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Object/THSpawnTrapBase.h"
-#include "THProjectileTrapBase.generated.h"
+#include "Object/THActorBase.h"
+#include "THPieceBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API ATHProjectileTrapBase : public ATHSpawnTrapBase
+class TREASUREHUNTER_API ATHPieceBase : public ATHActorBase
 {
 	GENERATED_BODY()
+
 public:
-    ATHProjectileTrapBase();
+    ATHPieceBase();
 
     virtual void Tick(float DeltaTime) override;
+
+    UFUNCTION(BlueprintCallable)
+        void InitializeIndex(int32 index);
+
+    int32 GetIndex();
 
 protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-    virtual void ActivateActor(AActor* actor) override;
-
-    virtual void DeactivateActor(AActor* actor) override;
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Key)
+        int32 Index;
 };
