@@ -27,9 +27,6 @@ protected:
 
     virtual void DeactivateActor(AActor* actor);
 
-    UFUNCTION(BlueprintImplementableEvent)
-        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 public:
     UFUNCTION(BlueprintCallable)
         void ActivateActorByIndex(int index);
@@ -46,4 +43,8 @@ public:
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Spawn)
         TArray<AActor*> SpawnedActor;
+
+protected:
+    UFUNCTION(BlueprintImplementableEvent)
+        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
