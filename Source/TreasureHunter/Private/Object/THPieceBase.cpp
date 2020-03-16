@@ -25,6 +25,18 @@ int32 ATHPieceBase::GetIndex()
 	return Index;
 }
 
+void ATHPieceBase::ActivateKey()
+{
+	Object->SetVisibility(true);
+	Object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ATHPieceBase::DeactivateKey()
+{
+	Object->SetVisibility(false);
+	Object->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
 void ATHPieceBase::BeginPlay()
 {
 	Super::BeginPlay();

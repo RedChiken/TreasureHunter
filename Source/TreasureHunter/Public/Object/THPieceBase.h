@@ -24,6 +24,12 @@ public:
 
     int32 GetIndex();
 
+    UFUNCTION(BlueprintCallable)
+        void ActivateKey();
+
+    UFUNCTION(BlueprintCallable)
+        void DeactivateKey();
+
 protected:
     virtual void BeginPlay() override;
 

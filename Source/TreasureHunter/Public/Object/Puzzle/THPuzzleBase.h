@@ -24,7 +24,10 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
     UFUNCTION(BlueprintCallable)
-        void InitializeKey(int index, FVector Location = FVector::ZeroVector, FRotator Rotation = FRotator::ZeroRotator, FVector Scale = FVector(1.0f, 1.0f, 1.0f));
+        void ActivateAllKey();
+
+    UFUNCTION(BlueprintCallable)
+        void DeactivateAllKey();
 
     UFUNCTION(BlueprintCallable)
         bool CheckAnswer();

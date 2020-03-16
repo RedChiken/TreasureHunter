@@ -2,9 +2,9 @@
 
 
 #include "THPuzzleBase.h"
+#include "THPieceBase.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
-#include "THPieceBase.h"
 
 ATHPuzzleBase::ATHPuzzleBase() : ATHActorBase()
 {
@@ -32,11 +32,20 @@ void ATHPuzzleBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ATHPuzzleBase, Trap);
 }
 
-void ATHPuzzleBase::InitializeKey(int index, FVector Location, FRotator Rotation, FVector Scale)
+void ATHPuzzleBase::ActivateAllKey()
 {
-	KeyObject[index]->InitializeIndex(index);
-	KeyObject[index]->SetActorLocationAndRotation(Location, Rotation);
-	KeyObject[index]->SetActorScale3D(Scale);
+	for (int i = 0; i < KeyObject.Num(); ++i)
+	{
+		KeyObject[i]->ActivateKey();
+	}
+}
+
+void ATHPuzzleBase::DeactivateAllKey()
+{
+	for (int i = 0; i < KeyObject.Num(); ++i)
+	{
+		KeyObject[i]->DeactivateKey();
+	}
 }
 
 bool ATHPuzzleBase::CheckAnswer()

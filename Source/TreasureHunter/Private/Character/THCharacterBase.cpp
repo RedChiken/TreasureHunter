@@ -36,8 +36,10 @@ ATHCharacterBase::ATHCharacterBase()
 	//If it's false, Character cannot look upside or downside
 	FPCameraComponent->bUsePawnControlRotation = true;
 	FPCameraComponent->SetFieldOfView(90.0f);
-	//TODO: Set TP Camera Component
 
+	//TODO: This is temporary location. Set TP Camera Component at proper position
+	TPCameraComponent->SetupAttachment(GetCapsuleComponent());
+	TPCameraComponent->SetRelativeLocation(FVector(0.0f, -100.0f, 50.0f));
 	
 	GetMesh()->SetRelativeLocationAndRotation(FVector(35.0f, -3.5f, -164.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetupAttachment(FPCameraComponent);
