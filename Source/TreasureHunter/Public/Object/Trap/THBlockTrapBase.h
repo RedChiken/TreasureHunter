@@ -18,7 +18,10 @@ public:
         TArray<class UStaticMeshComponent*> WallList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        TArray<FVector> DestinationList;
+        TArray<FVector> ActivatedLocation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
+        TArray<FVector> DeactivatedLocation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
         bool bInArea;
@@ -40,7 +43,10 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
     UFUNCTION(BlueprintCallable)
-        void MoveAllWall(float DeltaTime);
+        void ActivateAllWall(float DeltaTime);
+
+    UFUNCTION(BlueprintCallable)
+        void DeactivateAllWall(float DeltaTime);
 
     UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
         void ServerUpdatebInArea(bool inArea);
@@ -49,5 +55,5 @@ protected:
         void MulticastUpdatebInArea(bool inArea);
 
     UFUNCTION(BlueprintImplementableEvent)
-        bool IsWallNearTheEnd(int index);
+        bool IsWallNearTheEnd(int index, const TArray<FVector>& Destination);
 };

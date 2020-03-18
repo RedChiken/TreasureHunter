@@ -29,18 +29,32 @@ void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHBlockTrapBase, WallList);
-	DOREPLIFETIME(ATHBlockTrapBase, DestinationList);
+	DOREPLIFETIME(ATHBlockTrapBase, ActivatedLocation);
+	DOREPLIFETIME(ATHBlockTrapBase, DeactivatedLocation);
 	DOREPLIFETIME(ATHBlockTrapBase, bInArea);
 }
 
-void ATHBlockTrapBase::MoveAllWall(float DeltaTime)
+void ATHBlockTrapBase::ActivateAllWall(float DeltaTime)
 {
 	for (int i = 0; i < WallList.Num(); i++)
 	{
-		if (IsWallNearTheEnd(i))
+		if (IsWallNearTheEnd(i, ActivatedLocation))
 		{
 			nowLocation = WallList[i]->GetRelativeLocation();
-			nowLocation += DestinationList[i] * DeltaTime;
+			nowLocation += (ActivatedLocation[i] - nowLocation) * DeltaTime;
+			WallList[i]->SetRelativeLocation(nowLocation);
+		}
+	}
+}
+
+void ATHBlockTrapBase::DeactivateAllWall(float DeltaTime)
+{
+	for (int i = 0; i < WallList.Num(); i++)
+	{
+		if (IsWallNearTheEnd(i, DeactivatedLocation))
+		{
+			nowLocation = WallList[i]->GetRelativeLocation();
+			nowLocation += (DeactivatedLocation[i] - nowLocation) * DeltaTime;
 			WallList[i]->SetRelativeLocation(nowLocation);
 		}
 	}
