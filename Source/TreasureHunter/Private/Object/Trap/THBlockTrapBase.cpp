@@ -12,6 +12,7 @@
 ATHBlockTrapBase::ATHBlockTrapBase() : ATHActorBase()
 {
 	bInArea = false;
+	bInactive = false;
 	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHBlockTrapBase::OnCharacterInRange);
 }
 
@@ -29,19 +30,20 @@ void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHBlockTrapBase, WallList);
-	DOREPLIFETIME(ATHBlockTrapBase, ActivatedLocation);
-	DOREPLIFETIME(ATHBlockTrapBase, DeactivatedLocation);
+	DOREPLIFETIME(ATHBlockTrapBase, ActivatingDirection);
+	DOREPLIFETIME(ATHBlockTrapBase, DeactivatingDirection);
 	DOREPLIFETIME(ATHBlockTrapBase, bInArea);
+	DOREPLIFETIME(ATHBlockTrapBase, bInactive);
 }
 
 void ATHBlockTrapBase::ActivateAllWall(float DeltaTime)
 {
 	for (int i = 0; i < WallList.Num(); i++)
 	{
-		if (IsWallNearTheEnd(i, ActivatedLocation))
+		if (IsWallNearTheEnd(i, ActivatingDirection))
 		{
 			nowLocation = WallList[i]->GetRelativeLocation();
-			nowLocation += (ActivatedLocation[i] - nowLocation) * DeltaTime;
+			nowLocation += ActivatingDirection[i] * DeltaTime;
 			WallList[i]->SetRelativeLocation(nowLocation);
 		}
 	}
@@ -51,13 +53,28 @@ void ATHBlockTrapBase::DeactivateAllWall(float DeltaTime)
 {
 	for (int i = 0; i < WallList.Num(); i++)
 	{
-		if (IsWallNearTheEnd(i, DeactivatedLocation))
+		if (IsWallNearTheEnd(i, DeactivatingDirection))
 		{
 			nowLocation = WallList[i]->GetRelativeLocation();
-			nowLocation += (DeactivatedLocation[i] - nowLocation) * DeltaTime;
+			nowLocation += DeactivatingDirection[i] * DeltaTime;
 			WallList[i]->SetRelativeLocation(nowLocation);
 		}
 	}
+}
+
+void ATHBlockTrapBase::ServerUpdatebInactive_Implementation(bool Inactive)
+{
+	MulticastUpdatebInactive(Inactive);
+}
+
+bool ATHBlockTrapBase::ServerUpdatebInactive_Validate(bool Inactive)
+{
+	return true;
+}
+
+void ATHBlockTrapBase::MulticastUpdatebInactive_Implementation(bool Inactive)
+{
+	bInactive = Inactive;
 }
 
 void ATHBlockTrapBase::ServerUpdatebInArea_Implementation(bool inArea)
