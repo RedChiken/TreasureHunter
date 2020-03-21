@@ -3,11 +3,12 @@
 
 #include "THPieceBase.h"
 #include "Engine.h"
+#include "THCharacterBase.h"
+#include "TreasureHunter.h"
 #include "net/UnrealNetwork.h"
 
 ATHPieceBase::ATHPieceBase() : ATHActorBase()
 {
-
 }
 
 void ATHPieceBase::Tick(float DeltaTime)
@@ -28,13 +29,13 @@ int32 ATHPieceBase::GetIndex()
 void ATHPieceBase::ActivateKey()
 {
 	Object->SetVisibility(true);
-	Object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Object->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void ATHPieceBase::DeactivateKey()
 {
 	Object->SetVisibility(false);
-	Object->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ATHPieceBase::BeginPlay()

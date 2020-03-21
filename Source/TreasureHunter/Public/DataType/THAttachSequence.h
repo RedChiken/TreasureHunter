@@ -4,24 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "Engine/UserDefinedEnum.h"
-#include "THLayeredAction.generated.h"
+#include "THAttachSequence.generated.h"
 
 /**
  * 
  */
 UENUM(BlueprintType)
-enum class ELayeredAction : uint8
+enum class EAttachSequence : uint8
 {
-	MELEEATTACK		UMETA(DisplayName = "MeleeAttack"),
-	INTERACTION		UMETA(DisplayName = "Interaction"),
+	ATTACHABLE		UMETA(DisplayName = "Attachable"),
+	ATTACH			UMETA(DisplayName = "Attach"),
+	SUBMITTABLE		UMETA(DisplayName = "Submittable"),
 	DEFAULT			UMETA(DisplayName = "Default")
 };
 
 UCLASS()
-class TREASUREHUNTER_API UTHLayeredAction : public UUserDefinedEnum
+class TREASUREHUNTER_API UTHAttachSequence : public UUserDefinedEnum
 {
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, Category = Enum)
-		ELayeredAction LayeredAction;
+		EAttachSequence AttachSequence;
+	
 };
