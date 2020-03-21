@@ -8,12 +8,14 @@
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
 #include "Engine/World.h"
+/*
 #include "Components/BrushComponent.h"
 #include "Engine/Brush.h"
 #include "Engine/BrushBuilder.h"
 #include "Builders/CubeBuilder.h"
 #include "Editor/EditorEngine.h"
 #include "UnrealEd.h"
+*/
 
 ATHVanishTrapBase::ATHVanishTrapBase() : ATHActorBase()
 {
