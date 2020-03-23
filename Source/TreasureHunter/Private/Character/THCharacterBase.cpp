@@ -7,11 +7,11 @@
 #include "Animation/THAnimInstanceBase.h"
 #include "camera/CameraComponent.h"
 #include "Object/THProjectileBase.h"
+#include "THPieceBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "net/UnrealNetwork.h"
 #include "Engine.h"
@@ -72,6 +72,21 @@ ATHCharacterBase::ATHCharacterBase()
 	MeleeRight->InitCapsuleSize(6.f, 8.f);
 	MeleeRight->SetupAttachment(GetMesh(), TEXT("socket_melee_r"));
 
+	FrontTrigger.Add(CreateDefaultSubobject<UCapsuleComponent>(TEXT("Upper")));
+	FrontTrigger.Add(CreateDefaultSubobject<UCapsuleComponent>(TEXT("Middle")));
+	FrontTrigger.Add(CreateDefaultSubobject<UCapsuleComponent>(TEXT("Under")));
+
+	for (int i = 0; i < 3; ++i)
+	{
+		FrontTrigger[i]->SetupAttachment(FPCameraComponent);
+		FrontTrigger[i]->InitCapsuleSize(12.f, 24.f);
+		FrontTrigger[i]->SetupAttachment(GetMesh());
+		FrontTrigger[i]->BodyInstance.SetCollisionProfileName(TEXT("Trigger"));
+		FrontTrigger[i]->SetRelativeLocation(FVector(0.f, 70.f, (2 - i) * 100.f));
+		FrontTrigger[i]->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
+		FrontTrigger[i]->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnPieceStartOverlap);
+		FrontTrigger[i]->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnPieceEndOverlap);
+	}
 	bReplicates = true;
 	SetReplicatingMovement(true);
 
@@ -91,6 +106,7 @@ ATHCharacterBase::ATHCharacterBase()
 	bInInteractionRange = false;
 	bAbleToClimb = false;
 	HP = 100;
+	AttachedPiece = nullptr;
 	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
 
@@ -125,6 +141,9 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bAbleToClimb);
 	DOREPLIFETIME(ATHCharacterBase, HP);
 	DOREPLIFETIME(ATHCharacterBase, bClimbing);
+	DOREPLIFETIME(ATHCharacterBase, AttachedPiece);
+	DOREPLIFETIME(ATHCharacterBase, InteractionType);
+	DOREPLIFETIME(ATHCharacterBase, AttachSequence);
 }
 
 // Called every frame
@@ -253,6 +272,11 @@ bool ATHCharacterBase::getbClimbing()
 	return bClimbing;
 }
 
+EInteractionType ATHCharacterBase::getInteractionType()
+{
+	return InteractionType;
+}
+
 void ATHCharacterBase::StopInteraction()
 {
 	OnInteractionReleased();
@@ -351,6 +375,31 @@ void ATHCharacterBase::OnOverlapWithNormalHitBox(UPrimitiveComponent* Overlapped
 void ATHCharacterBase::OnOverlapWithCriticalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	OverlapWithHitBox(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult, true);
+}
+
+void ATHCharacterBase::OnPieceStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		auto Piece = Cast<ATHPieceBase>(OtherActor);
+		if (Piece)
+		{
+			AttachedPiece = Piece;
+			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Overlap with Piece!"));
+		}
+	}
+}
+
+void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		auto Piece = Cast<ATHPieceBase>(OtherActor);
+		if (Piece && (Piece == AttachedPiece))
+		{
+			AttachedPiece = nullptr;
+		}
+	}
 }
 
 void ATHCharacterBase::ServerPlayMontage_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
@@ -655,6 +704,36 @@ void ATHCharacterBase::MulticastUpdatebClimbing_Implementation(bool Climb)
 	bClimbing = Climb;
 }
 
+void ATHCharacterBase::ServerUpdateInteractionType_Implementation(EInteractionType Type)
+{
+	MulticastUpdateInteractionType(Type);
+}
+
+bool ATHCharacterBase::ServerUpdateInteractionType_Validate(EInteractionType Type)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateInteractionType_Implementation(EInteractionType Type)
+{
+	InteractionType = Type;
+}
+
+void ATHCharacterBase::ServerUpdateAttachSequence_Implementation(EAttachSequence Sequence)
+{
+	MulticastUpdateAttachSequence(Sequence);
+}
+
+bool ATHCharacterBase::ServerUpdateAttachSequence_Validate(EAttachSequence Sequence)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateAttachSequence_Implementation(EAttachSequence Sequence)
+{
+	AttachSequence = Sequence;
+}
+
 void ATHCharacterBase::OnToggleCrouch()
 {
 	if (IdleType == EIdleType::STAND)
@@ -735,12 +814,14 @@ void ATHCharacterBase::OnJumpReleased()
 void ATHCharacterBase::OnMeleeAttackPressed()
 {
 	ServerUpdatebLayeredMotion(true);
+	ServerUpdateLayeredAction(ELayeredAction::MELEEATTACK);
 	ServerPlayMontage(MeleeAttack);
 }
 
 void ATHCharacterBase::OnMeleeAttackReleased()
 {
 	ServerUpdatebLayeredMotion(false);
+	ServerUpdateLayeredAction(ELayeredAction::DEFAULT);
 	ServerStopMontage(0.25f, MeleeAttack);
 }
 
@@ -748,29 +829,47 @@ void ATHCharacterBase::OnInteractionPressed()
 {
 	if (bInInteractionRange)
 	{
-		if (bAbleToClimb)
+		ServerUpdatebLayeredMotion(true);
+		ServerPlayMontage(Interaction);
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
+		switch (InteractionType)
 		{
-			ServerUpdatebFullBodyMotion(true);
-			ServerUpdateIdleType(NearbyIdleType);
-			ServerUpdateExitDirection(EExitDirection::DEFAULT);
-			ServerUpdatebClimbing(true);
-			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
-
-			
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("ExitDirection: %s"), *GETENUMSTRING("EExitDirection", ExitDirection)));
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Green, FString::Printf(TEXT("bLayeredMotion: %s"), (GETBOOLSTRING(bLayeredMotion))));
-			
-		}
-		else
-		{
-			ServerUpdatebLayeredMotion(true);
+		case EInteractionType::ATTACH:
+			switch (AttachSequence)
+			{
+			case EAttachSequence::ATTACHABLE:
+				if (AttachedPiece)
+				{
+					AttachedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("socket_melee_r"));
+					UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Attached!"));
+				}
+				break;
+			case EAttachSequence::ATTACH:
+				AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Detached!"));
+				break;
+			case EAttachSequence::SUBMITTABLE:
+				//TODO: Attach AttachedPiece to CheckObject and Change AttachSequence to Attachable
+				break;
+			case EAttachSequence::DEFAULT:
+				break;
+			}
+			break;
+			//TODO: Play New Animation
+		case EInteractionType::CLIMB:
+			break;
+		case EInteractionType::INVESTIGATE:
 			ServerPlayMontage(Interaction);
-			GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
+			break;
+		case EInteractionType::DEFAULT:
+			break;
+		default:
+			break;
 		}
+
+		//TODO: Add Interaction when Interact with Key
+		//AttachedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("socket_melee_r"));
+
 	}
 }
 
@@ -778,13 +877,14 @@ void ATHCharacterBase::OnInteractionReleased()
 {
 	ServerUpdatebLayeredMotion(false);
 	ServerStopMontage(0.25f, Interaction);
+	/*
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("ExitDirection: %s"), *GETENUMSTRING("EExitDirection", ExitDirection)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bLayeredMotion: %s"), (GETBOOLSTRING(bLayeredMotion))));
-	
+	*/
 	//Stop Montage Play
 }
 

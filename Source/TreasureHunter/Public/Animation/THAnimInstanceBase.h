@@ -49,6 +49,9 @@ protected:
 		EExitDirection ExitDirection;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		ELayeredAction LayeredAction;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bFullBodyMotion;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)

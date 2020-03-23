@@ -10,6 +10,9 @@
 #include "DataType/THExitDirection.h"
 #include "DataType/THLayeredAction.h"
 #include "DataType/THMovingDirection.h"
+#include "DataType/THLayeredAction.h"
+#include "DataType/THInteractionType.h"
+#include "DataType/THAttachSequence.h"
 #include "Animation/AnimInstance.h"
 #include "THCharacterBase.generated.h"
 
@@ -64,6 +67,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
 		class UCapsuleComponent* MeleeRight;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interaction)
+		TArray<class UCapsuleComponent*> FrontTrigger;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* MeleeAttack;
 
@@ -72,6 +78,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* LandFromJump;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
+		class ATHPieceBase* AttachedPiece;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -125,6 +134,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bClimbing;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		EInteractionType InteractionType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		EAttachSequence AttachSequence; 
+
 public:
 	float getCurrentSpeed();
 	EIdleType getIdleType();
@@ -144,6 +159,7 @@ public:
 	bool getbInInteractionRange();
 	bool getbAbleToClimb();
 	bool getbClimbing();
+	EInteractionType getInteractionType();
 
 	void StopInteraction();
 
@@ -157,12 +173,28 @@ public:
 
 	void ReceiveDamage(float damage, bool bCritical = false);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateLayeredAction(ELayeredAction Action);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateInteractionType(EInteractionType Type);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateAttachSequence(EAttachSequence Sequence);
+
+
 protected:
 	UFUNCTION()
 		void OnOverlapWithNormalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 		void OnOverlapWithCriticalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+		void OnPieceStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+		void OnPieceEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
@@ -230,9 +262,6 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebUpward(bool Upward);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateLayeredAction(ELayeredAction Action);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateLayeredAction(ELayeredAction Action);
 
@@ -277,6 +306,12 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebClimbing(bool Climb);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateInteractionType(EInteractionType Type);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateAttachSequence(EAttachSequence Sequence);
 
 	void OnToggleCrouch();
 	void OnToggleSprint();
