@@ -827,45 +827,64 @@ void ATHCharacterBase::OnMeleeAttackReleased()
 
 void ATHCharacterBase::OnInteractionPressed()
 {
+	switch (InteractionType)
+	{
+	case EInteractionType::ATTACH:
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AttachSequence: %s"), *GETENUMSTRING("EAttachSequence", AttachSequence));
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("InteractionType: %s"), *GETENUMSTRING("EInteractionType", InteractionType));
+		ATHPieceBase* temp;
+		switch (AttachSequence)
+		{
+		case EAttachSequence::ATTACHABLE:
+			if (AttachedPiece)
+			{
+				temp = AttachedPiece;
+				AttachedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("socket_melee_r"));
+				AttachedPiece = temp;
+				ServerUpdateAttachSequence(EAttachSequence::ATTACH);
+				ServerUpdateInteractionType(EInteractionType::ATTACH);
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Attached!"));
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AttachSequence: %s"), *GETENUMSTRING("EAttachSequence", AttachSequence));
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("InteractionType: %s"), *GETENUMSTRING("EInteractionType", InteractionType));
+			}
+			break;
+		case EAttachSequence::ATTACH:
+			if (AttachedPiece)
+			{
+				temp = AttachedPiece;
+				AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+				AttachedPiece = temp;
+				AttachedPiece->SetActorLocation(GetActorLocation() + GetActorForwardVector() * 50);
+				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
+				ServerUpdateInteractionType(EInteractionType::ATTACH);
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Detached!"));
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AttachSequence: %s"), *GETENUMSTRING("EAttachSequence", AttachSequence));
+				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("InteractionType: %s"), *GETENUMSTRING("EInteractionType", InteractionType));
+			}
+			break;
+		case EAttachSequence::SUBMITTABLE:
+			//TODO: Attach AttachedPiece to CheckObject and Change AttachSequence to Attachable
+			break;
+		case EAttachSequence::DEFAULT:
+			break;
+		}
+		break;
+		//TODO: Play New Animation
+	case EInteractionType::CLIMB:
+		break;
+	case EInteractionType::INVESTIGATE:
+		ServerPlayMontage(Interaction);
+		break;
+	case EInteractionType::DEFAULT:
+		break;
+	default:
+		break;
+	}
 	if (bInInteractionRange)
 	{
 		ServerUpdatebLayeredMotion(true);
 		ServerPlayMontage(Interaction);
 		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
-		switch (InteractionType)
-		{
-		case EInteractionType::ATTACH:
-			switch (AttachSequence)
-			{
-			case EAttachSequence::ATTACHABLE:
-				if (AttachedPiece)
-				{
-					AttachedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("socket_melee_r"));
-					UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Attached!"));
-				}
-				break;
-			case EAttachSequence::ATTACH:
-				AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Detached!"));
-				break;
-			case EAttachSequence::SUBMITTABLE:
-				//TODO: Attach AttachedPiece to CheckObject and Change AttachSequence to Attachable
-				break;
-			case EAttachSequence::DEFAULT:
-				break;
-			}
-			break;
-			//TODO: Play New Animation
-		case EInteractionType::CLIMB:
-			break;
-		case EInteractionType::INVESTIGATE:
-			ServerPlayMontage(Interaction);
-			break;
-		case EInteractionType::DEFAULT:
-			break;
-		default:
-			break;
-		}
 
 		//TODO: Add Interaction when Interact with Key
 		//AttachedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("socket_melee_r"));

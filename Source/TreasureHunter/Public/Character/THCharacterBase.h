@@ -174,6 +174,60 @@ public:
 	void ReceiveDamage(float damage, bool bCritical = false);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerStopMontage(float blendOut, UAnimMontage* MontageToStop);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateMovementType(EMovementType type);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateMovingDirection(EMovingDirection direction);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateIdleType(EIdleType type);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateNearbyIdleType(EIdleType type);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateSpeed(float rate);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebJump(bool isJump);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateEnterDirection(EEnterDirection Direction);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateExitDirection(EExitDirection Direction);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebUpward(bool Upward);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebFullBodyMotion(bool FullBodyMotion);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebLayeredMotion(bool LayeredMotion);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebDead(bool Dead);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateHP(float HPChanged);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebInInteractionRange(bool InInteractionRange);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebAbleToClimb(bool Climb);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebClimbing(bool Climb);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateLayeredAction(ELayeredAction Action);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
@@ -196,68 +250,35 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnPieceEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerStopMontage(float blendOut, UAnimMontage* MontageToStop);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastStopMontage(float blendOut, UAnimMontage* MontageToStop);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateMovementType(EMovementType type);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateMovementType(EMovementType type);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateMovingDirection(EMovingDirection direction);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateMovingDirection(EMovingDirection direction);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateIdleType(EIdleType type);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateIdleType(EIdleType type);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateNearbyIdleType(EIdleType type);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateNearbyIdleType(EIdleType type);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateSpeed(float rate);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateSpeed(float rate);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebJump(bool isJump);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebJump(bool isJump);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateEnterDirection(EEnterDirection Direction);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateEnterDirection(EEnterDirection Direction);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateExitDirection(EExitDirection Direction);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateExitDirection(EExitDirection Direction);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebUpward(bool Upward);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebUpward(bool Upward);
@@ -265,44 +286,23 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateLayeredAction(ELayeredAction Action);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebFullBodyMotion(bool FullBodyMotion);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebFullBodyMotion(bool FullBodyMotion);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebLayeredMotion(bool LayeredMotion);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebLayeredMotion(bool LayeredMotion);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebDead(bool Dead);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebDead(bool Dead);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdateHP(float HPChanged);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateHP(float HPChanged);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebInInteractionRange(bool InInteractionRange);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebInInteractionRange(bool InInteractionRange);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebAbleToClimb(bool Climb);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebAbleToClimb(bool Climb);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerUpdatebClimbing(bool Climb);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebClimbing(bool Climb);
