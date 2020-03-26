@@ -82,6 +82,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
 		class ATHPieceBase* AttachedPiece;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
+		class ATHLatchBase* Latch;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EIdleType IdleType;

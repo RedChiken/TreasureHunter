@@ -8,6 +8,7 @@
 #include "camera/CameraComponent.h"
 #include "Object/THProjectileBase.h"
 #include "THPieceBase.h"
+#include "THLatchBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
@@ -107,6 +108,7 @@ ATHCharacterBase::ATHCharacterBase()
 	bAbleToClimb = false;
 	HP = 100;
 	AttachedPiece = nullptr;
+	Latch = nullptr;
 	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
 
@@ -142,6 +144,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, HP);
 	DOREPLIFETIME(ATHCharacterBase, bClimbing);
 	DOREPLIFETIME(ATHCharacterBase, AttachedPiece);
+	DOREPLIFETIME(ATHCharacterBase, Latch);
 	DOREPLIFETIME(ATHCharacterBase, InteractionType);
 	DOREPLIFETIME(ATHCharacterBase, AttachSequence);
 }

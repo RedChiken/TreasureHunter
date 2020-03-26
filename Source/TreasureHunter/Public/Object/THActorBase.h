@@ -28,6 +28,7 @@ public:
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerUpdatebActive(bool active);
 
+private:
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
 		void MulticastUpdatebActive(bool active);
 

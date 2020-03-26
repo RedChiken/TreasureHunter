@@ -28,6 +28,14 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void OnCharacterNearKey(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-public:
 
+	UFUNCTION(BlueprintCallable)
+		void ActivateAllLatch();
+
+	UFUNCTION(BlueprintCallable)
+		void DeactivateAllLatch();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Latch)
+		TArray<UChildActorComponent*> LatchList;
 };
