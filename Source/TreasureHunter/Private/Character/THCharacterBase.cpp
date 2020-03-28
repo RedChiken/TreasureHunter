@@ -107,7 +107,7 @@ ATHCharacterBase::ATHCharacterBase()
 	bInInteractionRange = false;
 	bAbleToClimb = false;
 	HP = 100;
-	AttachedPiece = nullptr;
+	Piece = nullptr;
 	Latch = nullptr;
 	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
@@ -143,7 +143,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bAbleToClimb);
 	DOREPLIFETIME(ATHCharacterBase, HP);
 	DOREPLIFETIME(ATHCharacterBase, bClimbing);
-	DOREPLIFETIME(ATHCharacterBase, AttachedPiece);
+	DOREPLIFETIME(ATHCharacterBase, Piece);
 	DOREPLIFETIME(ATHCharacterBase, Latch);
 	DOREPLIFETIME(ATHCharacterBase, InteractionType);
 	DOREPLIFETIME(ATHCharacterBase, AttachSequence);
@@ -384,10 +384,10 @@ void ATHCharacterBase::OnPieceStartOverlap(UPrimitiveComponent* OverlappedComp, 
 {
 	if (OtherActor)
 	{
-		auto Piece = Cast<ATHPieceBase>(OtherActor);
-		if (Piece)
+		ATHPieceBase* piece = Cast<ATHPieceBase>(OtherActor);
+		if (piece)
 		{
-			AttachedPiece = Piece;
+			Piece = piece;
 			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Overlap with Piece!"));
 		}
 	}
@@ -397,10 +397,55 @@ void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 {
 	if (OtherActor)
 	{
-		auto Piece = Cast<ATHPieceBase>(OtherActor);
-		if (Piece && (Piece == AttachedPiece))
+		ATHPieceBase* piece = Cast<ATHPieceBase>(OtherActor);
+		if (piece && (piece == Piece))
 		{
-			AttachedPiece = nullptr;
+			Piece = nullptr;
+		}
+	}
+}
+
+void ATHCharacterBase::OnLatchStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		auto latch = Cast<ATHLatchBase>(OtherActor);
+		if (latch)
+		{
+			Latch = latch;
+			if (Piece)
+			{
+				// Overlap with Holding Piece
+				ServerUpdateAttachSequence(EAttachSequence::SUBMITTABLE);
+			}
+			else
+			{
+				// Overlap without Holding Piece
+				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
+			}
+		}
+	}
+}
+
+void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		auto latch = Cast<ATHLatchBase>(OtherActor);
+		if (latch && (Latch == latch))
+		{
+			Latch = nullptr;
+			if (Piece)
+			{
+				// Holding Piece
+				ServerUpdateAttachSequence(EAttachSequence::ATTACH);
+			}
+			else
+			{
+				// Not Holding Piece
+				ServerUpdateAttachSequence(EAttachSequence::DEFAULT);
+				ServerUpdateInteractionType(EInteractionType::DEFAULT);
+			}
 		}
 	}
 }
@@ -835,42 +880,57 @@ void ATHCharacterBase::OnInteractionPressed()
 	case EInteractionType::ATTACH:
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AttachSequence: %s"), *GETENUMSTRING("EAttachSequence", AttachSequence));
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("InteractionType: %s"), *GETENUMSTRING("EInteractionType", InteractionType));
-		ATHPieceBase* temp;
 		switch (AttachSequence)
 		{
 		case EAttachSequence::ATTACHABLE:
-			if (AttachedPiece)
+			if (Latch)
 			{
-				temp = AttachedPiece;
-				AttachedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("socket_melee_r"));
-				AttachedPiece = temp;
+				//Attach Piece from Latch to Character
+				Piece = Latch->WithdrawPiece();
+				AttachPiece(TEXT("socket_melee_r"));
+				ServerUpdateAttachSequence(EAttachSequence::SUBMITTABLE);
+			}
+			else
+			{
+				//Attach Piece to Character
+				AttachPiece(TEXT("socket_melee_r"));
 				ServerUpdateAttachSequence(EAttachSequence::ATTACH);
 				ServerUpdateInteractionType(EInteractionType::ATTACH);
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Attached!"));
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AttachSequence: %s"), *GETENUMSTRING("EAttachSequence", AttachSequence));
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("InteractionType: %s"), *GETENUMSTRING("EInteractionType", InteractionType));
 			}
 			break;
 		case EAttachSequence::ATTACH:
-			if (AttachedPiece)
+			if (Piece)
 			{
-				temp = AttachedPiece;
-				AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-				AttachedPiece = temp;
-				AttachedPiece->SetActorLocation(GetActorLocation() + GetActorForwardVector() * 50);
+				//Detach Piece
+				DetachPiece();
 				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
-				ServerUpdateInteractionType(EInteractionType::ATTACH);
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is Detached!"));
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AttachSequence: %s"), *GETENUMSTRING("EAttachSequence", AttachSequence));
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("InteractionType: %s"), *GETENUMSTRING("EInteractionType", InteractionType));
 			}
 			break;
 		case EAttachSequence::SUBMITTABLE:
-			//TODO: Attach AttachedPiece to CheckObject and Change AttachSequence to Attachable
+			if (Latch->GetPiece())
+			{
+				//Switch Piece from Latch and Piece from Character
+				auto temp = Latch->WithdrawPiece();
+				Latch->SubmitPiece(DetachPiece());
+				Piece = temp;
+				AttachPiece(TEXT("socket_melee_r"));
+			}
+			else
+			{
+				//Attach Piece to Latch
+				Latch->SubmitPiece(DetachPiece());
+				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
+				ServerUpdateInteractionType(EInteractionType::DEFAULT);
+			}
+			//TODO: Check Answer. If Correct, Deactivate All Latches and Keys. Than, Open Wall.
 			break;
 		case EAttachSequence::DEFAULT:
 			break;
 		}
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece is %s"), ((Piece == nullptr) ? "Detached!": "Attached"));
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Latch is %s"), ((Latch == nullptr) ? "Not Found!" : "Found"));
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AttachSequence: %s"), *GETENUMSTRING("EAttachSequence", AttachSequence));
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("InteractionType: %s"), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
 		//TODO: Play New Animation
 	case EInteractionType::CLIMB:
@@ -1167,4 +1227,26 @@ void ATHCharacterBase::SetCharacterDead()
 
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false"))));
 	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false")));
+}
+
+void ATHCharacterBase::AttachPiece(FName Socket)
+{
+	if (Piece)
+	{
+		auto temp = Piece;
+		Piece->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, Socket);
+		Piece = temp;
+	}
+}
+
+ATHPieceBase* ATHCharacterBase::DetachPiece()
+{
+	if (Piece)
+	{
+		auto temp = Piece;
+		Piece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+		Piece = temp;
+		Piece->SetActorLocation(GetActorLocation() + GetActorForwardVector() * 50);
+	}
+	return Piece;
 }

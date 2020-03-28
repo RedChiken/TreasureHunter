@@ -52,5 +52,8 @@ protected:
         int32 Index;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Key)
-        class ATHPieceBase* Piece;
+        class ATHPieceBase* AttachedPiece;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Key)
+        FVector AttachLocation;
 };

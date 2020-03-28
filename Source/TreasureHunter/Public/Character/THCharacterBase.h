@@ -80,7 +80,7 @@ public:
 		class UAnimMontage* LandFromJump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
-		class ATHPieceBase* AttachedPiece;
+		class ATHPieceBase* Piece;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
 		class ATHLatchBase* Latch;
@@ -253,6 +253,12 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnPieceEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UFUNCTION(BlueprintCallable)
+		void OnLatchStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+		void OnLatchEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
 
@@ -338,4 +344,10 @@ private:
 	void OverlapWithHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical);
 
 	void SetCharacterDead();
+
+	void AttachPiece(FName Socket = NAME_None);
+
+	class ATHPieceBase* DetachPiece();
+
+
 };

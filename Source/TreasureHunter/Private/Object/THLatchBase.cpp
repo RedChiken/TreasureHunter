@@ -11,7 +11,7 @@
 ATHLatchBase::ATHLatchBase() : ATHActorBase()
 {
 	Index = -1;
-	Piece = nullptr;
+	AttachedPiece = nullptr;
 }
 
 void ATHLatchBase::Tick(float DeltaTime)
@@ -33,25 +33,27 @@ void ATHLatchBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHLatchBase, Index);
-	DOREPLIFETIME(ATHLatchBase, Piece);
+	DOREPLIFETIME(ATHLatchBase, AttachedPiece);
+	DOREPLIFETIME(ATHLatchBase, AttachLocation);
 }
 
 void ATHLatchBase::SubmitPiece(ATHPieceBase* piece)
 {
-	Piece = piece;
+	AttachedPiece = piece;
 	piece->AttachToComponent(Object, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	AttachedPiece->SetActorRelativeLocation(AttachLocation);
 }
 
 ATHPieceBase* ATHLatchBase::WithdrawPiece()
 {
-	auto temp = Piece;
-	Piece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+	auto temp = AttachedPiece;
+	AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 	return temp;
 }
 
 ATHPieceBase* ATHLatchBase::GetPiece()
 {
-	return Piece;
+	return AttachedPiece;
 }
 
 int32 ATHLatchBase::GetIndex()
@@ -61,7 +63,7 @@ int32 ATHLatchBase::GetIndex()
 
 bool ATHLatchBase::IsCorrectPair()
 {
-	return (Piece != nullptr) && (Piece->GetIndex() == Index);
+	return (AttachedPiece != nullptr) && (AttachedPiece->GetIndex() == Index);
 }
 
 void ATHLatchBase::Activate()
