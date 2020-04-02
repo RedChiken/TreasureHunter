@@ -3,15 +3,17 @@
 
 #include "THLatchBase.h"
 #include "Engine.h"
+#include "net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
 #include "THCharacterBase.h"
 #include "THPieceBase.h"
 #include "TreasureHunter.h"
-#include "net/UnrealNetwork.h"
 
 ATHLatchBase::ATHLatchBase() : ATHActorBase()
 {
 	Index = -1;
 	AttachedPiece = nullptr;
+	Object->SetCollisionProfileName("BlockAll");
 }
 
 void ATHLatchBase::Tick(float DeltaTime)
@@ -39,16 +41,38 @@ void ATHLatchBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 void ATHLatchBase::SubmitPiece(ATHPieceBase* piece)
 {
-	AttachedPiece = piece;
-	piece->AttachToComponent(Object, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	AttachedPiece->SetActorRelativeLocation(AttachLocation);
+	if (piece)
+	{
+		AttachedPiece = piece;
+		piece->AttachToComponent(Object, FAttachmentTransformRules::KeepRelativeTransform);
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s piece is %s"), *FString(__FUNCTION__), ((piece == nullptr) ? TEXT("InValid!") : TEXT("Valid!")));
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s: Latch Index = %d"), *FString(__FUNCTION__), Index);
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s: Piece Index = %d"), *FString(__FUNCTION__), AttachedPiece->GetIndex());
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s: Correctness = %s"), *FString(__FUNCTION__), (IsCorrectPair() ? TEXT("Correct!") : TEXT("Wrong!")));
+		AttachedPiece->SetActorRelativeLocation(AttachLocation);
+		piece = AttachedPiece;
+	}
+	else
+	{
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s piece is nullptr"), *FString(__FUNCTION__));
+	}
 }
 
 ATHPieceBase* ATHLatchBase::WithdrawPiece()
 {
-	auto temp = AttachedPiece;
-	AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-	return temp;
+	if (AttachedPiece)
+	{
+		auto temp = AttachedPiece;
+		AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s temp is %s"), *FString(__FUNCTION__), ((temp == nullptr) ? TEXT("InValid!") : TEXT("Valid!")));
+		AttachedPiece = temp;
+		AttachedPiece->SetActorRotation(FRotator::ZeroRotator);
+	}
+	else
+	{
+		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s AttachedPiece is nullptr"), *FString(__FUNCTION__));
+	}
+	return AttachedPiece;
 }
 
 ATHPieceBase* ATHLatchBase::GetPiece()
@@ -69,13 +93,11 @@ bool ATHLatchBase::IsCorrectPair()
 void ATHLatchBase::Activate()
 {
 	Object->SetVisibility(true);
-	Object->SetCollisionProfileName("BlockAllDynamic");
-	Area->SetCollisionProfileName("Trigger");
+	Object->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void ATHLatchBase::Deactivate()
 {
 	Object->SetVisibility(false);
-	Object->SetCollisionProfileName("NoCollision");
-	Area->SetCollisionProfileName("NoCollision");
+	Object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

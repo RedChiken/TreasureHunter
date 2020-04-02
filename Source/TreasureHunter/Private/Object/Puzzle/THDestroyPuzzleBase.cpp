@@ -27,6 +27,19 @@ void ATHDestroyPuzzleBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
+bool ATHDestroyPuzzleBase::CheckInput()
+{
+	bool ret = (Input.Num() == Answer.Num());
+	if (ret)
+	{
+		for (int index = 0; ret && (index < Input.Num()); ++index)
+		{
+			ret = (Input[index] == Answer[index]);
+		}
+	}
+	return ret;
+}
+
 void ATHDestroyPuzzleBase::OnKeyGetHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (OtherActor)

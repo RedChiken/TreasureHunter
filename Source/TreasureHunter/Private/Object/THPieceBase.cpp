@@ -30,6 +30,8 @@ void ATHPieceBase::ActivateKey()
 {
 	Object->SetVisibility(true);
 	Object->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece Object Collision Name : %s"), *Object->GetCollisionProfileName().ToString());
+	//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Piece Area Collision Name : %s"), *Area->GetCollisionProfileName().ToString());
 }
 
 void ATHPieceBase::DeactivateKey()

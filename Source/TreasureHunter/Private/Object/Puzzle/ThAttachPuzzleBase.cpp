@@ -28,6 +28,19 @@ void AThAttachPuzzleBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(AThAttachPuzzleBase, LatchList);
 }
 
+bool AThAttachPuzzleBase::CheckInput()
+{
+	bool ret = (Input.Num() == Answer.Num());
+	if (ret)
+	{
+		for (int index = 0; ret && (index < LatchList.Num()); ++index)
+		{
+			ret = Cast<ATHLatchBase>(LatchList[index]->GetChildActor())->IsCorrectPair();
+		}
+	}
+	return ret;
+}
+
 void AThAttachPuzzleBase::OnCharacterNearKey(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)

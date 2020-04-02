@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCorrectAnswer);
+
 UCLASS()
 class TREASUREHUNTER_API ATHLatchBase : public ATHActorBase
 {
@@ -46,6 +49,10 @@ protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+public:
+    UPROPERTY(BlueprintAssignable)
+        FOnCorrectAnswer OnCorrectAnswer;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Key)

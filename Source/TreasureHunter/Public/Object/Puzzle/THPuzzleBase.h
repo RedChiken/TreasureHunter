@@ -32,6 +32,8 @@ protected:
     UFUNCTION(BlueprintCallable)
         bool CheckAnswer();
 
+    virtual bool CheckInput();
+
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Key)
         TArray<class ATHPieceBase*> KeyObject;

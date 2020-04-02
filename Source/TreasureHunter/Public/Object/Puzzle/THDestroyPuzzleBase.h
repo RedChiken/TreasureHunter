@@ -26,8 +26,11 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
+	virtual bool CheckInput() override;
+
 	UFUNCTION(BlueprintCallable)
 		void OnKeyGetHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 public:
 
 };

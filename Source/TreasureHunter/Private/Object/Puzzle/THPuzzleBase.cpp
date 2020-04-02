@@ -50,13 +50,10 @@ void ATHPuzzleBase::DeactivateAllKey()
 
 bool ATHPuzzleBase::CheckAnswer()
 {
-	bool ret = (Input.Num() == Answer.Num());
-	if (ret)
-	{
-		for (int index = 0; ret && (index < Input.Num()); ++index)
-		{
-			ret = (Input[index] == Answer[index]);
-		}
-	}
-	return ret;
+	return CheckInput();
+}
+
+bool ATHPuzzleBase::CheckInput()
+{
+	return false;
 }

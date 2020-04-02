@@ -80,10 +80,13 @@ public:
 		class UAnimMontage* LandFromJump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
-		class ATHPieceBase* Piece;
+		class ATHPieceBase* OverlappedPiece;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
-		class ATHLatchBase* Latch;
+		class ATHPieceBase* AttachedPiece;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
+		class ATHLatchBase* OverlappedLatch;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
