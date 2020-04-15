@@ -22,7 +22,7 @@ ATHCharacterBase::ATHCharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	GetCapsuleComponent()->InitCapsuleSize(20.f, 96.f);
+	GetCapsuleComponent()->InitCapsuleSize(27.5f, 100.f);
 	CrouchedEyeHeight = 32.f;
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -44,51 +44,30 @@ ATHCharacterBase::ATHCharacterBase()
 	
 	GetMesh()->SetRelativeLocationAndRotation(FVector(35.0f, -3.5f, -164.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetupAttachment(FPCameraComponent);
-	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
 
-	BodyHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyHitBox"));
-	BodyHitBox->BodyInstance.SetCollisionProfileName("NormalHitBox");
-	BodyHitBox->InitCapsuleSize(21.f, 80.f);
-	BodyHitBox->SetRelativeLocation(FVector(-10.f, 0.f, -22.5f));
-	BodyHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithNormalHitBox);
-	BodyHitBox->SetupAttachment(RootComponent);
+	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(50.f, 0.f, 0.f));
 
-	HeadHitBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HeadHitBox"));
-	HeadHitBox->BodyInstance.SetCollisionProfileName("CriticalHitBox");
-	HeadHitBox->InitCapsuleSize(10.f, 12.f);
-	HeadHitBox->AddRelativeLocation(FVector(0.0f, 0.0f, 70.0f));
-	HeadHitBox->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnOverlapWithCriticalHitBox);
-	HeadHitBox->SetupAttachment(RootComponent);
-	
-	MeleeLeft = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftMeleeHitBox"));
-	MeleeLeft->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
-	MeleeLeft->InitCapsuleSize(6.f, 8.f);
-	MeleeLeft->SetupAttachment(GetMesh(), TEXT("socket_melee_l"));
+	UpperClimbTrigger = AddNewClimbTrigger(TEXT("UpperClimb"), 15.f, 30.f, FVector(50.f, 0.f, 100.f), FRotator(0.f, 0.f, 90.f));
+	MiddleClimbTrigger = AddNewClimbTrigger(TEXT("MiddleClimb"), 15.f, 30.f, FVector(50.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
+	LowerClimbTrigger = AddNewClimbTrigger(TEXT("LowerClimb"), 15.f, 30.f, FVector(50.f, 0.f, -100.f), FRotator(0.f, 0.f, 90.f));
 
-	MeleeRight = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightMeleeHitBox"));
-	//MeleeRight->BodyInstance.SetCollisionProfileName(TEXT("DamageBox"));
-	//Right hand is not used to melee attack. so 
-	MeleeRight->BodyInstance.SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeleeRight->InitCapsuleSize(6.f, 8.f);
-	MeleeRight->SetupAttachment(GetMesh(), TEXT("socket_melee_r"));
+	HeadHitTrigger = AddNewHitTrigger(TEXT("Head"), 13.f, 13.f, TEXT("head"), FVector(5.f, 2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
+	UpperBodyHitTrigger = AddNewHitTrigger(TEXT("UpperBody"), 22.5f, 27.5f, TEXT("spine_03"), FVector(-2.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
+	LowerBodyHitTrigger = AddNewHitTrigger(TEXT("LowerBody"), 20.f, 25.f, TEXT("spine_01"), FVector::ZeroVector, FRotator(90.f, 0.f, 0.f));
+	LeftUpperArmHitTrigger = AddNewHitTrigger(TEXT("LeftUpperArm"), 12.5f, 22.5f, TEXT("upperarm_l"), FVector(15.f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
+	LeftLowerArmHitTrigger = AddNewHitTrigger(TEXT("LeftLowerArm"), 7.5f, 15.f, TEXT("lowerarm_l"), FVector(15.f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
+	LeftHandHitTrigger = AddNewHitTrigger(TEXT("LeftHand"), 7.5f, 12.5f, TEXT("middle_01_l"), FVector(0.f, -2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
+	RightUpperArmHitTrigger = AddNewHitTrigger(TEXT("RightUpperArm"), 12.5f, 22.5f, TEXT("upperarm_r"), FVector(-15.f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
+	RightLowerArmHitTrigger = AddNewHitTrigger(TEXT("RightLowerArm"), 7.5f, 22.5f, TEXT("lowerarm_r"), FVector(-15.f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
+	RightHandHitTrigger = AddNewHitTrigger(TEXT("RightHand"), 7.5f, 12.5f, TEXT("middle_01_r"), FVector(0.f, 2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
+	LeftUpperLegHitTrigger = AddNewHitTrigger(TEXT("LeftUpperLeg"), 12.5f, 30.f, TEXT("calf_l"), FVector(25.f, -6.f, 0.f), FRotator(90.f, 0.f, 20.f));
+	LeftLowerLegHitTrigger = AddNewHitTrigger(TEXT("LeftLowerLeg"), 12.5f, 32.5f, TEXT("foot_l"), FVector(17.5f, 2.5f, 2.5f), FRotator(90.f, 0.f, -10.f));
+	LeftFootHitTrigger = AddNewHitTrigger(TEXT("LeftFoot"), 7.5f, 17.5f, TEXT("ball_l"), FVector(-7.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
+	RightUpperLegHitTrigger = AddNewHitTrigger(TEXT("RightUpperLeg"), 13.5f, 30.f, TEXT("calf_r"), FVector(-25.f, 3.5f, 0.f), FRotator(90.f, 0.f, 14.f));
+	RightLowerLegHitTrigger = AddNewHitTrigger(TEXT("RightLowerLeg"), 12.5f, 32.5f, TEXT("foot_r"), FVector(-17.5f, -2.5f, -2.5f), FRotator(90.f, 0.f, -10.f));
+	RightFootHitTrigger = AddNewHitTrigger(TEXT("RightFoot"), 7.5f, 17.5f, TEXT("ball_r"), FVector(7.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
 
-	FrontTrigger.Add(CreateDefaultSubobject<UCapsuleComponent>(TEXT("Upper")));
-	FrontTrigger.Add(CreateDefaultSubobject<UCapsuleComponent>(TEXT("Middle")));
-	FrontTrigger.Add(CreateDefaultSubobject<UCapsuleComponent>(TEXT("Under")));
-
-	for (int i = 0; i < 3; ++i)
-	{
-		FrontTrigger[i]->InitCapsuleSize(12.f, 24.f);
-		FrontTrigger[i]->SetupAttachment(GetMesh());
-		FrontTrigger[i]->BodyInstance.SetCollisionProfileName(TEXT("Trigger"));
-		FrontTrigger[i]->SetRelativeLocation(FVector(0.f, 70.f, (2 - i) * 100.f));
-		FrontTrigger[i]->SetRelativeRotation(FRotator(0.f, 0.f, 90.f));
-		FrontTrigger[i]->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnPieceStartOverlap);
-		FrontTrigger[i]->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnLatchStartOverlap);
-		FrontTrigger[i]->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnPieceEndOverlap);
-		FrontTrigger[i]->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnLatchEndOverlap);
-	}
 	bReplicates = true;
 	SetReplicatingMovement(true);
 
@@ -111,6 +90,8 @@ ATHCharacterBase::ATHCharacterBase()
 	OverlappedPiece = nullptr;
 	AttachedPiece = nullptr;
 	OverlappedLatch = nullptr;
+	FirstHitPart = nullptr;
+	HitOpposite = nullptr;
 	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
 
@@ -150,6 +131,8 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, OverlappedLatch);
 	DOREPLIFETIME(ATHCharacterBase, InteractionType);
 	DOREPLIFETIME(ATHCharacterBase, AttachSequence);
+	DOREPLIFETIME(ATHCharacterBase, FirstHitPart);
+	DOREPLIFETIME(ATHCharacterBase, HitOpposite);
 }
 
 // Called every frame
@@ -356,31 +339,65 @@ void ATHCharacterBase::GetOutofClimbArea()
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));*/
 }
 
-void ATHCharacterBase::ReceiveDamage(float damage, bool bCritical)
+void ATHCharacterBase::ReceiveDamage(float damage)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("Hit Character"));
-	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("Hit Character"));
-
-	ServerUpdateHP((bCritical ? 2.5f : 1.0f) * damage);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("hit bullet! Rest HP is %f"), HP));
-	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("hit bullet! Rest HP is %f"), HP);
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("HP: %f, bDead is %s"), HP,
-		(bDead ? TEXT("True") : TEXT("False"))));
+	ServerUpdateHP(-1 * damage);
+	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: Got %f Damage. HP = %f"), *FString(__FUNCTION__), damage, HP);
 	if (!bDead && (HP <= 0.0f))
 	{
 		SetCharacterDead();
 	}
 }
 
-void ATHCharacterBase::OnOverlapWithNormalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	OverlapWithHitBox(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult, false);
+	if (OtherComp && OverlappedComp)
+	{
+		auto Character = Cast<ATHCharacterBase>(OtherComp->GetOwner());
+		auto SelfCharacter = Cast<ATHCharacterBase>(OverlappedComp->GetOwner());
+		auto Hit = Cast<UCapsuleComponent>(OtherComp);
+		auto Self = Cast<UCapsuleComponent>(OverlappedComp);
+		if (Character && Hit && (Character != SelfCharacter))
+		{
+			if (getLayeredAction() == ELayeredAction::MELEEATTACK)
+			{
+				if ((FirstHitPart == nullptr) && (HitOpposite == nullptr))
+				{
+					Character->ReceiveDamage(20.f);
+					FirstHitPart = Self;
+					HitOpposite = Hit;
+					UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: Hit Occur. Lock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+				}
+				else if ((FirstHitPart == Self) && (HitOpposite == Hit))
+				{
+					FirstHitPart = nullptr;
+					HitOpposite = nullptr;
+					UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: UnLock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+				}
+			}
+		}
+	}
 }
 
-void ATHCharacterBase::OnOverlapWithCriticalHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnHitEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	OverlapWithHitBox(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult, true);
+	if (OtherComp)
+	{
+		auto Character = Cast<ATHCharacterBase>(OtherComp->GetOwner());
+		auto SelfCharacter = Cast<ATHCharacterBase>(OverlappedComp->GetOwner());
+		auto Hit = Cast<UCapsuleComponent>(OtherComp);
+		if (Character && Hit && (Character != SelfCharacter))
+		{
+			if (getLayeredAction() == ELayeredAction::MELEEATTACK)
+			{
+				if (Hit == FirstHitPart)
+				{
+					//FirstHitPart = nullptr;
+				}
+				//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: Hit = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+			}
+		}
+	}
 }
 
 void ATHCharacterBase::OnPieceStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -498,6 +515,12 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 		//DisableInput(GetStagePlayerController());
 		AnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
 		//EnableInput(GetStagePlayerController());
+	}
+	if ((FirstHitPart != nullptr) || (HitOpposite != nullptr))
+	{
+		FirstHitPart = nullptr;
+		HitOpposite = nullptr;
+		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: UnLock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
 	}
 }
 
@@ -809,6 +832,45 @@ bool ATHCharacterBase::ServerUpdateAttachSequence_Validate(EAttachSequence Seque
 void ATHCharacterBase::MulticastUpdateAttachSequence_Implementation(EAttachSequence Sequence)
 {
 	AttachSequence = Sequence;
+}
+
+UCapsuleComponent* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+{
+	auto Trigger = CreateDefaultSubobject<UCapsuleComponent>(SubobjectName);
+	Trigger->InitCapsuleSize(Radius, HalfHeight);
+	Trigger->SetRelativeLocation(RelativeLocation);
+	Trigger->SetRelativeRotation(RelativeRotation);
+	Trigger->SetCollisionProfileName(TEXT("Trigger"));
+	Trigger->SetupAttachment(GetMesh(), AttachedSocket);
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnHitStartOverlap);
+	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnHitEndOverlap);
+	return Trigger;
+}
+
+UCapsuleComponent* ATHCharacterBase::AddNewClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+{
+	auto Trigger = CreateDefaultSubobject<UCapsuleComponent>(SubobjectName);
+	Trigger->InitCapsuleSize(Radius, HalfHeight);
+	Trigger->SetupAttachment(RootComponent);
+	Trigger->SetRelativeLocation(RelativeLocation);
+	Trigger->SetRelativeRotation(RelativeRotation);
+	Trigger->SetCollisionProfileName(TEXT("Trigger"));
+	return Trigger;
+}
+
+UCapsuleComponent* ATHCharacterBase::AddNewInteractionTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+{
+	auto Trigger = CreateDefaultSubobject<UCapsuleComponent>(SubobjectName);
+	Trigger->InitCapsuleSize(Radius, HalfHeight);
+	Trigger->SetupAttachment(RootComponent);
+	Trigger->SetRelativeLocation(RelativeLocation);
+	Trigger->SetRelativeRotation(RelativeRotation);
+	Trigger->SetCollisionProfileName(TEXT("Trigger"));
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnPieceStartOverlap);
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnLatchStartOverlap);
+	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnPieceEndOverlap);
+	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnLatchEndOverlap);
+	return Trigger;
 }
 
 void ATHCharacterBase::OnToggleCrouch()
@@ -1232,39 +1294,11 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 	}
 }
 
-void ATHCharacterBase::OverlapWithHitBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical)
-{
-	if (OtherComp)
-	{
-		auto melee = Cast<UCapsuleComponent>(OtherComp);
-		if (melee)
-		{
-			auto hitboxParents = BodyHitBox->GetAttachmentRoot();
-			auto damageboxParents = melee->GetAttachmentRoot();
-			if (hitboxParents != damageboxParents)
-			{
-				auto collision = melee->GetCollisionProfileName();
-				if (collision == FName(TEXT("DamageBox")))
-				{
-					if (!bLayeredMotion)
-					{
-						ReceiveDamage(-20.0f, bCritical);
-					}
-				}
-			}
-		}
-	}
-}
-
 void ATHCharacterBase::SetCharacterDead()
 {
 	ServerUpdatebFullBodyMotion(true);
 	ServerUpdatebDead(true);
 	SetActorEnableCollision(false);
-	BodyHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HeadHitBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeleeLeft->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeleeRight->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false"))));
 	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false")));

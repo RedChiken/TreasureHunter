@@ -55,20 +55,62 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
-		class UCapsuleComponent* BodyHitBox;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
-		class UCapsuleComponent* HeadHitBox;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
-		class UCapsuleComponent* MeleeLeft;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = BodyHitBox)
-		class UCapsuleComponent* MeleeRight;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interaction)
-		TArray<class UCapsuleComponent*> FrontTrigger;
+		class UCapsuleComponent* InteractionTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ClimbTrigger)
+		class UCapsuleComponent* UpperClimbTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ClimbTrigger)
+		class UCapsuleComponent* MiddleClimbTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ClimbTrigger)
+		class UCapsuleComponent* LowerClimbTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* HeadHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* UpperBodyHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* LowerBodyHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* LeftUpperArmHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* LeftLowerArmHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* LeftHandHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* RightUpperArmHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* RightLowerArmHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* RightHandHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* LeftUpperLegHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* LeftLowerLegHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* LeftFootHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* RightUpperLegHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* RightLowerLegHitTrigger;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
+		class UCapsuleComponent* RightFootHitTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* MeleeAttack;
@@ -87,6 +129,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
 		class ATHLatchBase* OverlappedLatch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
+		class UCapsuleComponent* FirstHitPart;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
+		class UCapsuleComponent* HitOpposite;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -144,7 +192,8 @@ private:
 		EInteractionType InteractionType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		EAttachSequence AttachSequence; 
+		EAttachSequence AttachSequence;
+
 
 public:
 	float getCurrentSpeed();
@@ -177,7 +226,7 @@ public:
 	void EnterToClimb(EEnterDirection Enter, EIdleType Nearby);
 	void GetOutofClimbArea();
 
-	void ReceiveDamage(float damage, bool bCritical = false);
+	void ReceiveDamage(float damage);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
@@ -244,11 +293,12 @@ public:
 
 
 protected:
-	UFUNCTION()
-		void OnOverlapWithNormalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
-		void OnOverlapWithCriticalHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(BlueprintCallable)
+		void OnHitStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+		void OnHitEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
 		void OnPieceStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -325,6 +375,15 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateAttachSequence(EAttachSequence Sequence);
 
+	UFUNCTION(BlueprintCallable)
+		class UCapsuleComponent* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
+
+	UFUNCTION(Blueprintcallable)
+		class UCapsuleComponent* AddNewClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
+
+	UFUNCTION(Blueprintcallable)
+		class UCapsuleComponent* AddNewInteractionTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
+
 	void OnToggleCrouch();
 	void OnToggleSprint();
 	void OnSlide();
@@ -343,14 +402,10 @@ protected:
 
 private:
 	void AddMovement(const FVector vector, float val); 
-	
-	void OverlapWithHitBox(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult, bool bCritical);
 
 	void SetCharacterDead();
 
 	void AttachPiece(FName Socket = NAME_None);
 
 	class ATHPieceBase* DetachPiece();
-
-
 };
