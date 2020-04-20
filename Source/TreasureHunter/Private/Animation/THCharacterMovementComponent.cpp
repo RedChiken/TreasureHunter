@@ -10,3 +10,18 @@ UTHCharacterMovementComponent::UTHCharacterMovementComponent(const class FObject
 {
 	int i = 0;
 }
+
+void UTHCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
+{
+	Super::UpdateFromCompressedFlags(Flags);
+}
+
+void UTHCharacterMovementComponent::OnMovementUpdated(float DeltaTime, const FVector& OldLocation, const FVector& OldVelocity)
+{
+	Super::OnMovementUpdated(DeltaTime, OldLocation, OldVelocity);
+}
+
+void UTHCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+}

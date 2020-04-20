@@ -25,7 +25,7 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	GetCapsuleComponent()->InitCapsuleSize(27.5f, 100.f);
-	CrouchedEyeHeight = 32.f;
+	GetCapsuleComponent()->SetIsReplicated(true);
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
@@ -46,7 +46,15 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	
 	GetMesh()->SetRelativeLocationAndRotation(FVector(35.0f, -3.5f, -164.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetupAttachment(FPCameraComponent);
+	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
+
+	MovementComponent = Cast<UTHCharacterMovementComponent>(GetMovementComponent());
+	if (MovementComponent)
+	{
+		MovementComponent->UpdatedComponent = GetCapsuleComponent();
+		CrouchedEyeHeight = MovementComponent->CrouchedHalfHeight * 0.8f;
+	}
 
 	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(50.f, 0.f, 0.f));
 
@@ -1212,7 +1220,9 @@ void ATHCharacterBase::Turn(float val)
 {
 	if (!bClimbing)
 	{
-		AddControllerYawInput(val);
+		//AddControllerYawInput(val);
+		FRotator rot = GetActorRotation();
+		MovementComponent->UpdateBasedRotation(rot, FRotator(0.f, val, 0.f));
 	}
 	else
 	{
@@ -1222,7 +1232,9 @@ void ATHCharacterBase::Turn(float val)
 
 void ATHCharacterBase::LookUp(float val)
 {
-	AddControllerPitchInput(val);
+	//AddControllerPitchInput(val);
+	FRotator rot = GetActorRotation();
+	MovementComponent->UpdateBasedRotation(rot, FRotator(-val, 0.f, 0.f));
 }
 
 void ATHCharacterBase::AddMovement(const FVector vector, float val)
@@ -1246,7 +1258,9 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 						//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 					}
 				}
-				AddMovementInput(vector, val); 
+				//AddMovementInput(vector, val); 
+				MovementComponent->AddInputVector(vector * val);
+				
 			}
 			break;
 
@@ -1254,7 +1268,8 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 			{
 				bStandToSprint = false;
 				ServerUpdateMovementType(EMovementType::WALK);
-				AddMovementInput(vector, val);
+				//AddMovementInput(vector, val); 
+				MovementComponent->AddInputVector(vector * val);
 			}
 			break;
 

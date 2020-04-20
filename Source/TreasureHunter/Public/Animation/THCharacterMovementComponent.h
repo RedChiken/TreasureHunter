@@ -16,4 +16,13 @@ class TREASUREHUNTER_API UTHCharacterMovementComponent : public UCharacterMoveme
 	
 public:
 	UTHCharacterMovementComponent(const class FObjectInitializer& ObjectInitializer);
+
+	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
+
+	virtual void OnMovementUpdated(float DeltaTime, const FVector& OldLocation, const FVector& OldVelocity) override;
+
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
+
+
+
 };
