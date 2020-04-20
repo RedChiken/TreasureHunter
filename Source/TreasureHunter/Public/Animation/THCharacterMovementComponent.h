@@ -14,4 +14,6 @@ class TREASUREHUNTER_API UTHCharacterMovementComponent : public UCharacterMoveme
 {
 	GENERATED_BODY()
 	
+public:
+	UTHCharacterMovementComponent(const class FObjectInitializer& ObjectInitializer);
 };

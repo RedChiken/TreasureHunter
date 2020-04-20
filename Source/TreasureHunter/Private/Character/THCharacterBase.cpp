@@ -5,6 +5,7 @@
 #include "TreasureHunter.h"
 #include "ConstructorHelpers.h"
 #include "Animation/THAnimInstanceBase.h"
+#include "Animation/THCharacterMovementComponent.h"
 #include "camera/CameraComponent.h"
 #include "Object/THProjectileBase.h"
 #include "THPieceBase.h"
@@ -14,11 +15,12 @@
 #include "GameFramework/InputSettings.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "UObject/UObjectGlobals.h"
 #include "net/UnrealNetwork.h"
 #include "Engine.h"
 
 // Sets default values
-ATHCharacterBase::ATHCharacterBase()
+ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitializer) : ACharacter(ObjectInitializer.SetDefaultSubobjectClass<UTHCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -98,6 +100,7 @@ ATHCharacterBase::ATHCharacterBase()
 void ATHCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	MovementComponent = Cast<UTHCharacterMovementComponent>(Super::GetMovementComponent());
 }
 
 // Called when the game starts or when spawned
@@ -133,6 +136,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, AttachSequence);
 	DOREPLIFETIME(ATHCharacterBase, FirstHitPart);
 	DOREPLIFETIME(ATHCharacterBase, HitOpposite);
+	DOREPLIFETIME(ATHCharacterBase, MovementComponent);
 }
 
 // Called every frame

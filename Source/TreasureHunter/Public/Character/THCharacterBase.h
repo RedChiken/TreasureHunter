@@ -23,7 +23,7 @@ class TREASUREHUNTER_API ATHCharacterBase : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	ATHCharacterBase();
+	ATHCharacterBase(const class FObjectInitializer& ObjectInitializer);
 
 	virtual void PostInitializeComponents() override;
 protected:
@@ -49,11 +49,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* TPCameraComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
 		float BaseTurnRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
 		float BaseLookUpRate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, REplicated, Category = Movement)
+		class UTHCharacterMovementComponent* MovementComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interaction)
 		class UCapsuleComponent* InteractionTrigger;
