@@ -18,6 +18,9 @@ public:
         TArray<class UStaticMeshComponent*> WallList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
+        TArray<class ATHWallBase*> InterpWallList;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
         TArray<FVector> ActivatingDirection;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
@@ -50,6 +53,9 @@ protected:
 
     UFUNCTION(BlueprintCallable)
         void DeactivateAllWall(float DeltaTime);
+
+    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+        void ActivateAllInterpWall();
 
     UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
         void ServerUpdatebInArea(bool inArea);

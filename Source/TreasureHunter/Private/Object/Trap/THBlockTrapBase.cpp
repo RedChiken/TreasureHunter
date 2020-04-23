@@ -3,6 +3,7 @@
 
 #include "THBlockTrapBase.h"
 #include "THCharacterBase.h"
+#include "THWallBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine.h"
@@ -30,6 +31,7 @@ void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHBlockTrapBase, WallList);
+	DOREPLIFETIME(ATHBlockTrapBase, InterpWallList);
 	DOREPLIFETIME(ATHBlockTrapBase, ActivatingDirection);
 	DOREPLIFETIME(ATHBlockTrapBase, DeactivatingDirection);
 	DOREPLIFETIME(ATHBlockTrapBase, bInArea);
