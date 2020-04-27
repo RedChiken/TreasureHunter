@@ -43,6 +43,9 @@ public:
     UFUNCTION(BlueprintImplementableEvent)
         void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+        void InitializeTrap();
+
 protected:
     virtual void BeginPlay() override;
 
@@ -56,6 +59,9 @@ protected:
 
     UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
         void ActivateAllInterpWall();
+
+    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+        void StopAllInterpWall();
 
     UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
         void ServerUpdatebInArea(bool inArea);
