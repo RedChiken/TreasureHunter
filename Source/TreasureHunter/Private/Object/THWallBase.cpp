@@ -29,13 +29,13 @@ void ATHWallBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ATHWallBase, MovementComponent);
 }
 
-void ATHWallBase::ActivateWall(TArray<FVector> Point, bool bPositionIsRelative)
+void ATHWallBase::ActivateWall(float duration, bool bPositionIsRelative)
 {
-	for (int i = 0; i < Point.Num(); ++i)
-	{
-		MovementComponent->AddControlPointPosition(Point[i], bPositionIsRelative);
-	}
-
-	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: ControlPoint = %d"), *FString(__FUNCTION__), MovementComponent->ControlPoints.Num());
+	MovementComponent->Duration = duration;
 	MovementComponent->RestartMovement();
+}
+
+void ATHWallBase::StopWall()
+{
+	MovementComponent->StopMovementImmediately();
 }

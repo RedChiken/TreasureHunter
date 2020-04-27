@@ -27,7 +27,10 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-		void ActivateWall(TArray<FVector> Point, bool bPositionIsRelative);
+		void ActivateWall(float duration, bool bPositionIsRelative);
+
+	UFUNCTION(BlueprintCallable)
+		void StopWall();
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Movement)
