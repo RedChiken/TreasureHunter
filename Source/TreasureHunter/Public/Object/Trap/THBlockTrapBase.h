@@ -14,8 +14,6 @@ class TREASUREHUNTER_API ATHBlockTrapBase : public ATHActorBase
 {
 	GENERATED_BODY()
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        TArray<class UStaticMeshComponent*> WallList;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
         TArray<class ATHWallBase*> InterpWallList;
@@ -32,9 +30,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
         bool bInactive;
 
-private:
-    FVector nowLocation;
-
 public:
     ATHBlockTrapBase();
 
@@ -46,16 +41,13 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
         void InitializeTrap();
 
+    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+        void SetRelativeControlPoint(class ATHWallBase* Wall, const TArray<FVector>& ControlPointList);
+
 protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
-    UFUNCTION(BlueprintCallable)
-        void ActivateAllWall(float DeltaTime);
-
-    UFUNCTION(BlueprintCallable)
-        void DeactivateAllWall(float DeltaTime);
 
     UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
         void ActivateAllInterpWall();
@@ -74,7 +66,4 @@ protected:
 
     UFUNCTION(NetMulticast, Reliable)
         void MulticastUpdatebInactive(bool Inactive);
-
-    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-        bool IsWallNearTheEnd(int index, const TArray<FVector>& Destination);
 };

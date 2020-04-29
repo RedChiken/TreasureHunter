@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Object/THActorBase.h"
+#include "Components/InterpToMovementComponent.h"
 #include "THWallBase.generated.h"
 
 /**
@@ -31,6 +32,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void StopWall();
+
+	UFUNCTION(BlueprintCallable)
+		TArray<FInterpControlPoint> ReverseControlPoints(const TArray<FInterpControlPoint>& ControlPoints);
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, REplicated, Category = Movement)
+		FVector InitialPosition;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Movement)

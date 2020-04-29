@@ -30,38 +30,11 @@ void ATHBlockTrapBase::BeginPlay()
 void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ATHBlockTrapBase, WallList);
 	DOREPLIFETIME(ATHBlockTrapBase, InterpWallList);
 	DOREPLIFETIME(ATHBlockTrapBase, ActivatingDirection);
 	DOREPLIFETIME(ATHBlockTrapBase, DeactivatingDirection);
 	DOREPLIFETIME(ATHBlockTrapBase, bInArea);
 	DOREPLIFETIME(ATHBlockTrapBase, bInactive);
-}
-
-void ATHBlockTrapBase::ActivateAllWall(float DeltaTime)
-{
-	for (int i = 0; i < WallList.Num(); i++)
-	{
-		if (IsWallNearTheEnd(i, ActivatingDirection))
-		{
-			nowLocation = WallList[i]->GetRelativeLocation();
-			nowLocation += ActivatingDirection[i] * DeltaTime;
-			WallList[i]->SetRelativeLocation(nowLocation);
-		}
-	}
-}
-
-void ATHBlockTrapBase::DeactivateAllWall(float DeltaTime)
-{
-	for (int i = 0; i < WallList.Num(); i++)
-	{
-		if (IsWallNearTheEnd(i, DeactivatingDirection))
-		{
-			nowLocation = WallList[i]->GetRelativeLocation();
-			nowLocation += DeactivatingDirection[i] * DeltaTime;
-			WallList[i]->SetRelativeLocation(nowLocation);
-		}
-	}
 }
 
 void ATHBlockTrapBase::ServerUpdatebInactive_Implementation(bool Inactive)

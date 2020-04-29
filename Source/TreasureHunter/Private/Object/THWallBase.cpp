@@ -5,7 +5,6 @@
 #include "TreasureHunter.h"
 #include "Kismet/GameplayStatics.h"
 #include "net/UnrealNetwork.h"
-#include "Components/InterpToMovementComponent.h"
 #include "Engine.h"
 
 ATHWallBase::ATHWallBase() : ATHActorBase()
@@ -27,6 +26,7 @@ void ATHWallBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHWallBase, MovementComponent);
+	DOREPLIFETIME(ATHWallBase, InitialPosition);
 }
 
 void ATHWallBase::ActivateWall(float duration, bool bPositionIsRelative)
@@ -38,4 +38,17 @@ void ATHWallBase::ActivateWall(float duration, bool bPositionIsRelative)
 void ATHWallBase::StopWall()
 {
 	MovementComponent->StopMovementImmediately();
+}
+
+TArray<FInterpControlPoint> ATHWallBase::ReverseControlPoints(const TArray<FInterpControlPoint>& ControlPoints)
+{
+	TArray<FInterpControlPoint> Reverse;
+	Reverse.Add(ControlPoints[0]);
+	int length = ControlPoints.Num();
+	for (int i = 0; i < length - 1; ++i)
+	{
+		auto relativeDestination = ControlPoints[length - i - 1].PositionControlPoint * -1;
+		Reverse.Add(FInterpControlPoint(relativeDestination, true));
+	}
+	return Reverse;
 }
