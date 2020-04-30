@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Object/Puzzle/THPuzzleBase.h"
-#include "ThAttachPuzzleBase.generated.h"
+#include "THAttachPuzzleBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API AThAttachPuzzleBase : public ATHPuzzleBase
+class TREASUREHUNTER_API ATHAttachPuzzleBase : public ATHPuzzleBase
 {
 	GENERATED_BODY()
 
 public:
-	AThAttachPuzzleBase();
+	ATHAttachPuzzleBase();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

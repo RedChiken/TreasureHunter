@@ -1,34 +1,34 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ThAttachPuzzleBase.h"
+#include "THAttachPuzzleBase.h"
 #include "THLatchBase.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
 #include "THCharacterBase.h"
 
-AThAttachPuzzleBase::AThAttachPuzzleBase() : ATHPuzzleBase()
+ATHAttachPuzzleBase::ATHAttachPuzzleBase() : ATHPuzzleBase()
 {
 
 }
 
-void AThAttachPuzzleBase::Tick(float DeltaTime)
+void ATHAttachPuzzleBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void AThAttachPuzzleBase::BeginPlay()
+void ATHAttachPuzzleBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AThAttachPuzzleBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void ATHAttachPuzzleBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AThAttachPuzzleBase, LatchList);
+	DOREPLIFETIME(ATHAttachPuzzleBase, LatchList);
 }
 
-bool AThAttachPuzzleBase::CheckInput()
+bool ATHAttachPuzzleBase::CheckInput()
 {
 	bool ret = (Input.Num() == Answer.Num());
 	if (ret)
@@ -41,7 +41,7 @@ bool AThAttachPuzzleBase::CheckInput()
 	return ret;
 }
 
-void AThAttachPuzzleBase::OnCharacterNearKey(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHAttachPuzzleBase::OnCharacterNearKey(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
 	{
@@ -53,7 +53,7 @@ void AThAttachPuzzleBase::OnCharacterNearKey(UPrimitiveComponent* OverlappedComp
 	}
 }
 
-void AThAttachPuzzleBase::ActivateAllLatch()
+void ATHAttachPuzzleBase::ActivateAllLatch()
 {
 	for (int i = 0; i < LatchList.Num(); ++i)
 	{
@@ -61,7 +61,7 @@ void AThAttachPuzzleBase::ActivateAllLatch()
 	}
 }
 
-void AThAttachPuzzleBase::DeactivateAllLatch()
+void ATHAttachPuzzleBase::DeactivateAllLatch()
 {
 	for (int i = 0; i < LatchList.Num(); ++i)
 	{
