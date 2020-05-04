@@ -3,11 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/GameInstance.h"
-#include "Engine/DataTable.h"
 #include "Online.h"
 #include "UnrealNetwork.h"
-#include "TreasureHunter.h"
+#include "Engine/GameInstance.h"
 #include "THGameInstance.generated.h"
 
 /**

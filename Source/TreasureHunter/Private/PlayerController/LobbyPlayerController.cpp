@@ -2,6 +2,7 @@
 
 #include "LobbyPlayerController.h"
 #include "WidgetControllerComponent.h"
+#include "TreasureHunter.h"
 #include "UnrealNetwork.h"
 
 ALobbyPlayerController::ALobbyPlayerController() {
