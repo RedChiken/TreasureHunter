@@ -272,15 +272,6 @@ public:
 		void ServerUpdateHP(float HPChanged);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUpdatebInInteractionRange(bool InInteractionRange);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUpdatebAbleToClimb(bool Climb);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUpdatebClimbing(bool Climb);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateLayeredAction(ELayeredAction Action);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
@@ -289,9 +280,17 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateAttachSequence(EAttachSequence Sequence);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebUpperClimbTrigger(bool ClimbTrigger);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebMiddleClimbTrigger(bool ClimbTrigger);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdatebLowerClimbTrigger(bool ClimbTrigger);
+
 
 protected:
-
 	UFUNCTION(BlueprintCallable)
 		void OnHitStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -309,6 +308,24 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void OnLatchEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintCallable)
+		void OnClimbStartOverlapWithUpperTrigger(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+		void OnClimbEndOverlapWithUpperTrigger(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintCallable)
+		void OnClimbStartOverlapWithMiddleTrigger(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+		void OnClimbEndOverlapWithMiddleTrigger(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintCallable)
+		void OnClimbStartOverlapWithLowerTrigger(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable)
+		void OnClimbEndOverlapWithLowerTrigger(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
@@ -359,19 +376,19 @@ protected:
 		void MulticastUpdateHP(float HPChanged);
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebInInteractionRange(bool InInteractionRange);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebAbleToClimb(bool Climb);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebClimbing(bool Climb);
-
-	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateInteractionType(EInteractionType Type);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateAttachSequence(EAttachSequence Sequence);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebUpperClimbTrigger(bool ClimbTrigger);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebMiddleClimbTrigger(bool ClimbTrigger);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebLowerClimbTrigger(bool ClimbTrigger);
 
 	UFUNCTION(BlueprintCallable)
 		class UCapsuleComponent* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);

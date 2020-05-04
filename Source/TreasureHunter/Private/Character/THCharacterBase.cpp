@@ -59,8 +59,14 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(50.f, 0.f, 0.f));
 
 	UpperClimbTrigger = AddNewClimbTrigger(TEXT("UpperClimb"), 15.f, 30.f, FVector(50.f, 0.f, 100.f), FRotator(0.f, 0.f, 90.f));
+	UpperClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlapWithUpperTrigger);
+	UpperClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlapWithUpperTrigger);
 	MiddleClimbTrigger = AddNewClimbTrigger(TEXT("MiddleClimb"), 15.f, 30.f, FVector(50.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
+	MiddleClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlapWithMiddleTrigger);
+	MiddleClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlapWithMiddleTrigger);
 	LowerClimbTrigger = AddNewClimbTrigger(TEXT("LowerClimb"), 15.f, 30.f, FVector(50.f, 0.f, -100.f), FRotator(0.f, 0.f, 90.f));
+	LowerClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlapWithLowerTrigger);
+	LowerClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlapWithLowerTrigger);
 
 	HeadHitTrigger = AddNewHitTrigger(TEXT("Head"), 13.f, 13.f, TEXT("head"), FVector(5.f, 2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
 	UpperBodyHitTrigger = AddNewHitTrigger(TEXT("UpperBody"), 22.5f, 27.5f, TEXT("spine_03"), FVector(-2.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
@@ -140,6 +146,9 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, FirstHitPart);
 	DOREPLIFETIME(ATHCharacterBase, HitOpposite);
 	DOREPLIFETIME(ATHCharacterBase, MovementComponent);
+	DOREPLIFETIME(ATHCharacterBase, bUpperClimbTrigger);
+	DOREPLIFETIME(ATHCharacterBase, bMiddleClimbTrigger);
+	DOREPLIFETIME(ATHCharacterBase, bLowerClimbTrigger);
 }
 
 // Called every frame
@@ -474,6 +483,42 @@ void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
+void ATHCharacterBase::OnClimbStartOverlapWithUpperTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ServerUpdatebUpperClimbTrigger(true);
+	UE_LOG(THVerbose, Verbose, TEXT("%hs bUpperClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bUpperClimbTrigger));
+}
+
+void ATHCharacterBase::OnClimbEndOverlapWithUpperTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ServerUpdatebUpperClimbTrigger(false);
+	UE_LOG(THVerbose, Verbose, TEXT("%hs bUpperClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bUpperClimbTrigger));
+}
+
+void ATHCharacterBase::OnClimbStartOverlapWithMiddleTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ServerUpdatebMiddleClimbTrigger(true);
+	UE_LOG(THVerbose, Verbose, TEXT("%hs bMiddleClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bMiddleClimbTrigger));
+}
+
+void ATHCharacterBase::OnClimbEndOverlapWithMiddleTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ServerUpdatebMiddleClimbTrigger(false);
+	UE_LOG(THVerbose, Verbose, TEXT("%hs bMiddleClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bMiddleClimbTrigger));
+}
+
+void ATHCharacterBase::OnClimbStartOverlapWithLowerTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ServerUpdatebLowerClimbTrigger(true);
+	UE_LOG(THVerbose, Verbose, TEXT("%hs bLowerClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bLowerClimbTrigger));
+}
+
+void ATHCharacterBase::OnClimbEndOverlapWithLowerTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ServerUpdatebLowerClimbTrigger(false);
+	UE_LOG(THVerbose, Verbose, TEXT("%hs bLowerClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bLowerClimbTrigger));
+}
+
 void ATHCharacterBase::ServerPlayMontage_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
 {
 	MulticastPlayMontage(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
@@ -497,7 +542,8 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 	{
 		FirstHitPart = nullptr;
 		HitOpposite = nullptr;
-		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: UnLock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%hs: UnLock the FirstHitPart. IsLock = %s"), __FUNCTION__, 
+			*GETBOOLSTRING((FirstHitPart != nullptr)));
 	}
 }
 
