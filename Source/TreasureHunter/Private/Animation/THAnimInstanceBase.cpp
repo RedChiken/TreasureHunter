@@ -24,9 +24,6 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 			bDead = Character->getbDead();
 			bLayeredMotion = Character->getbLayeredMotion();
 			bStandToSprint = Character->getbStandToSprint();
-			bInInteractionRange = Character->getbInInteractionRange();
-			bAbleToClimb = Character->getbAbleToClimb();
-			bClimbing = Character->getbClimbing();
 			HP = Character->getHP();
 			LayeredAction = Character->getLayeredAction();
 		}

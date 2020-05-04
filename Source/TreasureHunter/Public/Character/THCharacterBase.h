@@ -183,19 +183,19 @@ private:
 		float HP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		bool bInInteractionRange;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		bool bAbleToClimb;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		bool bClimbing;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EInteractionType InteractionType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EAttachSequence AttachSequence;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bUpperClimbTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bMiddleClimbTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		bool bLowerClimbTrigger;
 
 
 public:
@@ -214,14 +214,9 @@ public:
 	bool getbDead();
 	bool getbStandToSprint();
 	float getHP();
-	bool getbInInteractionRange();
-	bool getbAbleToClimb();
-	bool getbClimbing();
 	EInteractionType getInteractionType();
 
 	void StopInteraction();
-
-	void UpdatebInInteractionRange(bool InInteractionRange);
 	void UpdateIdleType(EIdleType Idle);
 	void UpdateNearbyIdleType(EIdleType Idle);
 	void UpdateExitDirection(EExitDirection Exit);

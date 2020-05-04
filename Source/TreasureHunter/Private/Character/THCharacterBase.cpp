@@ -94,8 +94,6 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	bDead = false;
 	bLayeredMotion = false;
 	bStandToSprint = false;
-	bInInteractionRange = false;
-	bAbleToClimb = false;
 	HP = 100;
 	OverlappedPiece = nullptr;
 	AttachedPiece = nullptr;
@@ -133,10 +131,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bLayeredMotion);
 	DOREPLIFETIME(ATHCharacterBase, bDead);
 	DOREPLIFETIME(ATHCharacterBase, bStandToSprint);
-	DOREPLIFETIME(ATHCharacterBase, bInInteractionRange);
-	DOREPLIFETIME(ATHCharacterBase, bAbleToClimb);
 	DOREPLIFETIME(ATHCharacterBase, HP);
-	DOREPLIFETIME(ATHCharacterBase, bClimbing);
 	DOREPLIFETIME(ATHCharacterBase, OverlappedPiece);
 	DOREPLIFETIME(ATHCharacterBase, AttachedPiece);
 	DOREPLIFETIME(ATHCharacterBase, OverlappedLatch);
@@ -258,21 +253,6 @@ float ATHCharacterBase::getHP()
 	return HP;
 }
 
-bool ATHCharacterBase::getbInInteractionRange()
-{
-	return bInInteractionRange;
-}
-
-bool ATHCharacterBase::getbAbleToClimb()
-{
-	return bAbleToClimb;
-}
-
-bool ATHCharacterBase::getbClimbing()
-{
-	return bClimbing;
-}
-
 EInteractionType ATHCharacterBase::getInteractionType()
 {
 	return InteractionType;
@@ -281,11 +261,6 @@ EInteractionType ATHCharacterBase::getInteractionType()
 void ATHCharacterBase::StopInteraction()
 {
 	OnInteractionReleased();
-}
-
-void ATHCharacterBase::UpdatebInInteractionRange(bool InInteractionRange)
-{
-	ServerUpdatebInInteractionRange(InInteractionRange);
 }
 
 void ATHCharacterBase::UpdateIdleType(EIdleType Idle)
@@ -306,7 +281,6 @@ void ATHCharacterBase::UpdateExitDirection(EExitDirection Exit)
 void ATHCharacterBase::ExitFromClimb(EExitDirection Exit)
 {
 	ServerUpdatebFullBodyMotion(false);
-	ServerUpdatebClimbing(false);
 	ServerUpdateIdleType(EIdleType::STAND);
 	ServerUpdateEnterDirection(EEnterDirection::DEFAULT);
 	ServerUpdateExitDirection(Exit);
@@ -314,7 +288,6 @@ void ATHCharacterBase::ExitFromClimb(EExitDirection Exit)
 
 	/*
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue,	FString::Printf(TEXT("ExitDirection: %s"),*GETENUMSTRING("EExitDirection", ExitDirection)));
@@ -324,14 +297,10 @@ void ATHCharacterBase::ExitFromClimb(EExitDirection Exit)
 
 void ATHCharacterBase::EnterToClimb(EEnterDirection Enter, EIdleType Nearby)
 {
-	ServerUpdatebInInteractionRange(true);
-	ServerUpdatebAbleToClimb(true);
 	ServerUpdateEnterDirection(Enter);
 	ServerUpdateNearbyIdleType(Nearby);
 	
 	/*
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bInInteractionRange: %s"), (GETBOOLSTRING(bInInteractionRange))));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
 	*/
@@ -339,14 +308,10 @@ void ATHCharacterBase::EnterToClimb(EEnterDirection Enter, EIdleType Nearby)
 
 void ATHCharacterBase::GetOutofClimbArea()
 {
-	ServerUpdatebInInteractionRange(false);
-	ServerUpdatebAbleToClimb(false);
 	ServerUpdateEnterDirection(EEnterDirection::DEFAULT);
 	ServerUpdateNearbyIdleType(EIdleType::DEFAULT);
 
 	/*
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("bInInteractionRange: %s"), (GETBOOLSTRING(bInInteractionRange))));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("bAbleToClimb: %s"), (GETBOOLSTRING(bAbleToClimb))));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
 	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));*/
 }
@@ -771,51 +736,6 @@ void ATHCharacterBase::MulticastUpdateHP_Implementation(float HPChanged)
 	HP += HPChanged;
 }
 
-void ATHCharacterBase::ServerUpdatebInInteractionRange_Implementation(bool InInteractionRange)
-{
-	MulticastUpdatebInInteractionRange(InInteractionRange);
-}
-
-bool ATHCharacterBase::ServerUpdatebInInteractionRange_Validate(bool InInteractionRange)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdatebInInteractionRange_Implementation(bool InInteractionRange)
-{
-	bInInteractionRange = InInteractionRange;
-}
-
-void ATHCharacterBase::ServerUpdatebAbleToClimb_Implementation(bool Climb)
-{
-	MulticastUpdatebAbleToClimb(Climb);
-}
-
-bool ATHCharacterBase::ServerUpdatebAbleToClimb_Validate(bool Climb)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdatebAbleToClimb_Implementation(bool Climb)
-{
-	bAbleToClimb = Climb;
-}
-
-void ATHCharacterBase::ServerUpdatebClimbing_Implementation(bool Climb)
-{
-	MulticastUpdatebClimbing(Climb);
-}
-
-bool ATHCharacterBase::ServerUpdatebClimbing_Validate(bool Climb)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdatebClimbing_Implementation(bool Climb)
-{
-	bClimbing = Climb;
-}
-
 void ATHCharacterBase::ServerUpdateInteractionType_Implementation(EInteractionType Type)
 {
 	MulticastUpdateInteractionType(Type);
@@ -844,6 +764,51 @@ bool ATHCharacterBase::ServerUpdateAttachSequence_Validate(EAttachSequence Seque
 void ATHCharacterBase::MulticastUpdateAttachSequence_Implementation(EAttachSequence Sequence)
 {
 	AttachSequence = Sequence;
+}
+
+void ATHCharacterBase::ServerUpdatebUpperClimbTrigger_Implementation(bool ClimbTrigger)
+{
+	MulticastUpdatebUpperClimbTrigger(ClimbTrigger);
+}
+
+bool ATHCharacterBase::ServerUpdatebUpperClimbTrigger_Validate(bool ClimbTrigger)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebUpperClimbTrigger_Implementation(bool ClimbTrigger)
+{
+	bUpperClimbTrigger = ClimbTrigger;
+}
+
+void ATHCharacterBase::ServerUpdatebMiddleClimbTrigger_Implementation(bool ClimbTrigger)
+{
+	MulticastUpdatebMiddleClimbTrigger(ClimbTrigger);
+}
+
+bool ATHCharacterBase::ServerUpdatebMiddleClimbTrigger_Validate(bool ClimbTrigger)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebMiddleClimbTrigger_Implementation(bool ClimbTrigger)
+{
+	bMiddleClimbTrigger = ClimbTrigger;
+}
+
+void ATHCharacterBase::ServerUpdatebLowerClimbTrigger_Implementation(bool ClimbTrigger)
+{
+	MulticastUpdatebLowerClimbTrigger(ClimbTrigger);
+}
+
+bool ATHCharacterBase::ServerUpdatebLowerClimbTrigger_Validate(bool ClimbTrigger)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdatebLowerClimbTrigger_Implementation(bool ClimbTrigger)
+{
+	bLowerClimbTrigger = ClimbTrigger;
 }
 
 UCapsuleComponent* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
@@ -1057,16 +1022,9 @@ void ATHCharacterBase::OnInteractionPressed()
 	default:
 		break;
 	}
-	if (bInInteractionRange)
-	{
-		ServerUpdatebLayeredMotion(true);
-		ServerPlayMontage(Interaction);
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
-
-		//TODO: Add Interaction when Interact with Key
-		//AttachedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("socket_melee_r"));
-
-	}
+	ServerUpdatebLayeredMotion(true);
+	ServerPlayMontage(Interaction);
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
 }
 
 void ATHCharacterBase::OnInteractionReleased()
@@ -1074,20 +1032,11 @@ void ATHCharacterBase::OnInteractionReleased()
 	ServerUpdatebLayeredMotion(false);
 	ServerUpdateInteractionType(EInteractionType::DEFAULT);
 	ServerStopMontage(0.25f, Interaction);
-	/*
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("ExitDirection: %s"), *GETENUMSTRING("EExitDirection", ExitDirection)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bClimbing: %s"), (GETBOOLSTRING(bClimbing))));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("bLayeredMotion: %s"), (GETBOOLSTRING(bLayeredMotion))));
-	*/
-	//Stop Montage Play
 }
 
 void ATHCharacterBase::MoveForward(float val)
 {
-	if (bClimbing)
+	if (MovementType == EMovementType::CLIMB)
 	{
 		ServerUpdatebUpward(val > 0);
 		AddMovement(GetActorUpVector(), val);
@@ -1154,7 +1103,7 @@ void ATHCharacterBase::MoveForward(float val)
 
 void ATHCharacterBase::MoveRight(float val)
 {
-	if (!bClimbing)
+	if (MovementType != EMovementType::CLIMB)
 	{
 		AddMovement(GetActorRightVector(), val);
 		if (val > 0)
@@ -1218,7 +1167,7 @@ void ATHCharacterBase::MoveRight(float val)
 
 void ATHCharacterBase::Turn(float val)
 {
-	if (!bClimbing)
+	if (MovementType != EMovementType::CLIMB)
 	{
 		//AddControllerYawInput(val);
 		FRotator rot = GetActorRotation();
@@ -1274,37 +1223,20 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 			break;
 
 		case EIdleType::LADDER:
-			if (bClimbing)
+			if (MovementType == EMovementType::CLIMB)
 			{
-				//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType)));
-				//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
-				if (MovementType == EMovementType::CLIMB)
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("before value is Climb!"));
-					UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("before value is Climb!"));
-				}
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AddMovement after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 				ServerUpdateMovementType(EMovementType::CLIMB);
-				UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("AddMovement before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
-				//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Purple, FString::Printf(TEXT("after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType)));
-				//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
-				//TODO: Make Character go UP and DOWN
-				if (MovementType == EMovementType::CLIMB)
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("after value is Climb!"));
-					UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("after value is Climb!"));
-				}
 				AddMovementInput(vector, val);
 			}
 			break;
 		case EIdleType::ROPE:
-			if (bClimbing)
+			if (MovementType == EMovementType::CLIMB)
 			{
 				AddMovementInput(vector, val);
 			}
 			break;
 		case EIdleType::WALL:
-			if (bClimbing)
+			if (MovementType == EMovementType::CLIMB)
 			{
 				AddMovementInput(vector, val);
 			}
