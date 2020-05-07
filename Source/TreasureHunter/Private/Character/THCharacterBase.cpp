@@ -10,6 +10,8 @@
 #include "Object/THProjectileBase.h"
 #include "THPieceBase.h"
 #include "THLatchBase.h"
+#include "THClimbBase.h"
+#include "THWallBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
@@ -58,15 +60,17 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 
 	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(50.f, 0.f, 0.f));
 
-	UpperClimbTrigger = AddNewClimbTrigger(TEXT("UpperClimb"), 15.f, 30.f, FVector(50.f, 0.f, 100.f), FRotator(0.f, 0.f, 90.f));
-	UpperClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlapWithUpperTrigger);
-	UpperClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlapWithUpperTrigger);
-	MiddleClimbTrigger = AddNewClimbTrigger(TEXT("MiddleClimb"), 15.f, 30.f, FVector(50.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
-	MiddleClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlapWithMiddleTrigger);
-	MiddleClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlapWithMiddleTrigger);
-	LowerClimbTrigger = AddNewClimbTrigger(TEXT("LowerClimb"), 15.f, 30.f, FVector(50.f, 0.f, -100.f), FRotator(0.f, 0.f, 90.f));
-	LowerClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlapWithLowerTrigger);
-	LowerClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlapWithLowerTrigger);
+	UpperClimbTrigger = AddNewClimbTrigger(TEXT("UpperClimb"), 20.f, 30.f, FVector(60.f, 0.f, 100.f), FRotator(0.f, 0.f, 90.f));
+	//UpperClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnStartOverlapWithUpper);
+	//UpperClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnEndOverlapWithUpper);
+
+	MiddleClimbTrigger = AddNewClimbTrigger(TEXT("MiddleClimb"), 20.f, 30.f, FVector(60.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
+	//MiddleClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnStartOverlapWithMiddle);
+	//MiddleClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnEndOverlapWithMiddle);
+
+	LowerClimbTrigger = AddNewClimbTrigger(TEXT("LowerClimb"), 20.f, 30.f, FVector(60.f, 0.f, -100.f), FRotator(0.f, 0.f, 90.f));
+	//LowerClimbTrigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnStartOverlapWithLower);
+	//LowerClimbTrigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnEndOverlapWithLower);
 
 	HeadHitTrigger = AddNewHitTrigger(TEXT("Head"), 13.f, 13.f, TEXT("head"), FVector(5.f, 2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
 	UpperBodyHitTrigger = AddNewHitTrigger(TEXT("UpperBody"), 22.5f, 27.5f, TEXT("spine_03"), FVector(-2.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
@@ -395,11 +399,11 @@ void ATHCharacterBase::OnPieceStartOverlap(UPrimitiveComponent* OverlappedComp, 
 		{
 			OverlappedPiece = piece;
 			ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
 	}
 }
@@ -420,11 +424,11 @@ void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 			{
 				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
 			}
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
 	}
 }
@@ -447,11 +451,11 @@ void ATHCharacterBase::OnLatchStartOverlap(UPrimitiveComponent* OverlappedComp, 
 				// Overlap without Holding Piece
 				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
 			}
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
 	}
 }
@@ -474,49 +478,107 @@ void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 				// Not Holding Piece
 				ServerUpdateAttachSequence(EAttachSequence::DEFAULT);
 			}
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
 	}
 }
 
-void ATHCharacterBase::OnClimbStartOverlapWithUpperTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnStartOverlapWithUpper(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ServerUpdatebUpperClimbTrigger(true);
-	UE_LOG(THVerbose, Verbose, TEXT("%hs bUpperClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bUpperClimbTrigger));
+	UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bUpperClimbTrigger));
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Wall = Cast<ATHWallBase>(OtherActor);
+		if (Climb || Wall)
+		{
+			ServerUpdatebUpperClimbTrigger(true);
+			UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bUpperClimbTrigger));
+		}
+	}
 }
 
-void ATHCharacterBase::OnClimbEndOverlapWithUpperTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ATHCharacterBase::OnEndOverlapWithUpper(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ServerUpdatebUpperClimbTrigger(false);
-	UE_LOG(THVerbose, Verbose, TEXT("%hs bUpperClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bUpperClimbTrigger));
+	UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bUpperClimbTrigger));
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Wall = Cast<ATHWallBase>(OtherActor);
+		if (Climb || Wall)
+		{
+			ServerUpdatebUpperClimbTrigger(false);
+			UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bUpperClimbTrigger));
+		}
+	}
 }
 
-void ATHCharacterBase::OnClimbStartOverlapWithMiddleTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnStartOverlapWithMiddle(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ServerUpdatebMiddleClimbTrigger(true);
-	UE_LOG(THVerbose, Verbose, TEXT("%hs bMiddleClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bMiddleClimbTrigger));
+	UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bMiddleClimbTrigger));
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Wall = Cast<ATHWallBase>(OtherActor);
+		if (Climb || Wall)
+		{
+			ServerUpdatebMiddleClimbTrigger(true);
+			UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bMiddleClimbTrigger));
+		}
+	}
 }
 
-void ATHCharacterBase::OnClimbEndOverlapWithMiddleTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ATHCharacterBase::OnEndOverlapWithMiddle(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ServerUpdatebMiddleClimbTrigger(false);
-	UE_LOG(THVerbose, Verbose, TEXT("%hs bMiddleClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bMiddleClimbTrigger));
+	UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bMiddleClimbTrigger));
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Wall = Cast<ATHWallBase>(OtherActor);
+		if (Climb || Wall)
+		{
+			ServerUpdatebMiddleClimbTrigger(false);
+			UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bMiddleClimbTrigger));
+		}
+	}
 }
 
-void ATHCharacterBase::OnClimbStartOverlapWithLowerTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnStartOverlapWithLower(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ServerUpdatebLowerClimbTrigger(true);
-	UE_LOG(THVerbose, Verbose, TEXT("%hs bLowerClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bLowerClimbTrigger));
+	UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bLowerClimbTrigger));
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Wall = Cast<ATHWallBase>(OtherActor);
+		if (Climb || Wall)
+		{
+			ServerUpdatebLowerClimbTrigger(true);
+			UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bLowerClimbTrigger));
+		}
+	}
+	else
+	{
+		UE_LOG(THVerbose, Verbose, TEXT("%s Actor is not Overlapped"), *FString(__FUNCTION__));
+	}
 }
 
-void ATHCharacterBase::OnClimbEndOverlapWithLowerTrigger(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ATHCharacterBase::OnEndOverlapWithLower(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ServerUpdatebLowerClimbTrigger(false);
-	UE_LOG(THVerbose, Verbose, TEXT("%hs bLowerClimbTrigger: %s"), __FUNCTION__, *GETBOOLSTRING(bLowerClimbTrigger));
+	UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bLowerClimbTrigger));
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Wall = Cast<ATHWallBase>(OtherActor);
+		if (Climb || Wall)
+		{
+			ServerUpdatebLowerClimbTrigger(false);
+			UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), *GETBOOLSTRING(bLowerClimbTrigger));
+		}
+	}
 }
 
 void ATHCharacterBase::ServerPlayMontage_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
@@ -877,6 +939,7 @@ UCapsuleComponent* ATHCharacterBase::AddNewClimbTrigger(const FName& SubobjectNa
 	Trigger->SetupAttachment(RootComponent);
 	Trigger->SetRelativeLocation(RelativeLocation);
 	Trigger->SetRelativeRotation(RelativeRotation);
+	Trigger->SetGenerateOverlapEvents(true);
 	Trigger->SetCollisionProfileName(TEXT("Trigger"));
 	return Trigger;
 }

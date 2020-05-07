@@ -17,7 +17,6 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_MovementType, Verbose, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_IdleType, Verbose, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_CheckValue, Verbose, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogTH_PlayerBase_CheckOverlap, Verbose, All);
-
 DECLARE_LOG_CATEGORY_EXTERN(THError, Error, All);
 DECLARE_LOG_CATEGORY_EXTERN(THWarning, Warning, All);
 DECLARE_LOG_CATEGORY_EXTERN(THDisplay, Display, All);
