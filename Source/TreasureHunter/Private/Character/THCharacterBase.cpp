@@ -10,8 +10,9 @@
 #include "Object/THProjectileBase.h"
 #include "THPieceBase.h"
 #include "THLatchBase.h"
-#include "THClimbBase.h"
 #include "THWallBase.h"
+#include "THLadderBase.h"
+#include "THRopeBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
@@ -61,9 +62,7 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(50.f, 0.f, 0.f));
 
 	UpperClimbTrigger = AddNewClimbTrigger(TEXT("UpperClimb"), 20.f, 30.f, FVector(60.f, 0.f, 100.f), FRotator(0.f, 0.f, 90.f));
-
 	MiddleClimbTrigger = AddNewClimbTrigger(TEXT("MiddleClimb"), 20.f, 30.f, FVector(60.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
-
 	LowerClimbTrigger = AddNewClimbTrigger(TEXT("LowerClimb"), 20.f, 30.f, FVector(60.f, 0.f, -100.f), FRotator(0.f, 0.f, 90.f));
 
 	HeadHitTrigger = AddNewHitTrigger(TEXT("Head"), 13.f, 13.f, TEXT("head"), FVector(5.f, 2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
@@ -427,32 +426,98 @@ void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
-void ATHCharacterBase::OnClimbStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnWallStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
 	{
 		auto Wall = Cast<ATHWallBase>(OtherActor);
 		if (Wall)
 		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
+			ServerUpdateMovementType(EMovementType::CLIMB);
+			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 			UE_LOG(THVerbose, Verbose, TEXT("%s: Overlap Wall!"), *FString(__FUNCTION__));
 			//TODO: Check Climb and Change IdleType
-			//TODO: Change MovementBase to Fly
-			//TODO: Change MovementType to Climb
 		}
 	}
 }
 
-void ATHCharacterBase::OnClimbEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ATHCharacterBase::OnWallEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor)
 	{
 		auto Wall = Cast<ATHWallBase>(OtherActor);
 		if (Wall)
 		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+			ServerUpdateMovementType(EMovementType::DEFAULT);
+			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 			UE_LOG(THVerbose, Verbose, TEXT("%s: Outof Wall!"), *FString(__FUNCTION__));
 			//TODO: Change IdleType to Stand
-			//TODO: Change MovementBase to Stand
-			//TODO: Change MovementType to Stand
+		}
+	}
+}
+
+void ATHCharacterBase::OnLadderStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		auto Ladder = Cast<ATHLadderBase>(OtherActor);
+		if (Ladder)
+		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
+			ServerUpdateMovementType(EMovementType::CLIMB);
+			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+			UE_LOG(THVerbose, Verbose, TEXT("%s: Overlap Ladder!"), *FString(__FUNCTION__));
+			//TODO: Check Climb and Change IdleType
+		}
+	}
+}
+
+void ATHCharacterBase::OnLadderEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		auto Ladder = Cast<ATHLadderBase>(OtherActor);
+		if (Ladder)
+		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+			ServerUpdateMovementType(EMovementType::DEFAULT);
+			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+			UE_LOG(THVerbose, Verbose, TEXT("%s: Outof Wall!"), *FString(__FUNCTION__));
+			//TODO: Change IdleType to Stand
+		}
+	}
+}
+
+void ATHCharacterBase::OnRopeStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		auto Rope = Cast<ATHRopeBase>(OtherActor);
+		if (Rope)
+		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
+			ServerUpdateMovementType(EMovementType::CLIMB);
+			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+			UE_LOG(THVerbose, Verbose, TEXT("%s: Overlap Rope!"), *FString(__FUNCTION__));
+			//TODO: Check Climb and Change IdleType
+		}
+	}
+}
+
+void ATHCharacterBase::OnRopeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		auto Rope = Cast<ATHRopeBase>(OtherActor);
+		if (Rope)
+		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+			ServerUpdateMovementType(EMovementType::DEFAULT);
+			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+			UE_LOG(THVerbose, Verbose, TEXT("%s: Outof Wall!"), *FString(__FUNCTION__));
+			//TODO: Change IdleType to Stand
 		}
 	}
 }
@@ -871,8 +936,12 @@ UCapsuleComponent* ATHCharacterBase::AddNewClimbTrigger(const FName& SubobjectNa
 	Trigger->SetRelativeRotation(RelativeRotation);
 	Trigger->SetGenerateOverlapEvents(true);
 	Trigger->SetCollisionProfileName(TEXT("Trigger"));
-	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlap);
-	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlap);
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnWallStartOverlap);
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnRopeStartOverlap);
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnLadderStartOverlap);
+	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnWallEndOverlap);
+	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnRopeEndOverlap);
+	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnLadderEndOverlap);
 	return Trigger;
 }
 
