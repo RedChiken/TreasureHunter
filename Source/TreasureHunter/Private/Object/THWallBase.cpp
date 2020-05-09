@@ -7,9 +7,10 @@
 #include "net/UnrealNetwork.h"
 #include "Engine.h"
 
-ATHWallBase::ATHWallBase() : ATHActorBase()
+ATHWallBase::ATHWallBase() : ATHClimbBase()
 {
 	MovementComponent = CreateDefaultSubobject<UInterpToMovementComponent>(TEXT("InterpolationMovement"));
+	IdleType = EIdleType::WALL;
 }
 
 void ATHWallBase::Tick(float DeltaTime)

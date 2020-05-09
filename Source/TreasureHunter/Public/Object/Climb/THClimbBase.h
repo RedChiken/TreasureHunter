@@ -20,9 +20,10 @@ class TREASUREHUNTER_API ATHClimbBase : public ATHActorBase
 public:
     ATHClimbBase();
 
+	EIdleType GetIdleType();
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 protected:
-	EIdleType type;
+	EIdleType IdleType;
 };

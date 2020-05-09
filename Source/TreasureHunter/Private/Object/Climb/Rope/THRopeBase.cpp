@@ -6,5 +6,5 @@
 
 ATHRopeBase::ATHRopeBase() : ATHClimbBase()
 {
-	type = EIdleType::ROPE;
+	IdleType = EIdleType::ROPE;
 }

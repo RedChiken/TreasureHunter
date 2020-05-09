@@ -6,5 +6,5 @@
 
 ATHLadderBase::ATHLadderBase() : ATHClimbBase()
 {
-	type = EIdleType::LADDER;
+	IdleType = EIdleType::LADDER;
 }

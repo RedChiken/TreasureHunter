@@ -12,6 +12,11 @@ ATHClimbBase::ATHClimbBase() : ATHActorBase()
 {
 }
 
+EIdleType ATHClimbBase::GetIdleType()
+{
+	return IdleType;
+}
+
 void ATHClimbBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
