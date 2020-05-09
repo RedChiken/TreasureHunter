@@ -144,9 +144,6 @@ private:
 		EIdleType IdleType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		EIdleType NearbyIdleType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		EMovementType MovementType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -197,6 +194,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		bool bLowerClimbTrigger;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
+		EIdleType InteractableClimb;
+
 
 public:
 	float getCurrentSpeed();
@@ -218,11 +218,7 @@ public:
 
 	void StopInteraction();
 	void UpdateIdleType(EIdleType Idle);
-	void UpdateNearbyIdleType(EIdleType Idle);
 	void UpdateExitDirection(EExitDirection Exit);
-	void ExitFromClimb(EExitDirection Exit);
-	void EnterToClimb(EEnterDirection Enter, EIdleType Nearby);
-	void GetOutofClimbArea();
 
 	void ReceiveDamage(float damage);
 
@@ -240,9 +236,6 @@ public:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateIdleType(EIdleType type);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUpdateNearbyIdleType(EIdleType type);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateSpeed(float rate);
@@ -289,6 +282,9 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdatebLowerClimbTrigger(bool ClimbTrigger);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateInteractableClimb(EIdleType ClimbType);
+
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -304,22 +300,10 @@ protected:
 		void OnPieceEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
-		void OnWallStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void OnClimbStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(BlueprintCallable)
-		void OnWallEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	UFUNCTION(BlueprintCallable)
-		void OnLadderStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintCallable)
-		void OnLadderEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	UFUNCTION(BlueprintCallable)
-		void OnRopeStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintCallable)
-		void OnRopeEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void OnClimbEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
 		void OnLatchStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -341,9 +325,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateIdleType(EIdleType type);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdateNearbyIdleType(EIdleType type);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateSpeed(float rate);
@@ -389,6 +370,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebLowerClimbTrigger(bool ClimbTrigger);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateInteractableClimb(EIdleType ClimbType);
 
 	UFUNCTION(BlueprintCallable)
 		class UCapsuleComponent* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);

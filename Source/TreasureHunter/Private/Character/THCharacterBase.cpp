@@ -103,6 +103,12 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	OverlappedLatch = nullptr;
 	FirstHitPart = nullptr;
 	HitOpposite = nullptr;
+	InteractionType = EInteractionType::DEFAULT;
+	AttachSequence = EAttachSequence::DEFAULT;
+	bUpperClimbTrigger = false;
+	bMiddleClimbTrigger = false;
+	bLowerClimbTrigger = false;
+	InteractableClimb = EIdleType::STAND;
 	GetCharacterMovement()->JumpZVelocity = 500.0f;
 }
 
@@ -122,7 +128,6 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHCharacterBase, IdleType);
-	DOREPLIFETIME(ATHCharacterBase, NearbyIdleType);
 	DOREPLIFETIME(ATHCharacterBase, MovementType);
 	DOREPLIFETIME(ATHCharacterBase, MovingDirection);
 	DOREPLIFETIME(ATHCharacterBase, bJump);
@@ -146,6 +151,7 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, bUpperClimbTrigger);
 	DOREPLIFETIME(ATHCharacterBase, bMiddleClimbTrigger);
 	DOREPLIFETIME(ATHCharacterBase, bLowerClimbTrigger);
+	DOREPLIFETIME(ATHCharacterBase, InteractableClimb);
 }
 
 // Called every frame
@@ -274,52 +280,9 @@ void ATHCharacterBase::UpdateIdleType(EIdleType Idle)
 	ServerUpdateIdleType(Idle);
 }
 
-void ATHCharacterBase::UpdateNearbyIdleType(EIdleType Idle)
-{
-	ServerUpdateNearbyIdleType(Idle);
-}
-
 void ATHCharacterBase::UpdateExitDirection(EExitDirection Exit)
 {
 	ServerUpdateExitDirection(Exit);
-}
-
-void ATHCharacterBase::ExitFromClimb(EExitDirection Exit)
-{
-	ServerUpdatebFullBodyMotion(false);
-	ServerUpdateIdleType(EIdleType::STAND);
-	ServerUpdateEnterDirection(EEnterDirection::DEFAULT);
-	ServerUpdateExitDirection(Exit);
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-
-	/*
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("bFullBodyMotion: %s"), (GETBOOLSTRING(bFullBodyMotion))));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("IdleType: %s"), *GETENUMSTRING("EIdleType", IdleType)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue,	FString::Printf(TEXT("ExitDirection: %s"),*GETENUMSTRING("EExitDirection", ExitDirection)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
-	*/
-}
-
-void ATHCharacterBase::EnterToClimb(EEnterDirection Enter, EIdleType Nearby)
-{
-	ServerUpdateEnterDirection(Enter);
-	ServerUpdateNearbyIdleType(Nearby);
-	
-	/*
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
-	*/
-}
-
-void ATHCharacterBase::GetOutofClimbArea()
-{
-	ServerUpdateEnterDirection(EEnterDirection::DEFAULT);
-	ServerUpdateNearbyIdleType(EIdleType::DEFAULT);
-
-	/*
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("EnterDirection: %s"), *GETENUMSTRING("EEnterDirection", EnterDirection)));
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("NearbyIdleType: %s"), *GETENUMSTRING("EIdleType", NearbyIdleType)));*/
 }
 
 void ATHCharacterBase::ReceiveDamage(float damage)
@@ -426,98 +389,64 @@ void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
-void ATHCharacterBase::OnWallStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnClimbStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
 	{
-		auto Wall = Cast<ATHWallBase>(OtherActor);
-		if (Wall)
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Trigger = Cast<UCapsuleComponent>(OverlappedComp);
+		if (Climb)
 		{
-			MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
-			ServerUpdateMovementType(EMovementType::CLIMB);
-			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-			UE_LOG(THVerbose, Verbose, TEXT("%s: Overlap Wall!"), *FString(__FUNCTION__));
-			//TODO: Check Climb and Change IdleType
+			ServerUpdateInteractableClimb(Climb->GetIdleType());
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+			if (Trigger == UpperClimbTrigger)
+			{
+				ServerUpdatebUpperClimbTrigger(true);
+				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+			}
+			else if (Trigger == MiddleClimbTrigger)
+			{
+				ServerUpdatebMiddleClimbTrigger(true);
+				UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+			}
+			else if (Trigger == LowerClimbTrigger)
+			{
+				ServerUpdatebLowerClimbTrigger(true);
+				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+			}
+			ServerUpdateInteractionType(EInteractionType::CLIMB);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
 	}
 }
 
-void ATHCharacterBase::OnWallEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ATHCharacterBase::OnClimbEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor)
 	{
-		auto Wall = Cast<ATHWallBase>(OtherActor);
-		if (Wall)
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Trigger = Cast<UCapsuleComponent>(OverlappedComp);
+		if (Climb)
 		{
-			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
-			ServerUpdateMovementType(EMovementType::DEFAULT);
-			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-			UE_LOG(THVerbose, Verbose, TEXT("%s: Outof Wall!"), *FString(__FUNCTION__));
-			//TODO: Change IdleType to Stand
-		}
-	}
-}
-
-void ATHCharacterBase::OnLadderStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor)
-	{
-		auto Ladder = Cast<ATHLadderBase>(OtherActor);
-		if (Ladder)
-		{
-			MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
-			ServerUpdateMovementType(EMovementType::CLIMB);
-			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-			UE_LOG(THVerbose, Verbose, TEXT("%s: Overlap Ladder!"), *FString(__FUNCTION__));
-			//TODO: Check Climb and Change IdleType
-		}
-	}
-}
-
-void ATHCharacterBase::OnLadderEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherActor)
-	{
-		auto Ladder = Cast<ATHLadderBase>(OtherActor);
-		if (Ladder)
-		{
-			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
-			ServerUpdateMovementType(EMovementType::DEFAULT);
-			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-			UE_LOG(THVerbose, Verbose, TEXT("%s: Outof Wall!"), *FString(__FUNCTION__));
-			//TODO: Change IdleType to Stand
-		}
-	}
-}
-
-void ATHCharacterBase::OnRopeStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (OtherActor)
-	{
-		auto Rope = Cast<ATHRopeBase>(OtherActor);
-		if (Rope)
-		{
-			MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
-			ServerUpdateMovementType(EMovementType::CLIMB);
-			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-			UE_LOG(THVerbose, Verbose, TEXT("%s: Overlap Rope!"), *FString(__FUNCTION__));
-			//TODO: Check Climb and Change IdleType
-		}
-	}
-}
-
-void ATHCharacterBase::OnRopeEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherActor)
-	{
-		auto Rope = Cast<ATHRopeBase>(OtherActor);
-		if (Rope)
-		{
-			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
-			ServerUpdateMovementType(EMovementType::DEFAULT);
-			UE_LOG(THVerbose, Verbose, TEXT("%s NowMovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-			UE_LOG(THVerbose, Verbose, TEXT("%s: Outof Wall!"), *FString(__FUNCTION__));
-			//TODO: Change IdleType to Stand
+			ServerUpdateInteractableClimb(EIdleType::STAND);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+			if (Trigger == UpperClimbTrigger)
+			{
+				ServerUpdatebUpperClimbTrigger(false);
+				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+			}
+			else if (Trigger == MiddleClimbTrigger)
+			{
+				ServerUpdatebMiddleClimbTrigger(false);
+				UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+			}
+			else if (Trigger == LowerClimbTrigger)
+			{
+				ServerUpdatebLowerClimbTrigger(false);
+				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+			}
+			ServerUpdateInteractionType(EInteractionType::DEFAULT);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
 	}
 }
@@ -672,21 +601,6 @@ void ATHCharacterBase::MulticastUpdateIdleType_Implementation(EIdleType type)
 {
 	//UE_LOG(LogTH_PlayerBase_IdleType, Verbose, TEXT("IdleType change from %s to %s"), *GETENUMSTRING("EIdleType", IdleType), *GETENUMSTRING("EIdleType", type));
 	IdleType = type;
-}
-
-void ATHCharacterBase::ServerUpdateNearbyIdleType_Implementation(EIdleType type)
-{
-	MulticastUpdateNearbyIdleType(type);
-}
-
-bool ATHCharacterBase::ServerUpdateNearbyIdleType_Validate(EIdleType type)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdateNearbyIdleType_Implementation(EIdleType type)
-{
-	NearbyIdleType = type;
 }
 
 void ATHCharacterBase::ServerUpdateSpeed_Implementation(float rate)
@@ -914,6 +828,21 @@ void ATHCharacterBase::MulticastUpdatebLowerClimbTrigger_Implementation(bool Cli
 	bLowerClimbTrigger = ClimbTrigger;
 }
 
+void ATHCharacterBase::ServerUpdateInteractableClimb_Implementation(EIdleType ClimbType)
+{
+	MulticastUpdateInteractableClimb(ClimbType);
+}
+
+bool ATHCharacterBase::ServerUpdateInteractableClimb_Validate(EIdleType ClimbType)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateInteractableClimb_Implementation(EIdleType ClimbType)
+{
+	InteractableClimb = ClimbType;
+}
+
 UCapsuleComponent* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
 {
 	auto Trigger = CreateDefaultSubobject<UCapsuleComponent>(SubobjectName);
@@ -936,12 +865,8 @@ UCapsuleComponent* ATHCharacterBase::AddNewClimbTrigger(const FName& SubobjectNa
 	Trigger->SetRelativeRotation(RelativeRotation);
 	Trigger->SetGenerateOverlapEvents(true);
 	Trigger->SetCollisionProfileName(TEXT("Trigger"));
-	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnWallStartOverlap);
-	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnRopeStartOverlap);
-	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnLadderStartOverlap);
-	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnWallEndOverlap);
-	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnRopeEndOverlap);
-	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnLadderEndOverlap);
+	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlap);
+	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlap);
 	return Trigger;
 }
 
@@ -1013,12 +938,6 @@ void ATHCharacterBase::OnJumpPressed()
 {
 	if (IdleType != EIdleType::CROUCH)
 	{
-		if (ExitDirection == EExitDirection::DEFAULT)
-		{
-			ExitFromClimb(EExitDirection::MIDDLE);
-			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, FString::Printf(TEXT("MovementMode: %s"), *GetCharacterMovement()->GetMovementName()));
-		}
 		ServerUpdatebJump(true);
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
 
@@ -1123,6 +1042,7 @@ void ATHCharacterBase::OnInteractionPressed()
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		//TODO: Play New Animation
 	case EInteractionType::CLIMB:
+		//TODO: Change Movementtype, MovementMode and do climb.
 		break;
 	case EInteractionType::INVESTIGATE:
 		ServerPlayMontage(Interaction);
