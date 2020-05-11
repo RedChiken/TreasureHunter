@@ -59,7 +59,7 @@ bool ALobbyGameMode::HostSession(
 		return Sessions->CreateSession(*UserId, SessionName, *SessionSettings);
 	}
 	else {
-		UE_LOG(ErrorTH_LobbyGameMode, Error, TEXT("%hs: Invalid OnlineSubsystem"), __FUNCTION__);
+		UE_LOG(THError, Error, TEXT("%hs: Invalid OnlineSubsystem"), __FUNCTION__);
 	}
 
 	return false;
@@ -125,7 +125,7 @@ void ALobbyGameMode::TryStartGame(const FString & MapName)
 	for (auto PS : GameState->PlayerArray) {
 		auto LWC = PS->GetOwner()->FindComponentByClass<UWidgetControllerComponent>();
 		if (!LWC) {
-			UE_LOG(ErrorTH_LobbyGameMode, Error, TEXT("%hs: LWC not found"), __FUNCTION__);
+			UE_LOG(THError, Error, TEXT("%hs: LWC not found"), __FUNCTION__);
 			bAllReady = false;
 			break;
 		}
@@ -133,18 +133,18 @@ void ALobbyGameMode::TryStartGame(const FString & MapName)
 		const bool bIsHostPC = (PS->GetOwner()->GetLocalRole() == ROLE_Authority) && (PS->GetOwner()->GetRemoteRole() == ROLE_SimulatedProxy);
 
 		if ((bIsHostPC == false) && LWC->IsReadyInSession() == false) {
-			UE_LOG(ErrorTH_LobbyGameMode, Error, TEXT("%hs: This client is not ready"), __FUNCTION__);
+			UE_LOG(THError, Error, TEXT("%hs: This client is not ready"), __FUNCTION__);
 			bAllReady = false;
 			break;
 		}
 	}
 
 	if (bAllReady) {
-		UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: Starting the game... MapName=%s"), __FUNCTION__, *MapName);
+		UE_LOG(THLog, Log, TEXT("%hs: Starting the game... MapName=%s"), __FUNCTION__, *MapName);
 		GetWorld()->ServerTravel(MapName);
 	}
 	else {
-		UE_LOG(ErrorTH_LobbyGameMode, Error, TEXT("%hs: Not all players are ready. The game will not start..."), __FUNCTION__);
+		UE_LOG(THError, Error, TEXT("%hs: Not all players are ready. The game will not start..."), __FUNCTION__);
 	}
 }
 
@@ -160,7 +160,7 @@ inline FOnlineSessionSearch * ALobbyGameMode::GetSessionSearch() const
 
 void ALobbyGameMode::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
-	UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: SessionName=%s, WasSuccessful=%d"), __FUNCTION__, *SessionName.ToString(), bWasSuccessful);
+	UE_LOG(THLog, Log, TEXT("%hs: SessionName=%s, WasSuccessful=%d"), __FUNCTION__, *SessionName.ToString(), bWasSuccessful);
 
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if (Sessions) {
@@ -174,7 +174,7 @@ void ALobbyGameMode::OnCreateSessionComplete(FName SessionName, bool bWasSuccess
 
 void ALobbyGameMode::OnStartOnlineGameComplete(FName SessionName, bool bWasSuccessful)
 {
-	UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: SessionName=%s, bWasSuccessful=%d"), __FUNCTION__, *SessionName.ToString(), bWasSuccessful);
+	UE_LOG(THLog, Log, TEXT("%hs: SessionName=%s, bWasSuccessful=%d"), __FUNCTION__, *SessionName.ToString(), bWasSuccessful);
 
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if (Sessions) {
@@ -187,19 +187,19 @@ void ALobbyGameMode::OnStartOnlineGameComplete(FName SessionName, bool bWasSucce
 
 void ALobbyGameMode::OnFindSessionsComplete(bool bWasSuccessful)
 {
-	UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: bSuccess=%d"), __FUNCTION__, bWasSuccessful);
+	UE_LOG(THLog, Log, TEXT("%hs: bSuccess=%d"), __FUNCTION__, bWasSuccessful);
 
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if (Sessions) {
 		Sessions->ClearOnEndSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
 
-		UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: Num search results: %d"), __FUNCTION__, SessionSearch->SearchResults.Num());
+		UE_LOG(THLog, Log, TEXT("%hs: Num search results: %d"), __FUNCTION__, SessionSearch->SearchResults.Num());
 
 		if (SessionSearch->SearchResults.Num() > 0) {
 			for (int32 i = 0; i < SessionSearch->SearchResults.Num(); ++i) {
 				const auto& Result = SessionSearch->SearchResults[i];
 
-				UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: SessionNumber=%d, SessionName=%s"), __FUNCTION__, i + 1, *(Result.Session.OwningUserName));
+				UE_LOG(THLog, Log, TEXT("%hs: SessionNumber=%d, SessionName=%s"), __FUNCTION__, i + 1, *(Result.Session.OwningUserName));
 			}
 		}
 	}
@@ -207,7 +207,7 @@ void ALobbyGameMode::OnFindSessionsComplete(bool bWasSuccessful)
 
 void ALobbyGameMode::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
 {
-	UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: SessionName=%s, ResultType=%d"), __FUNCTION__, *SessionName.ToString(), static_cast<int32>(Result));
+	UE_LOG(THLog, Log, TEXT("%hs: SessionName=%s, ResultType=%d"), __FUNCTION__, *SessionName.ToString(), static_cast<int32>(Result));
 
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
@@ -219,7 +219,7 @@ void ALobbyGameMode::OnJoinSessionComplete(FName SessionName, EOnJoinSessionComp
 		FString TravelURL;
 
 		if (PlayerController && Sessions->GetResolvedConnectString(SessionName, TravelURL)) {
-			UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: ClientTravel to %s"), __FUNCTION__, *TravelURL);
+			UE_LOG(THLog, Log, TEXT("%hs: ClientTravel to %s"), __FUNCTION__, *TravelURL);
 
 			PlayerController->ClientTravel(TravelURL, ETravelType::TRAVEL_Absolute);
 		}
@@ -255,7 +255,7 @@ void ALobbyGameMode::PostLogin(APlayerController * NewPlayer)
 
 	TArray<FString> NetModeStrings = { TEXT("NM_Standalone"), TEXT("NM_DedicatedServer"), TEXT("NM_ListenServer") TEXT("NM_Client") };
 	int32 NetModeId = (int32)GetNetMode();
-	UE_LOG(LogTH_LobbyGameMode, Log, TEXT("%hs: NetMode=%s(%d)"), __FUNCTION__, *NetModeStrings[NetModeId], NetModeId);
+	UE_LOG(THLog, Log, TEXT("%hs: NetMode=%s(%d)"), __FUNCTION__, *NetModeStrings[NetModeId], NetModeId);
 
 	if (auto LPC = Cast<ALobbyPlayerController>(NewPlayer)) {
 		LPC->Client_InitializeLobbyUI();
@@ -272,7 +272,7 @@ void ALobbyGameMode::PostLogin(APlayerController * NewPlayer)
 		}
 	}
 	else {
-		UE_LOG(ErrorTH_LobbyGameMode, Error, TEXT("%hs: Can't fnid a lobby widget controller from the new PC"), __FUNCTION__);
+		UE_LOG(THError, Error, TEXT("%hs: Can't fnid a lobby widget controller from the new PC"), __FUNCTION__);
 	}
 }
 

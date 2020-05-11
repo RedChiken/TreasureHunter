@@ -22,7 +22,7 @@ void AStageGameMode::PostLogin(APlayerController* NewController)
 	if (NewController->GetPawn() == nullptr)
 	{
 		int32 ID = UGameplayStatics::GetPlayerControllerID(NewController);
-		UE_LOG(LogTH_StageGameMode, Log, TEXT("%hs: Spawning a player pawn for PlayerControllerID=%d"), __FUNCTION__, ID);
+		UE_LOG(THLog, Log, TEXT("%hs: Spawning a player pawn for PlayerControllerID=%d"), __FUNCTION__, ID);
 
 		AActor* StartSpot = FindPlayerStart(NewController);
 		APawn* Character = SpawnDefaultPawnFor(NewController, StartSpot);

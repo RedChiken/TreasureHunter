@@ -160,7 +160,7 @@ void ATHCharacterBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (MovementComponent->MovementMode == EMovementMode::MOVE_Falling)
 	{
-		UE_LOG(THLog, Verbose, TEXT("%s: falling!"), *FString(__FUNCTION__));
+		UE_LOG(THVerbose, Verbose, TEXT("%s: falling!"), *FString(__FUNCTION__));
 	}
 	if ((MovementType != EMovementType::DEFAULT) && (getCurrentSpeed() < 0.001))
 	{
@@ -292,7 +292,7 @@ void ATHCharacterBase::UpdateExitDirection(EExitDirection Exit)
 void ATHCharacterBase::ReceiveDamage(float damage)
 {
 	ServerUpdateHP(-1 * damage);
-	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: Got %f Damage. HP = %f"), *FString(__FUNCTION__), damage, HP);
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Got %f Damage. HP = %f"), *FString(__FUNCTION__), damage, HP);
 	if (!bDead && (HP <= 0.0f))
 	{
 		SetCharacterDead();
@@ -316,13 +316,13 @@ void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AA
 					Character->ReceiveDamage(20.f);
 					FirstHitPart = Self;
 					HitOpposite = Hit;
-					UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: Hit Occur. Lock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+					UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Occur. Lock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
 				}
 				else if ((FirstHitPart == Self) && (HitOpposite == Hit))
 				{
 					FirstHitPart = nullptr;
 					HitOpposite = nullptr;
-					UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: UnLock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+					UE_LOG(THVerbose, Verbose, TEXT("%s: UnLock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
 				}
 			}
 		}
@@ -344,7 +344,7 @@ void ATHCharacterBase::OnHitEndOverlap(UPrimitiveComponent* OverlappedComp, AAct
 				{
 					//FirstHitPart = nullptr;
 				}
-				//UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s: Hit = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s: Hit = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
 			}
 		}
 	}
@@ -596,7 +596,7 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 	{
 		FirstHitPart = nullptr;
 		HitOpposite = nullptr;
-		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%hs: UnLock the FirstHitPart. IsLock = %s"), __FUNCTION__, 
+		UE_LOG(THVerbose, Verbose, TEXT("%hs: UnLock the FirstHitPart. IsLock = %s"), __FUNCTION__,
 			*GETBOOLSTRING((FirstHitPart != nullptr)));
 	}
 }
@@ -622,9 +622,9 @@ void ATHCharacterBase::MulticastStopMontage_Implementation(float blendOut, UAnim
 
 void ATHCharacterBase::ServerUpdateMovementType_Implementation(EMovementType type)
 {
-	//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Server before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+	//UE_LOG(THVerbose, Verbose, TEXT("Server before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 	MulticastUpdateMovementType(type);
-	//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Server after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+	//UE_LOG(THVerbose, Verbose, TEXT("Server after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 }
 
 bool ATHCharacterBase::ServerUpdateMovementType_Validate(EMovementType type)
@@ -634,9 +634,9 @@ bool ATHCharacterBase::ServerUpdateMovementType_Validate(EMovementType type)
 
 void ATHCharacterBase::MulticastUpdateMovementType_Implementation(EMovementType type)
 {
-	//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Multicast before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+	//UE_LOG(THVerbose, Verbose, TEXT("Multicast before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 	MovementType = type;
-	//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("Multicast after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+	//UE_LOG(THVerbose, Verbose, TEXT("Multicast after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 }
 
 void ATHCharacterBase::ServerUpdateMovingDirection_Implementation(EMovingDirection direction)
@@ -651,7 +651,7 @@ bool ATHCharacterBase::ServerUpdateMovingDirection_Validate(EMovingDirection dir
 
 void ATHCharacterBase::MulticastUpdateMovingDirection_Implementation(EMovingDirection direction)
 {
-	//UE_LOG(LogTH_PlayerBase_MovingDirection, Verbose, TEXT("MovingDirection change from %s to %s"), *GETENUMSTRING("EMovingDirection", MovingDirection), *GETENUMSTRING("EMovingDirection", direction));
+	//UE_LOG(THVerbose, Verbose, TEXT("MovingDirection change from %s to %s"), *GETENUMSTRING("EMovingDirection", MovingDirection), *GETENUMSTRING("EMovingDirection", direction));
 	MovingDirection = direction;
 }
 
@@ -667,7 +667,7 @@ bool ATHCharacterBase::ServerUpdateIdleType_Validate(EIdleType type)
 
 void ATHCharacterBase::MulticastUpdateIdleType_Implementation(EIdleType type)
 {
-	//UE_LOG(LogTH_PlayerBase_IdleType, Verbose, TEXT("IdleType change from %s to %s"), *GETENUMSTRING("EIdleType", IdleType), *GETENUMSTRING("EIdleType", type));
+	//UE_LOG(THVerbose, Verbose, TEXT("IdleType change from %s to %s"), *GETENUMSTRING("EIdleType", IdleType), *GETENUMSTRING("EIdleType", type));
 	IdleType = type;
 }
 
@@ -1029,7 +1029,7 @@ void ATHCharacterBase::OnJumpPressed()
 	if (IdleType != EIdleType::CROUCH)
 	{
 		ServerUpdatebJump(true);
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
+		UE_LOG(THVerbose, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
 		//TODO: If possible, Jump it with MovementComponent
 		Super::Jump();
 		//	TODO: Repeat with delay
@@ -1041,7 +1041,7 @@ void ATHCharacterBase::OnJumpReleased()
 	if (IdleType != EIdleType::CROUCH)
 	{
 		ServerUpdatebJump(false);
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
+		UE_LOG(THVerbose, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
 		Super::StopJumping();
 	}
 }
@@ -1126,11 +1126,11 @@ void ATHCharacterBase::OnInteractionPressed()
 		case EAttachSequence::DEFAULT:
 			break;
 		}
-		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+		UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+		UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+		UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
+		UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
 		//TODO: Play New Animation
 	case EInteractionType::CLIMB:
@@ -1341,7 +1341,7 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 					else
 					{	// Walk
 						ServerUpdateMovementType(EMovementType::WALK);
-						//UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
+						//UE_LOG(THVerbose, Verbose, TEXT("MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 					}
 				}
 				//AddMovementInput(vector, val); 
@@ -1389,7 +1389,7 @@ void ATHCharacterBase::SetCharacterDead()
 	SetActorEnableCollision(false);
 
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false"))));
-	UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false")));
+	UE_LOG(THVerbose, Verbose, TEXT("bDead is %s"), (bDead ? TEXT("true") : TEXT("false")));
 }
 
 void ATHCharacterBase::AttachPiece(FName Socket)
@@ -1398,7 +1398,7 @@ void ATHCharacterBase::AttachPiece(FName Socket)
 	{
 		AttachedPiece = OverlappedPiece;
 		OverlappedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, Socket);
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s: Piece Index = %d"), *FString(__FUNCTION__), AttachedPiece->GetIndex());
+		UE_LOG(THVerbose, Verbose, TEXT("%s: Piece Index = %d"), *FString(__FUNCTION__), AttachedPiece->GetIndex());
 		OverlappedPiece = nullptr;
 	}
 }

@@ -24,7 +24,7 @@ void ALobbyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 void ALobbyPlayerController::InitializeLobbyUI()
 {
 	if (bLobbyUIInitialized) {
-		UE_LOG(LogTH_LobbyPlayerController, Log, TEXT("%hs: Already initialized"), __FUNCTION__);
+		UE_LOG(THLog, Log, TEXT("%hs: Already initialized"), __FUNCTION__);
 		return;
 	}
 	ReceiveInitializeLobbyUI();

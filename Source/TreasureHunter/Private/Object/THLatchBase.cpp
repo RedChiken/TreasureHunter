@@ -45,16 +45,16 @@ void ATHLatchBase::SubmitPiece(ATHPieceBase* piece)
 	{
 		AttachedPiece = piece;
 		piece->AttachToComponent(Object, FAttachmentTransformRules::KeepRelativeTransform);
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s piece is %s"), *FString(__FUNCTION__), ((piece == nullptr) ? TEXT("InValid!") : TEXT("Valid!")));
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s: Latch Index = %d"), *FString(__FUNCTION__), Index);
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s: Piece Index = %d"), *FString(__FUNCTION__), AttachedPiece->GetIndex());
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s: Correctness = %s"), *FString(__FUNCTION__), (IsCorrectPair() ? TEXT("Correct!") : TEXT("Wrong!")));
+		UE_LOG(THVerbose, Verbose, TEXT("%s piece is %s"), *FString(__FUNCTION__), ((piece == nullptr) ? TEXT("InValid!") : TEXT("Valid!")));
+		UE_LOG(THVerbose, Verbose, TEXT("%s: Latch Index = %d"), *FString(__FUNCTION__), Index);
+		UE_LOG(THVerbose, Verbose, TEXT("%s: Piece Index = %d"), *FString(__FUNCTION__), AttachedPiece->GetIndex());
+		UE_LOG(THVerbose, Verbose, TEXT("%s: Correctness = %s"), *FString(__FUNCTION__), (IsCorrectPair() ? TEXT("Correct!") : TEXT("Wrong!")));
 		AttachedPiece->SetActorRelativeLocation(AttachLocation);
 		piece = AttachedPiece;
 	}
 	else
 	{
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s piece is nullptr"), *FString(__FUNCTION__));
+		UE_LOG(THVerbose, Verbose, TEXT("%s piece is nullptr"), *FString(__FUNCTION__));
 	}
 }
 
@@ -64,13 +64,13 @@ ATHPieceBase* ATHLatchBase::WithdrawPiece()
 	{
 		auto temp = AttachedPiece;
 		AttachedPiece->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s temp is %s"), *FString(__FUNCTION__), ((temp == nullptr) ? TEXT("InValid!") : TEXT("Valid!")));
+		UE_LOG(THVerbose, Verbose, TEXT("%s temp is %s"), *FString(__FUNCTION__), ((temp == nullptr) ? TEXT("InValid!") : TEXT("Valid!")));
 		AttachedPiece = temp;
 		AttachedPiece->SetActorRotation(FRotator::ZeroRotator);
 	}
 	else
 	{
-		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s AttachedPiece is nullptr"), *FString(__FUNCTION__));
+		UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece is nullptr"), *FString(__FUNCTION__));
 	}
 	return AttachedPiece;
 }

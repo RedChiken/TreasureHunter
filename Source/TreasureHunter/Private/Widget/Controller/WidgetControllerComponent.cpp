@@ -153,17 +153,17 @@ ALobbyPlayerController * UWidgetControllerComponent::GetLobbyPlayerController() 
 
 void UWidgetControllerComponent::OnMenu()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Open Menu"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Open Menu"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnSkill()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Open Skill Widget"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Open Skill Widget"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnItem()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Open Item Widget"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Open Item Widget"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnFindMatch()
@@ -183,43 +183,43 @@ void UWidgetControllerComponent::OnFindMatch()
 		ChangeWidget(FindSessionWidget);
 	}
 	else{
-		UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: GameMode or PlayerController is invalid"), __FUNCTION__);
+		UE_LOG(THLog, Log, TEXT("%hs: GameMode or PlayerController is invalid"), __FUNCTION__);
 	}
 }
 
 void UWidgetControllerComponent::OnNextCharacter()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Change to Next Character"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Change to Next Character"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnPreviewCharacter()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Change to Preview Character"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Change to Preview Character"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnNextSkin()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Change to Next Skin"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Change to Next Skin"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnPreviewSkin()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Change to Preview Skin"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Change to Preview Skin"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnSelectGroupMember()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Open Character Info Widget"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Open Character Info Widget"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnSelectMission()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Open Mission Info WIdget"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Open Mission Info WIdget"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnSendMessage(FString Message)
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Send message"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Send message"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnTryConnect(int32 SessionIndex)
@@ -233,7 +233,7 @@ void UWidgetControllerComponent::OnTryConnect(int32 SessionIndex)
 		GameMode->JoinSession(NetId, GameSessionName, Results[SessionIndex]);
 	}
 	else {
-		UE_LOG(ErrorTH_WidgetControllerComponent, Error, TEXT("%hs: Invalid SessionIndex (%d)"), __FUNCTION__, SessionIndex);
+		UE_LOG(THError, Error, TEXT("%hs: Invalid SessionIndex (%d)"), __FUNCTION__, SessionIndex);
 	}
 }
 
@@ -283,7 +283,7 @@ void UWidgetControllerComponent::OnCancelSession()
 
 void UWidgetControllerComponent::OnSelectSessionMember()
 {
-	UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Show Session Member"), __FUNCTION__);
+	UE_LOG(THLog, Log, TEXT("%hs: Show Session Member"), __FUNCTION__);
 }
 
 void UWidgetControllerComponent::OnFindSessionsComplete(bool bWasSuccessful)
@@ -291,7 +291,7 @@ void UWidgetControllerComponent::OnFindSessionsComplete(bool bWasSuccessful)
 	auto* GameMode = GetLobbyGameMode();
 	if (GameMode) {
 		TArray<FSessionInfo> SessionInfo;
-		UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Success to Find Sessions"), __FUNCTION__);
+		UE_LOG(THLog, Log, TEXT("%hs: Success to Find Sessions"), __FUNCTION__);
 
 		for (const auto& Result : GameMode->GetSessionSearch()->SearchResults) {
 			FSessionInfo Info;
@@ -305,7 +305,7 @@ void UWidgetControllerComponent::OnFindSessionsComplete(bool bWasSuccessful)
 		FindSessionWidget->UpdateRoomList(SessionInfo);
 	}
 	else{
-		UE_LOG(LogTH_WidgetControllerComponent, Log, TEXT("%hs: Fail to Find Sessions"), __FUNCTION__);
+		UE_LOG(THLog, Log, TEXT("%hs: Fail to Find Sessions"), __FUNCTION__);
 	}
 }
 
