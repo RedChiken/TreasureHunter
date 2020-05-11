@@ -61,9 +61,9 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 
 	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(50.f, 0.f, 0.f));
 
-	UpperClimbTrigger = AddNewClimbTrigger(TEXT("UpperClimb"), 20.f, 30.f, FVector(60.f, 0.f, 100.f), FRotator(0.f, 0.f, 90.f));
-	MiddleClimbTrigger = AddNewClimbTrigger(TEXT("MiddleClimb"), 20.f, 30.f, FVector(60.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
-	LowerClimbTrigger = AddNewClimbTrigger(TEXT("LowerClimb"), 20.f, 30.f, FVector(60.f, 0.f, -100.f), FRotator(0.f, 0.f, 90.f));
+	UpperClimbTrigger = AddUpperClimbTrigger(TEXT("UpperClimb"), 20.f, 30.f, FVector(60.f, 0.f, 100.f), FRotator(0.f, 0.f, 90.f));
+	MiddleClimbTrigger = AddMiddleClimbTrigger(TEXT("MiddleClimb"), 20.f, 30.f, FVector(60.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
+	LowerClimbTrigger = AddLowerClimbTrigger(TEXT("LowerClimb"), 20.f, 30.f, FVector(60.f, 0.f, -100.f), FRotator(0.f, 0.f, 90.f));
 
 	HeadHitTrigger = AddNewHitTrigger(TEXT("Head"), 13.f, 13.f, TEXT("head"), FVector(5.f, 2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
 	UpperBodyHitTrigger = AddNewHitTrigger(TEXT("UpperBody"), 22.5f, 27.5f, TEXT("spine_03"), FVector(-2.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
@@ -158,6 +158,10 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void ATHCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (MovementComponent->MovementMode == EMovementMode::MOVE_Falling)
+	{
+		UE_LOG(THLog, Verbose, TEXT("%s: falling!"), *FString(__FUNCTION__));
+	}
 	if ((MovementType != EMovementType::DEFAULT) && (getCurrentSpeed() < 0.001))
 	{
 		if (MovementType == EMovementType::SPRINT)
@@ -389,7 +393,7 @@ void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
-void ATHCharacterBase::OnClimbStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATHCharacterBase::OnUpperClimbStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor)
 	{
@@ -404,12 +408,44 @@ void ATHCharacterBase::OnClimbStartOverlap(UPrimitiveComponent* OverlappedComp, 
 				ServerUpdatebUpperClimbTrigger(true);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
 			}
-			else if (Trigger == MiddleClimbTrigger)
+			ServerUpdateInteractionType(EInteractionType::CLIMB);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		}
+	}
+}
+
+void ATHCharacterBase::OnMiddleClimbStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Trigger = Cast<UCapsuleComponent>(OverlappedComp);
+		if (Climb)
+		{
+			ServerUpdateInteractableClimb(Climb->GetIdleType());
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+			if (Trigger == MiddleClimbTrigger)
 			{
 				ServerUpdatebMiddleClimbTrigger(true);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
 			}
-			else if (Trigger == LowerClimbTrigger)
+			ServerUpdateInteractionType(EInteractionType::CLIMB);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		}
+	}
+}
+
+void ATHCharacterBase::OnLowerClimbStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Trigger = Cast<UCapsuleComponent>(OverlappedComp);
+		if (Climb)
+		{
+			ServerUpdateInteractableClimb(Climb->GetIdleType());
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+			if (Trigger == LowerClimbTrigger)
 			{
 				ServerUpdatebLowerClimbTrigger(true);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
@@ -420,7 +456,7 @@ void ATHCharacterBase::OnClimbStartOverlap(UPrimitiveComponent* OverlappedComp, 
 	}
 }
 
-void ATHCharacterBase::OnClimbEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor)
 	{
@@ -435,12 +471,44 @@ void ATHCharacterBase::OnClimbEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 				ServerUpdatebUpperClimbTrigger(false);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
 			}
-			else if (Trigger == MiddleClimbTrigger)
+			ServerUpdateInteractionType(EInteractionType::DEFAULT);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		}
+	}
+}
+
+void ATHCharacterBase::OnMiddleClimbEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Trigger = Cast<UCapsuleComponent>(OverlappedComp);
+		if (Climb)
+		{
+			ServerUpdateInteractableClimb(EIdleType::STAND);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+			if (Trigger == MiddleClimbTrigger)
 			{
 				ServerUpdatebMiddleClimbTrigger(false);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
 			}
-			else if (Trigger == LowerClimbTrigger)
+			ServerUpdateInteractionType(EInteractionType::DEFAULT);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		}
+	}
+}
+
+void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor)
+	{
+		auto Climb = Cast<ATHClimbBase>(OtherActor);
+		auto Trigger = Cast<UCapsuleComponent>(OverlappedComp);
+		if (Climb)
+		{
+			ServerUpdateInteractableClimb(EIdleType::STAND);
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+			if (Trigger == LowerClimbTrigger)
 			{
 				ServerUpdatebLowerClimbTrigger(false);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
@@ -856,6 +924,30 @@ UCapsuleComponent* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName
 	return Trigger;
 }
 
+UCapsuleComponent* ATHCharacterBase::AddUpperClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+{
+	auto trigger = AddNewClimbTrigger(SubobjectName, Radius, HalfHeight, RelativeLocation, RelativeRotation);
+	trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnUpperClimbStartOverlap);
+	trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnUpperClimbEndOverlap);
+	return trigger;
+}
+
+UCapsuleComponent* ATHCharacterBase::AddMiddleClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+{
+	auto trigger = AddNewClimbTrigger(SubobjectName, Radius, HalfHeight, RelativeLocation, RelativeRotation);
+	trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnMiddleClimbStartOverlap);
+	trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnMiddleClimbEndOverlap);
+	return trigger;
+}
+
+UCapsuleComponent* ATHCharacterBase::AddLowerClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+{
+	auto trigger = AddNewClimbTrigger(SubobjectName, Radius, HalfHeight, RelativeLocation, RelativeRotation);
+	trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnLowerClimbStartOverlap);
+	trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnLowerClimbEndOverlap);
+	return trigger;
+}
+
 UCapsuleComponent* ATHCharacterBase::AddNewClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation, const FRotator& RelativeRotation)
 {
 	auto Trigger = CreateDefaultSubobject<UCapsuleComponent>(SubobjectName);
@@ -865,8 +957,6 @@ UCapsuleComponent* ATHCharacterBase::AddNewClimbTrigger(const FName& SubobjectNa
 	Trigger->SetRelativeRotation(RelativeRotation);
 	Trigger->SetGenerateOverlapEvents(true);
 	Trigger->SetCollisionProfileName(TEXT("Trigger"));
-	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbStartOverlap);
-	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnClimbEndOverlap);
 	return Trigger;
 }
 
@@ -940,7 +1030,7 @@ void ATHCharacterBase::OnJumpPressed()
 	{
 		ServerUpdatebJump(true);
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
-
+		//TODO: If possible, Jump it with MovementComponent
 		Super::Jump();
 		//	TODO: Repeat with delay
 	}
@@ -976,6 +1066,7 @@ void ATHCharacterBase::OnInteractionPressed()
 	{
 		ServerUpdateInteractionType(EInteractionType::ATTACH);
 	}
+	UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 	switch (InteractionType)
 	{
 	case EInteractionType::ATTACH:
@@ -1040,9 +1131,25 @@ void ATHCharacterBase::OnInteractionPressed()
 		UE_LOG(LogTH_PlayerBase_CheckOverlap, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
 		UE_LOG(LogTH_PlayerBase_CheckValue, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		break;
 		//TODO: Play New Animation
 	case EInteractionType::CLIMB:
-		//TODO: Change Movementtype, MovementMode and do climb.
+		//From Climbing to Stand
+		ServerUpdateMovementType(EMovementType::CLIMB);
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+		MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+		//TODO: Attach Character to Climb
+		//TODO: Make Character cannot move to below and always go up and down when it press up or down key.
+		switch (MovementComponent->MovementMode)
+		{
+		case EMovementMode::MOVE_Flying:
+
+			break;
+		case EMovementMode::MOVE_Walking:
+
+			break;
+		}
 		break;
 	case EInteractionType::INVESTIGATE:
 		ServerPlayMontage(Interaction);
