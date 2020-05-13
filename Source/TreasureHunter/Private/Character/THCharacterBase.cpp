@@ -622,9 +622,7 @@ void ATHCharacterBase::MulticastStopMontage_Implementation(float blendOut, UAnim
 
 void ATHCharacterBase::ServerUpdateMovementType_Implementation(EMovementType type)
 {
-	//UE_LOG(THVerbose, Verbose, TEXT("Server before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 	MulticastUpdateMovementType(type);
-	//UE_LOG(THVerbose, Verbose, TEXT("Server after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 }
 
 bool ATHCharacterBase::ServerUpdateMovementType_Validate(EMovementType type)
@@ -634,9 +632,7 @@ bool ATHCharacterBase::ServerUpdateMovementType_Validate(EMovementType type)
 
 void ATHCharacterBase::MulticastUpdateMovementType_Implementation(EMovementType type)
 {
-	//UE_LOG(THVerbose, Verbose, TEXT("Multicast before MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 	MovementType = type;
-	//UE_LOG(THVerbose, Verbose, TEXT("Multicast after MovementType: %s"), *GETENUMSTRING("EMovementType", MovementType));
 }
 
 void ATHCharacterBase::ServerUpdateMovingDirection_Implementation(EMovingDirection direction)
@@ -1026,13 +1022,28 @@ void ATHCharacterBase::OnSlide()
 
 void ATHCharacterBase::OnJumpPressed()
 {
-	if (IdleType != EIdleType::CROUCH)
+	switch (IdleType)
 	{
+	case EIdleType::DEFAULT:
+	case EIdleType::STAND:
 		ServerUpdatebJump(true);
 		UE_LOG(THVerbose, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
-		//TODO: If possible, Jump it with MovementComponent
 		Super::Jump();
+		//TODO: If possible, Jump it with MovementComponent
 		//	TODO: Repeat with delay
+		break;
+	case EIdleType::LADDER:
+	case EIdleType::ROPE:
+	case EIdleType::WALL:
+		MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+		ServerUpdateIdleType(EIdleType::STAND);
+		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+		ServerUpdateMovementType(EMovementType::DEFAULT);
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+		ServerUpdateInteractionType(EInteractionType::CLIMB);
+		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		break;
 	}
 }
 
@@ -1066,7 +1077,6 @@ void ATHCharacterBase::OnInteractionPressed()
 	{
 		ServerUpdateInteractionType(EInteractionType::ATTACH);
 	}
-	UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 	switch (InteractionType)
 	{
 	case EInteractionType::ATTACH:
@@ -1135,20 +1145,13 @@ void ATHCharacterBase::OnInteractionPressed()
 		//TODO: Play New Animation
 	case EInteractionType::CLIMB:
 		//From Climbing to Stand
-		ServerUpdateMovementType(EMovementType::CLIMB);
-		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
 		MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
 		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-		//TODO: Attach Character to Climb
-		//TODO: Make Character cannot move to below and always go up and down when it press up or down key.
-		switch (MovementComponent->MovementMode)
-		{
-		case EMovementMode::MOVE_Flying:
-
-			break;
-		case EMovementMode::MOVE_Walking:
-
-			break;
+		ServerUpdateIdleType(InteractableClimb);
+		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+		ServerUpdateInteractionType(EInteractionType::CLIMBING);
+		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		break;
 		}
 		break;
 	case EInteractionType::INVESTIGATE:
@@ -1173,10 +1176,13 @@ void ATHCharacterBase::OnInteractionReleased()
 
 void ATHCharacterBase::MoveForward(float val)
 {
-	if (MovementType == EMovementType::CLIMB)
+	//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+	if ((IdleType == EIdleType::ROPE) || (IdleType == EIdleType::WALL) || (IdleType == EIdleType::LADDER))
 	{
+		//UE_LOG(THVerbose, Verbose, TEXT("%s Climb Move!"), *FString(__FUNCTION__));
 		ServerUpdatebUpward(val > 0);
 		AddMovement(GetActorUpVector(), val);
+		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
 	}
 	else
 	{
@@ -1240,7 +1246,8 @@ void ATHCharacterBase::MoveForward(float val)
 
 void ATHCharacterBase::MoveRight(float val)
 {
-	if (MovementType != EMovementType::CLIMB)
+	//Temporary block move right and left during climg
+	if (!((IdleType == EIdleType::ROPE) || (IdleType == EIdleType::WALL) || (IdleType == EIdleType::LADDER)))
 	{
 		AddMovement(GetActorRightVector(), val);
 		if (val > 0)
@@ -1360,23 +1367,16 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 			break;
 
 		case EIdleType::LADDER:
-			if (MovementType == EMovementType::CLIMB)
-			{
-				ServerUpdateMovementType(EMovementType::CLIMB);
-				AddMovementInput(vector, val);
-			}
+			ServerUpdateMovementType(EMovementType::CLIMB);
+			AddMovementInput(vector, val);
 			break;
 		case EIdleType::ROPE:
-			if (MovementType == EMovementType::CLIMB)
-			{
-				AddMovementInput(vector, val);
-			}
+			ServerUpdateMovementType(EMovementType::CLIMB);
+			AddMovementInput(vector, val);
 			break;
 		case EIdleType::WALL:
-			if (MovementType == EMovementType::CLIMB)
-			{
-				AddMovementInput(vector, val);
-			}
+			ServerUpdateMovementType(EMovementType::CLIMB);
+			AddMovementInput(vector, val);
 			break;
 		}
 	}
