@@ -1152,12 +1152,22 @@ void ATHCharacterBase::OnInteractionPressed()
 		ServerUpdateInteractionType(EInteractionType::CLIMBING);
 		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
-		}
+	case EInteractionType::CLIMBING:
+		MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+		ServerUpdateIdleType(EIdleType::STAND);
+		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+		ServerUpdateMovementType(EMovementType::DEFAULT);
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+		ServerUpdateInteractionType(EInteractionType::CLIMB);
+		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
 	case EInteractionType::INVESTIGATE:
+		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		ServerPlayMontage(Interaction);
 		break;
 	case EInteractionType::DEFAULT:
+		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
 	default:
 		break;
@@ -1170,7 +1180,7 @@ void ATHCharacterBase::OnInteractionPressed()
 void ATHCharacterBase::OnInteractionReleased()
 {
 	ServerUpdatebLayeredMotion(false);
-	ServerUpdateInteractionType(EInteractionType::DEFAULT);
+	//ServerUpdateInteractionType(EInteractionType::DEFAULT);
 	ServerStopMontage(0.25f, Interaction);
 }
 

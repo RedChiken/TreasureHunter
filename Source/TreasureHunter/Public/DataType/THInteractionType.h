@@ -14,6 +14,7 @@ enum class EInteractionType : uint8
 {
 	ATTACH			UMETA(DisplayName = "Attach"),
 	CLIMB			UMETA(DisplayName = "Climb"),
+	CLIMBING		UMETA(DisplayName = "Climbing"),
 	INVESTIGATE		UMETA(DisplayName = "Investigate"),
 	DEFAULT			UMETA(DisplayName = "Default")
 };
