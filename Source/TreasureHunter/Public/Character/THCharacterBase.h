@@ -116,10 +116,10 @@ public:
 		class UCapsuleComponent* RightFootHitTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* MeleeAttack;
+		class UAnimMontage* MeleeAttackMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* Interaction;
+		class UAnimMontage* InteractionMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* LandFromJump;
@@ -199,22 +199,9 @@ private:
 
 
 public:
-	float getCurrentSpeed();
-	EIdleType getIdleType();
-	EMovementType getMovementType();
-	EMovingDirection getMovingDirection();
-	bool getbJump();
-	bool getIsFalling();
-	EEnterDirection getEnterDirection();
-	EExitDirection getExitDirection();
-	bool getbUpward();
-	ELayeredAction getLayeredAction();
-	bool getbFullBodyMotion();
-	bool getbLayeredMotion();
-	bool getbDead();
-	bool getbStandToSprint();
-	float getHP();
-	EInteractionType getInteractionType();
+	void SyncLocomotionAnimTrigger(float& Speed, bool& Jump, bool& Fall, bool& StandToSprint, EIdleType& Idle, EMovementType& Movement, EMovingDirection& Moving);
+	void SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction);
+	void SyncStatusAnimTrigger(float& HP);
 
 	void StopInteraction();
 	void UpdateIdleType(EIdleType Idle);

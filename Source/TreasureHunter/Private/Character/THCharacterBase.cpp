@@ -162,7 +162,7 @@ void ATHCharacterBase::Tick(float DeltaTime)
 	{
 		//UE_LOG(THVerbose, Verbose, TEXT("%s: falling!"), *FString(__FUNCTION__));
 	}
-	if ((MovementType != EMovementType::DEFAULT) && (getCurrentSpeed() < 0.001))
+	if ((MovementType != EMovementType::DEFAULT) && (GetVelocity().Size() < 0.001))
 	{
 		if (MovementType == EMovementType::SPRINT)
 		{
@@ -194,84 +194,33 @@ void ATHCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp", this, &ATHCharacterBase::LookUp);
 }
 
-float ATHCharacterBase::getCurrentSpeed()
+void ATHCharacterBase::SyncLocomotionAnimTrigger(float& Speed, bool& Jump, bool& Falling, bool& StandToSprint, EIdleType& Idle, EMovementType& Movement, EMovingDirection& Moving)
 {
-	return this->GetVelocity().Size();
+	Speed = GetVelocity().Size();
+	Jump = bJump;
+	Falling = MovementComponent->IsFalling();
+	StandToSprint = bStandToSprint;
+	Idle = IdleType;
+	Movement = MovementType;
+	Moving = MovingDirection;
 }
 
-EIdleType ATHCharacterBase::getIdleType()
+void ATHCharacterBase::SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction)
 {
-	return IdleType;
+	LayeredMotion = bLayeredMotion;
+	FullBodyMotion = bFullBodyMotion;
+	Upward = bUpward;
+	Dead = bDead;
+	UpperClimb = bUpperClimbTrigger;
+	MiddleClimb = bMiddleClimbTrigger;
+	LowerClimb = bLowerClimbTrigger;
+	Layered = LayeredAction;
+	Interaction = InteractionType;
 }
 
-EMovementType ATHCharacterBase::getMovementType()
+void ATHCharacterBase::SyncStatusAnimTrigger(float& Hp)
 {
-	return MovementType;
-}
-
-EMovingDirection ATHCharacterBase::getMovingDirection()
-{
-	return MovingDirection;
-}
-
-bool ATHCharacterBase::getbJump()
-{
-	return bJump;
-}
-
-bool ATHCharacterBase::getIsFalling()
-{
-	return GetMovementComponent()->IsFalling();
-}
-
-EEnterDirection ATHCharacterBase::getEnterDirection()
-{
-	return EnterDirection;
-}
-
-EExitDirection ATHCharacterBase::getExitDirection()
-{
-	return ExitDirection;
-}
-
-bool ATHCharacterBase::getbUpward()
-{
-	return bUpward;
-}
-
-ELayeredAction ATHCharacterBase::getLayeredAction()
-{
-	return LayeredAction;
-}
-
-bool ATHCharacterBase::getbFullBodyMotion()
-{
-	return bFullBodyMotion;
-}
-
-bool ATHCharacterBase::getbLayeredMotion()
-{
-	return bLayeredMotion;
-}
-
-bool ATHCharacterBase::getbDead()
-{
-	return bDead;
-}
-
-bool ATHCharacterBase::getbStandToSprint()
-{
-	return bStandToSprint;
-}
-
-float ATHCharacterBase::getHP()
-{
-	return HP;
-}
-
-EInteractionType ATHCharacterBase::getInteractionType()
-{
-	return InteractionType;
+	Hp = HP;
 }
 
 void ATHCharacterBase::StopInteraction()
@@ -309,7 +258,7 @@ void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AA
 		auto Self = Cast<UCapsuleComponent>(OverlappedComp);
 		if (Character && Hit && (Character != SelfCharacter))
 		{
-			if (getLayeredAction() == ELayeredAction::MELEEATTACK)
+			if (LayeredAction == ELayeredAction::MELEEATTACK)
 			{
 				if ((FirstHitPart == nullptr) && (HitOpposite == nullptr))
 				{
@@ -338,7 +287,7 @@ void ATHCharacterBase::OnHitEndOverlap(UPrimitiveComponent* OverlappedComp, AAct
 		auto Hit = Cast<UCapsuleComponent>(OtherComp);
 		if (Character && Hit && (Character != SelfCharacter))
 		{
-			if (getLayeredAction() == ELayeredAction::MELEEATTACK)
+			if (LayeredAction == ELayeredAction::MELEEATTACK)
 			{
 				if (Hit == FirstHitPart)
 				{
@@ -592,8 +541,8 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 	{
 		FirstHitPart = nullptr;
 		HitOpposite = nullptr;
-		UE_LOG(THVerbose, Verbose, TEXT("%hs: UnLock the FirstHitPart. IsLock = %s"), __FUNCTION__,
-			*GETBOOLSTRING((FirstHitPart != nullptr)));
+		//UE_LOG(THVerbose, Verbose, TEXT("%hs: UnLock the FirstHitPart. IsLock = %s"), __FUNCTION__, *GETBOOLSTRING((FirstHitPart != nullptr)));
+		//... Why log occur error?
 	}
 }
 
@@ -612,7 +561,7 @@ void ATHCharacterBase::MulticastStopMontage_Implementation(float blendOut, UAnim
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance != NULL)
 	{
-		AnimInstance->Montage_Stop(blendOut, Interaction);
+		AnimInstance->Montage_Stop(blendOut, InteractionMontage);
 	}
 }
 
@@ -1057,14 +1006,14 @@ void ATHCharacterBase::OnMeleeAttackPressed()
 {
 	ServerUpdatebLayeredMotion(true);
 	ServerUpdateLayeredAction(ELayeredAction::MELEEATTACK);
-	ServerPlayMontage(MeleeAttack);
+	ServerPlayMontage(MeleeAttackMontage);
 }
 
 void ATHCharacterBase::OnMeleeAttackReleased()
 {
 	ServerUpdatebLayeredMotion(false);
 	ServerUpdateLayeredAction(ELayeredAction::DEFAULT);
-	ServerStopMontage(0.25f, MeleeAttack);
+	ServerStopMontage(0.25f, MeleeAttackMontage);
 }
 
 void ATHCharacterBase::OnInteractionPressed()
@@ -1132,6 +1081,8 @@ void ATHCharacterBase::OnInteractionPressed()
 		case EAttachSequence::DEFAULT:
 			break;
 		}
+		ServerUpdatebLayeredMotion(true);
+		ServerPlayMontage(InteractionMontage);
 		UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
 		UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
 		UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
@@ -1141,43 +1092,46 @@ void ATHCharacterBase::OnInteractionPressed()
 		//TODO: Play New Animation
 	case EInteractionType::CLIMB:
 		//From Climbing to Stand
-		MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
+		auto MovementMode = MovementComponent->MovementMode;
+		if ((MovementMode == EMovementMode::MOVE_Walking) || (MovementMode == EMovementMode::MOVE_Falling))
+		{
+			if (bUpperClimbTrigger || bLowerClimbTrigger)
+			{
+				MovementComponent->SetMovementMode(EMovementMode::MOVE_Flying);
+				ServerUpdateIdleType(InteractableClimb);
+			}
+		}
+		else if (MovementMode == EMovementMode::MOVE_Flying)
+		{
+			MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+			ServerUpdateIdleType(EIdleType::STAND);
+			ServerUpdateMovementType(EMovementType::DEFAULT);
+		}
 		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-		ServerUpdateIdleType(InteractableClimb);
 		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		ServerUpdateInteractionType(EInteractionType::CLIMBING);
-		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-		break;
-	case EInteractionType::CLIMBING:
-		MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
-		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-		ServerUpdateIdleType(EIdleType::STAND);
-		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		ServerUpdateMovementType(EMovementType::DEFAULT);
 		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-		ServerUpdateInteractionType(EInteractionType::CLIMB);
-		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
 	case EInteractionType::INVESTIGATE:
 		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-		ServerPlayMontage(Interaction);
+		ServerUpdatebLayeredMotion(true);
+		ServerPlayMontage(InteractionMontage);
 		break;
 	case EInteractionType::DEFAULT:
+		ServerUpdatebLayeredMotion(true);
+		ServerPlayMontage(InteractionMontage);
 		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
 	default:
 		break;
 	}
-	ServerUpdatebLayeredMotion(true);
-	ServerPlayMontage(Interaction);
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, TEXT("Interaction Start"));
 }
 
 void ATHCharacterBase::OnInteractionReleased()
 {
 	ServerUpdatebLayeredMotion(false);
 	//ServerUpdateInteractionType(EInteractionType::DEFAULT);
-	ServerStopMontage(0.25f, Interaction);
+	ServerStopMontage(0.25f, InteractionMontage);
 }
 
 void ATHCharacterBase::MoveForward(float val)

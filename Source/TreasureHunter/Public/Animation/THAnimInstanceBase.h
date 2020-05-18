@@ -10,6 +10,7 @@
 #include "DataType/THEnterDirection.h"
 #include "DataType/THExitDirection.h"
 #include "DataType/THLayeredAction.h"
+#include "DataType/THInteractionType.h"
 #include "THAnimInstanceBase.generated.h"
 
 /**
@@ -28,6 +29,15 @@ protected:
 		float CurrentSpeed;
 
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
+		bool bJump;
+
+	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
+		bool bFall;
+
+	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
+		bool bStandToSprint;
+
+	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
 		EIdleType IdleType;
 
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
@@ -36,20 +46,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
 		EMovingDirection MovingDirection;
 
-	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
-		bool bJump;
-
-	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
-		bool bFall;
-
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		EEnterDirection EnterDirection;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		EExitDirection ExitDirection;
 
-	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
-		ELayeredAction LayeredAction;
+	UPROPERTY(BlueprintReadOnly, Category = LayeredMotion)
+		bool bLayeredMotion;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bFullBodyMotion;
@@ -59,13 +63,23 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bDead;
-	
-	UPROPERTY(BlueprintReadOnly, Category = LayeredMotion)
-		bool bLayeredMotion;
-	
-	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
-		bool bStandToSprint;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bUpperClimb;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bMiddleClimb;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		bool bLowerClimb;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		ELayeredAction LayeredAction;
+
+	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
+		EInteractionType InteractionType;
 
 	UPROPERTY(BlueprintReadOnly, Category = Status)
 		float HP;
+
 };

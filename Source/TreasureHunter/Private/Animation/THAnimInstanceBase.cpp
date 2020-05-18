@@ -13,19 +13,30 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 		auto Character = Cast<ATHCharacterBase>(Pawn);
 		if (Character)
 		{
+			/*
 			CurrentSpeed = Character->getCurrentSpeed();
+			bJump = Character->getbJump();
+			bFall = Character->getIsFalling();
+			bStandToSprint = Character->getbStandToSprint();
 			IdleType = Character->getIdleType();
 			MovementType = Character->getMovementType();
 			MovingDirection = Character->getMovingDirection();
-			bJump = Character->getbJump();
-			bFall = Character->getIsFalling();
-			EnterDirection = Character->getEnterDirection();
-			bFullBodyMotion = Character->getbFullBodyMotion();
-			bDead = Character->getbDead();
+
 			bLayeredMotion = Character->getbLayeredMotion();
-			bStandToSprint = Character->getbStandToSprint();
-			HP = Character->getHP();
+			bFullBodyMotion = Character->getbFullBodyMotion();
+			bUpward = Character->getbUpward();
+			bDead = Character->getbDead();
+			bUpperClimb = Character->getbUpperClimbTrigger();
+			bMiddleClimb = Character->getbMiddleClimbTrigger();
+			bLowerClimb = Character->getbLowerClimbTrigger();
 			LayeredAction = Character->getLayeredAction();
+			InteractionType = Character->getInteractionType();
+
+			HP = Character->getHP();
+			*/
+			Character->SyncLocomotionAnimTrigger(CurrentSpeed, bJump, bFall, bStandToSprint, IdleType, MovementType, MovingDirection);
+			Character->SyncFullBodyAnimTrigger(bLayeredMotion, bFullBodyMotion, bUpward, bDead, bUpperClimb, bMiddleClimb, bLowerClimb, LayeredAction, InteractionType);
+			Character->SyncStatusAnimTrigger(HP);
 		}
 	}
 }
