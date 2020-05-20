@@ -203,6 +203,8 @@ public:
 	void SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction);
 	void SyncStatusAnimTrigger(float& HP);
 
+	void OnMovementStop();
+
 	void StopInteraction();
 	void UpdateIdleType(EIdleType Idle);
 	void UpdateExitDirection(EExitDirection Exit);

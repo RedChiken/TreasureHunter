@@ -158,18 +158,6 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void ATHCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (MovementComponent->MovementMode == EMovementMode::MOVE_Falling)
-	{
-		//UE_LOG(THVerbose, Verbose, TEXT("%s: falling!"), *FString(__FUNCTION__));
-	}
-	if ((MovementType != EMovementType::DEFAULT) && (GetVelocity().Size() < 0.001))
-	{
-		if (MovementType == EMovementType::SPRINT)
-		{
-			ServerUpdateSpeed(0.5f);
-		}
-		ServerUpdateMovementType(EMovementType::DEFAULT);
-	}
 }
 
 // Called to bind functionality to input
@@ -221,6 +209,25 @@ void ATHCharacterBase::SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBo
 void ATHCharacterBase::SyncStatusAnimTrigger(float& Hp)
 {
 	Hp = HP;
+}
+
+void ATHCharacterBase::OnMovementStop()
+{
+	if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
+	{
+		if (GetVelocity().Size() < 0.001)
+		{
+			ServerUpdateMovementType(EMovementType::DEFAULT);
+			if (MovementType == EMovementType::SPRINT)
+			{
+				ServerUpdateSpeed(0.5f);
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	}
 }
 
 void ATHCharacterBase::StopInteraction()
