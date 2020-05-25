@@ -2,14 +2,15 @@
 
 #pragma once
 
+#include "THCharacterMovementComponent.h"
 #include "TreasureHunter.h"
 #include "THCharacterBase.h"
-#include "THCharacterMovementComponent.h"
 #include "UObject/UObjectGlobals.h"
 #include "net/UnrealNetwork.h"
 
 UTHCharacterMovementComponent::UTHCharacterMovementComponent(const class FObjectInitializer& ObjectInitializer) : UCharacterMovementComponent(ObjectInitializer)
 {
+	SetIsReplicated(true);
 }
 
 void UTHCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
@@ -31,5 +32,5 @@ void UTHCharacterMovementComponent::OnMovementUpdated(float DeltaTime, const FVe
 void UTHCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
-	UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementMode));
+	//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementMode));
 }

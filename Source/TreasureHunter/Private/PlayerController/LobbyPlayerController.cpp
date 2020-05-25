@@ -8,6 +8,7 @@
 ALobbyPlayerController::ALobbyPlayerController() {
 	WidgetController = CreateDefaultSubobject<UWidgetControllerComponent>(TEXT("WidgetController"));
 	bShowMouseCursor = true;
+	//AutoReceiveInput = EAutoReceiveInput::Player0;
 }
 
 void ALobbyPlayerController::Client_InitializeLobbyUI_Implementation()

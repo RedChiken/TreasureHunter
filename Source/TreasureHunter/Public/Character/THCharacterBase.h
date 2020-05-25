@@ -274,6 +274,9 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateInteractableClimb(EIdleType ClimbType);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateMovementMode(EMovementMode Mode);
+
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -374,6 +377,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateInteractableClimb(EIdleType ClimbType);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateMovementMode(EMovementMode Mode);
 
 	UFUNCTION(BlueprintCallable)
 		class UCapsuleComponent* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
