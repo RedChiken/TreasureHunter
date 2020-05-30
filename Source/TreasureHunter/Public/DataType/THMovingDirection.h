@@ -21,7 +21,9 @@ enum class EMovingDirection : uint8
 	BACK		UMETA(DisplayName = "Back"), 
 	BACKLEFT	UMETA(DisplayName = "BackLeft"),
 	LEFT		UMETA(DisplayName = "Left"), 
-	FRONTLEFT	UMETA(DisplayName = "FrontLeft")
+	FRONTLEFT	UMETA(DisplayName = "FrontLeft"),
+	UPSIDE		UMETA(DisplayName = "Up"),
+	DOWNSIDE	UMETA(DisplayName = "Down")
 };
 
 UCLASS()
