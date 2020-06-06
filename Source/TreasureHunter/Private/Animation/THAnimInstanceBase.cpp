@@ -35,7 +35,7 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 			HP = Character->getHP();
 			*/
 			Character->SyncLocomotionAnimTrigger(CurrentSpeed, bJump, bFall, bStandToSprint, IdleType, MovementType, MovingDirection);
-			Character->SyncFullBodyAnimTrigger(bLayeredMotion, bFullBodyMotion, bUpward, bDead, bUpperClimb, bMiddleClimb, bLowerClimb, LayeredAction, InteractionType);
+			Character->SyncFullBodyAnimTrigger(bLayeredMotion, bFullBodyMotion, bUpward, bDead, bUpperClimb, bMiddleClimb, bLowerClimb, LayeredAction, InteractionType, MovementMode);
 			Character->SyncStatusAnimTrigger(HP);
 		}
 	}

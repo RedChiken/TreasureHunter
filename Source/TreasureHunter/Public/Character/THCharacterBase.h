@@ -14,6 +14,8 @@
 #include "DataType/THInteractionType.h"
 #include "DataType/THAttachSequence.h"
 #include "Animation/AnimInstance.h"
+#include "Engine/EngineTypes.h"
+#include "Containers/EnumAsByte.h"
 #include "THCharacterBase.generated.h"
 
 UCLASS()
@@ -200,7 +202,7 @@ private:
 
 public:
 	void SyncLocomotionAnimTrigger(float& Speed, bool& Jump, bool& Fall, bool& StandToSprint, EIdleType& Idle, EMovementType& Movement, EMovingDirection& Moving);
-	void SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction);
+	void SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction, TEnumAsByte<enum EMovementMode>& MovementMode);
 	void SyncStatusAnimTrigger(float& HP);
 
 	void OnMovementStop();
@@ -422,4 +424,7 @@ private:
 	void AttachPiece(FName Socket = NAME_None);
 
 	class ATHPieceBase* DetachPiece();
+
+	void ExitClimb();
+	void EnterClimb();
 };

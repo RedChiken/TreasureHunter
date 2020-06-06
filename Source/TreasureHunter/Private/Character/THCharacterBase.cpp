@@ -170,7 +170,21 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void ATHCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	/*
+	UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	UE_LOG(THVerbose, Verbose, TEXT("%s CurrentSpeed = %f"), *FString(__FUNCTION__), GetVelocity().Size());
+	if (!bLowerClimbTrigger)
+	{
+		if (GetRemoteRole() == ROLE_AutonomousProxy)
+		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+			UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
+		}
+		
+		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	}
+	*/
 }
 
 // Called to bind functionality to input
@@ -206,7 +220,7 @@ void ATHCharacterBase::SyncLocomotionAnimTrigger(float& Speed, bool& Jump, bool&
 	Moving = MovingDirection;
 }
 
-void ATHCharacterBase::SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction)
+void ATHCharacterBase::SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction, TEnumAsByte<enum EMovementMode>& MovementMode)
 {
 	LayeredMotion = bLayeredMotion;
 	FullBodyMotion = bFullBodyMotion;
@@ -217,6 +231,7 @@ void ATHCharacterBase::SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBo
 	LowerClimb = bLowerClimbTrigger;
 	Layered = LayeredAction;
 	Interaction = InteractionType;
+	MovementMode = MovementComponent->MovementMode;
 }
 
 void ATHCharacterBase::SyncStatusAnimTrigger(float& Hp)
@@ -370,15 +385,15 @@ void ATHCharacterBase::OnUpperClimbStartOverlap(UPrimitiveComponent* OverlappedC
 		if (Climb)
 		{
 			ServerUpdatebUpperClimbTrigger(true);
-			UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
 			{
 				ServerUpdateInteractionType(EInteractionType::CLIMB);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 				ServerUpdateInteractableClimb(Climb->GetIdleType());
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
-				UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 			}
+			//UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
 		}
 	}
 }
@@ -391,15 +406,15 @@ void ATHCharacterBase::OnMiddleClimbStartOverlap(UPrimitiveComponent* Overlapped
 		if (Climb)
 		{
 			ServerUpdatebMiddleClimbTrigger(true);
-			UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
 			{
 				ServerUpdateInteractionType(EInteractionType::CLIMB);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 				ServerUpdateInteractableClimb(Climb->GetIdleType());
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
-				UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 			}
+			//UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
 		}
 	}
 }
@@ -412,15 +427,15 @@ void ATHCharacterBase::OnLowerClimbStartOverlap(UPrimitiveComponent* OverlappedC
 		if (Climb)
 		{
 			ServerUpdatebLowerClimbTrigger(true);
-			UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
 			{
 				ServerUpdateInteractionType(EInteractionType::CLIMB);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 				ServerUpdateInteractableClimb(Climb->GetIdleType());
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
-				UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 			}
+			//UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
 		}
 	}
 }
@@ -433,22 +448,24 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 		auto Trigger = Cast<UCapsuleComponent>(OverlappedComp);
 		if (Climb)
 		{
+			//UE_LOG(THVerbose, Verbose, TEXT("%s End UpperClimbTrigger Overlap!!"), *FString(__FUNCTION__));
 			ServerUpdatebUpperClimbTrigger(false);
-			UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
-			if ((MovementComponent->MovementMode == EMovementMode::MOVE_Flying) && bMiddleClimbTrigger)
-			{	//If TopTrigger is false during MovementMode is MOVE_Flying, Character Exit to Top
-				ServerUpdateMovementMode(EMovementMode::MOVE_Walking);
+			//UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+			if (MovementComponent->MovementMode == EMovementMode::MOVE_Flying)
+			{
+				if ((MovingDirection == EMovingDirection::UPSIDE) || (MovingDirection == EMovingDirection::DEFAULT))
+				{
+					if (bMiddleClimbTrigger && bLowerClimbTrigger)
+					{	//If TopTrigger is false during MovementMode is MOVE_Flying, Character Exit to Top
+						ExitClimb();
+					}
+				}
 				UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-				ServerUpdateIdleType(EIdleType::STAND);
 				UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-				ServerUpdateMovementType(EMovementType::DEFAULT);
 				UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-				ServerUpdateInteractionType(EInteractionType::CLIMB);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-				ServerUpdatebFullBodyMotion(false);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
 			}
-			else if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
+			else
 			{
 				ServerUpdateInteractionType(EInteractionType::DEFAULT);
 				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
@@ -465,11 +482,11 @@ void ATHCharacterBase::OnMiddleClimbEndOverlap(UPrimitiveComponent* OverlappedCo
 		if (Climb)
 		{
 			ServerUpdatebMiddleClimbTrigger(false);
-			UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger)); 
+		//	UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger)); 
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
 			{
 				ServerUpdateInteractionType(EInteractionType::DEFAULT);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 			}
 		}
 	}
@@ -482,22 +499,25 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 		auto Climb = Cast<ATHClimbBase>(OtherActor);
 		if (Climb)
 		{
+			//UE_LOG(THVerbose, Verbose, TEXT("%s End LowerClimbTrigger Overlap!!"), *FString(__FUNCTION__));
 			ServerUpdatebLowerClimbTrigger(false);
-			UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
-			if ((MovementComponent->MovementMode == EMovementMode::MOVE_Flying) && bMiddleClimbTrigger)
-			{	//If LowerTrigger is false during MovementMode is MOVE_Flying, Character Exit to Bottom=
-				ServerUpdateMovementMode(EMovementMode::MOVE_Walking);
+			//UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+			if (MovementComponent->MovementMode == EMovementMode::MOVE_Flying)
+			{
+				if ((MovingDirection == EMovingDirection::DOWNSIDE) || (MovingDirection == EMovingDirection::DEFAULT))
+					//TODO: Need to Add Condition when MovingDirection is Default.
+				{
+					if (bUpperClimbTrigger && bMiddleClimbTrigger)
+					{	//If LowerTrigger is false during MovementMode is MOVE_Flying, Character Exit to Bottom
+						ExitClimb();
+					}
+				}
 				UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-				ServerUpdateIdleType(EIdleType::STAND);
 				UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-				ServerUpdateMovementType(EMovementType::DEFAULT);
 				UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-				ServerUpdateInteractionType(EInteractionType::CLIMB);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-				ServerUpdatebFullBodyMotion(false);
 				UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
 			}
-			else if(MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
+			else
 			{
 				ServerUpdateInteractionType(EInteractionType::DEFAULT);
 				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
@@ -907,9 +927,9 @@ bool ATHCharacterBase::ServerUpdateMovementMode_Validate(EMovementMode Mode)
 
 void ATHCharacterBase::MulticastUpdateMovementMode_Implementation(EMovementMode Mode)
 {
-	UE_LOG(THVerbose, Verbose, TEXT("%s before MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	//UE_LOG(THVerbose, Verbose, TEXT("%s before MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 	MovementComponent->SetMovementMode(Mode);
-	UE_LOG(THVerbose, Verbose, TEXT("%s after MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	//UE_LOG(THVerbose, Verbose, TEXT("%s after MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 }
 
 UCapsuleComponent* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
@@ -1040,15 +1060,12 @@ void ATHCharacterBase::OnJumpPressed()
 	case EIdleType::LADDER:
 	case EIdleType::ROPE:
 	case EIdleType::WALL:
-		ServerUpdateMovementMode(EMovementMode::MOVE_Walking);
+		ExitClimb();
 		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-		ServerUpdateIdleType(EIdleType::STAND);
 		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		ServerUpdateMovementType(EMovementType::DEFAULT);
 		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-		ServerUpdateInteractionType(EInteractionType::CLIMB);
-		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-		ServerUpdatebFullBodyMotion(false);
+		//ServerUpdateInteractionType(EInteractionType::CLIMB);
+		//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
 		break;
 	}
@@ -1157,25 +1174,19 @@ void ATHCharacterBase::OnInteractionPressed()
 		auto MovementMode = MovementComponent->MovementMode;
 		if ((MovementMode == EMovementMode::MOVE_Walking) || (MovementMode == EMovementMode::MOVE_Falling))
 		{
-			if (bUpperClimbTrigger || bLowerClimbTrigger)
+			if ((bUpperClimbTrigger && bMiddleClimbTrigger) || bLowerClimbTrigger)
 			{
-				ServerUpdateMovementMode(EMovementMode::MOVE_Flying);
-				ServerUpdateIdleType(InteractableClimb);
-				ServerUpdateMovementType(EMovementType::CLIMB);
-				ServerUpdatebFullBodyMotion(true);
+				EnterClimb();
 			}
 		}
 		else if (MovementMode == EMovementMode::MOVE_Flying)
 		{
-			ServerUpdateMovementMode(EMovementMode::MOVE_Walking);
-			ServerUpdateIdleType(EIdleType::STAND);
-			ServerUpdateMovementType(EMovementType::DEFAULT);
-			ServerUpdatebFullBodyMotion(false);
+			ExitClimb();
 		}
-		UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
-		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
 		break;
 	case EInteractionType::INVESTIGATE:
 		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
@@ -1206,24 +1217,28 @@ void ATHCharacterBase::MoveForward(float val)
 	if ((IdleType == EIdleType::ROPE) || (IdleType == EIdleType::WALL) || (IdleType == EIdleType::LADDER))
 	{
 		//UE_LOG(THVerbose, Verbose, TEXT("%s Climb Move!"), *FString(__FUNCTION__));
-		ServerUpdatebUpward(val > 0);
-		if (val > 0.001)
+		if (MovementComponent->MovementMode == EMovementMode::MOVE_Flying)
 		{
-			ServerUpdateMovingDirection(EMovingDirection::UPSIDE);
+			ServerUpdatebUpward(val > 0);
+			if (val > 0.001)
+			{
+				ServerUpdateMovingDirection(EMovingDirection::UPSIDE);
+			}
+			else if (val < -0.001)
+			{
+				ServerUpdateMovingDirection(EMovingDirection::DOWNSIDE);
+			}
+			else
+			{
+				ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+			}
+			AddMovement(GetActorUpVector(), val);
+			//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
 		}
-		else if (val < -0.001)
-		{
-			ServerUpdateMovingDirection(EMovingDirection::DOWNSIDE);
-		}
-		else
-		{
-			ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
-		}
-		AddMovement(GetActorUpVector(), val);
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
 	}
 	else
 	{
+		//UE_LOG(THVerbose, Verbose, TEXT("%s Move on Ground"), *FString(__FUNCTION__));
 		AddMovement(GetActorForwardVector(), val);
 		if (val > 0)
 		{
@@ -1278,6 +1293,10 @@ void ATHCharacterBase::MoveForward(float val)
 				ServerUpdateMovingDirection(EMovingDirection::LEFT);
 				break;
 			}
+		}
+		if (GetRemoteRole() == ROLE_AutonomousProxy)
+		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
 		}
 	}
 }
@@ -1405,16 +1424,11 @@ void ATHCharacterBase::AddMovement(const FVector vector, float val)
 			break;
 
 		case EIdleType::LADDER:
-			ServerUpdateMovementType(EMovementType::CLIMB);
-			AddMovementInput(vector, val);
-			break;
 		case EIdleType::ROPE:
-			ServerUpdateMovementType(EMovementType::CLIMB);
-			AddMovementInput(vector, val);
-			break;
 		case EIdleType::WALL:
-			ServerUpdateMovementType(EMovementType::CLIMB);
-			AddMovementInput(vector, val);
+			//ServerUpdateMovementType(EMovementType::CLIMB);
+			MovementComponent->AddInputVector(vector * val);
+			//AddMovementInput(vector, val);
 			break;
 		}
 	}
@@ -1452,4 +1466,21 @@ ATHPieceBase* ATHCharacterBase::DetachPiece()
 		AttachedPiece = nullptr;
 	}
 	return temp;
+}
+
+void ATHCharacterBase::ExitClimb()
+{
+	ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+	ServerUpdateMovementMode(EMovementMode::MOVE_Walking);
+	ServerUpdateIdleType(EIdleType::STAND);
+	ServerUpdateMovementType(EMovementType::DEFAULT);
+	ServerUpdatebFullBodyMotion(false);
+}
+
+void ATHCharacterBase::EnterClimb()
+{
+	ServerUpdateMovementMode(EMovementMode::MOVE_Flying);
+	ServerUpdateIdleType(InteractableClimb);
+	ServerUpdateMovementType(EMovementType::CLIMB);
+	ServerUpdatebFullBodyMotion(true);
 }
