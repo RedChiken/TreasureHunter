@@ -126,6 +126,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* LandFromJump;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
+		class UAnimMontage* RopeExitBottom;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
+		class UAnimMontage* RopeExitTop;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
 		class ATHPieceBase* OverlappedPiece;
 

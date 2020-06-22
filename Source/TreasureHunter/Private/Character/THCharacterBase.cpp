@@ -406,6 +406,12 @@ void ATHCharacterBase::OnMiddleClimbStartOverlap(UPrimitiveComponent* Overlapped
 		if (Climb)
 		{
 			ServerUpdatebMiddleClimbTrigger(true);
+			if ((GetLocalRole() == ROLE_SimulatedProxy) && (GetRemoteRole() == ROLE_Authority))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+				UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+			}
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
 			{
 				ServerUpdateInteractionType(EInteractionType::CLIMB);
@@ -450,7 +456,10 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 		{
 			//UE_LOG(THVerbose, Verbose, TEXT("%s End UpperClimbTrigger Overlap!!"), *FString(__FUNCTION__));
 			ServerUpdatebUpperClimbTrigger(false);
-			//UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+			if ((GetLocalRole() == ROLE_SimulatedProxy) && (GetRemoteRole() == ROLE_Authority))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+			}
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Flying)
 			{
 				if ((MovingDirection == EMovingDirection::UPSIDE) || (MovingDirection == EMovingDirection::DEFAULT))
@@ -458,16 +467,19 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 					if (bMiddleClimbTrigger && bLowerClimbTrigger)
 					{	//If TopTrigger is false during MovementMode is MOVE_Flying, Character Exit to Top
 						ExitClimb();
+						
+						//TeleportTo(FVector(GetActorForwardVector() * 100 + GetActorUpVector() * 200 + GetActorLocation()), FRotator());
 					}
 				}
-				if (GetRemoteRole() == ROLE_AutonomousProxy)
+				/*
+				if (GetLocalRole() == ROLE_AutonomousProxy)
 				{
 					UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 					UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
 					UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
 					UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
 					UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
-				}
+				}*/
 			}
 			else
 			{
@@ -505,18 +517,21 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 		{
 			//UE_LOG(THVerbose, Verbose, TEXT("%s End LowerClimbTrigger Overlap!!"), *FString(__FUNCTION__));
 			ServerUpdatebLowerClimbTrigger(false);
-			//UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+			if ((GetLocalRole() == ROLE_SimulatedProxy) && (GetRemoteRole() == ROLE_Authority))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+			}
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Flying)
 			{
 				if ((MovingDirection == EMovingDirection::DOWNSIDE) || (MovingDirection == EMovingDirection::DEFAULT))
-					//TODO: Need to Add Condition when MovingDirection is Default.
 				{
 					if (bUpperClimbTrigger && bMiddleClimbTrigger)
 					{	//If LowerTrigger is false during MovementMode is MOVE_Flying, Character Exit to Bottom
 						ExitClimb();
 					}
 				}
-				if (GetRemoteRole() == ROLE_AutonomousProxy)
+				/*
+				if (GetLocalRole() == ROLE_AutonomousProxy)
 				{
 					UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 					UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
@@ -524,6 +539,7 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 					UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
 					UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
 				}
+				*/
 			}
 			else
 			{
@@ -1230,7 +1246,14 @@ void ATHCharacterBase::MoveForward(float val)
 			ServerUpdatebUpward(val > 0);
 			if (val > 0.001)
 			{
-				ServerUpdateMovingDirection(EMovingDirection::UPSIDE);
+				if (!UpperClimbTrigger)
+				{
+					ExitClimb();
+				}
+				else
+				{
+					ServerUpdateMovingDirection(EMovingDirection::UPSIDE);
+				}
 			}
 			else if (val < -0.001)
 			{
@@ -1238,7 +1261,14 @@ void ATHCharacterBase::MoveForward(float val)
 			}
 			else
 			{
-				ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+				if (!LowerClimbTrigger)
+				{
+					ExitClimb();
+				}
+				else
+				{
+					ServerUpdateMovingDirection(EMovingDirection::DEFAULT);
+				}
 			}
 			AddMovement(GetActorUpVector(), val);
 			//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
