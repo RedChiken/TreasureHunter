@@ -118,6 +118,9 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 void ATHCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->OnMontageEnded.AddDynamic(this, &ATHCharacterBase::OnMontageEnded);
+	
 //	MovementComponent = Cast<UTHCharacterMovementComponent>(Super::GetMovementComponent());
 	/*
 	UE_LOG(THVerbose, Verbose, TEXT("%s: Controller = %s"), *FString(__FUNCTION__), GETBOOLSTRING(Controller != nullptr));
@@ -466,7 +469,17 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 				{
 					if (bMiddleClimbTrigger && bLowerClimbTrigger)
 					{	//If TopTrigger is false during MovementMode is MOVE_Flying, Character Exit to Top
-						ExitClimb();
+						//ExitClimb();
+						switch(IdleType)
+						{
+						case EIdleType::ROPE:
+							ServerPlayMontage(RopeExitTop);
+							break;
+						case EIdleType::WALL:
+							break;
+						case EIdleType::LADDER:
+							break;
+						}
 						
 						//TeleportTo(FVector(GetActorForwardVector() * 100 + GetActorUpVector() * 200 + GetActorLocation()), FRotator());
 					}
@@ -527,7 +540,17 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 				{
 					if (bUpperClimbTrigger && bMiddleClimbTrigger)
 					{	//If LowerTrigger is false during MovementMode is MOVE_Flying, Character Exit to Bottom
-						ExitClimb();
+						//ExitClimb();
+						switch (IdleType)
+						{
+						case EIdleType::ROPE:
+							ServerPlayMontage(RopeExitBottom);
+							break;
+						case EIdleType::WALL:
+							break;
+						case EIdleType::LADDER:
+							break;
+						}
 					}
 				}
 				/*
@@ -604,6 +627,30 @@ void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
+void ATHCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != NULL)
+	{
+		if (AnimInstance->Montage_GetIsStopped(Montage))
+		{
+			if (IsLocallyControlled())
+			{
+				if ((Montage == RopeExitBottom))
+				{
+					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
+					ExitClimb();
+				}
+				else if ((Montage == RopeExitTop))
+				{
+					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+					ExitClimb();
+				}
+			}
+		}
+	}
+}
+
 void ATHCharacterBase::ServerPlayMontage_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
 {
 	MulticastPlayMontage(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
@@ -621,6 +668,14 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 	{
 		//DisableInput(GetStagePlayerController());
 		AnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
+		if ((MontageToPlay == RopeExitBottom))
+		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
+		}
+		else if ((MontageToPlay == RopeExitTop))
+		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+		}
 		//EnableInput(GetStagePlayerController());
 	}
 	if ((FirstHitPart != nullptr) || (HitOpposite != nullptr))
