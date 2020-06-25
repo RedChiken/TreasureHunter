@@ -409,11 +409,11 @@ void ATHCharacterBase::OnMiddleClimbStartOverlap(UPrimitiveComponent* Overlapped
 		if (Climb)
 		{
 			ServerUpdatebMiddleClimbTrigger(true);
-			if ((GetLocalRole() == ROLE_SimulatedProxy) && (GetRemoteRole() == ROLE_Authority))
+			if (IsLocallyControlled())
 			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
-				UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
-				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+				//UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
 			}
 			if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
 			{
@@ -459,7 +459,7 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 		{
 			//UE_LOG(THVerbose, Verbose, TEXT("%s End UpperClimbTrigger Overlap!!"), *FString(__FUNCTION__));
 			ServerUpdatebUpperClimbTrigger(false);
-			if ((GetLocalRole() == ROLE_SimulatedProxy) && (GetRemoteRole() == ROLE_Authority))
+			if (IsLocallyControlled())
 			{
 				UE_LOG(THVerbose, Verbose, TEXT("%s bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
 			}
@@ -473,6 +473,7 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 						switch(IdleType)
 						{
 						case EIdleType::ROPE:
+							DisableInput(Cast<AStagePlayerController>(GetController()));
 							ServerPlayMontage(RopeExitTop);
 							break;
 						case EIdleType::WALL:
@@ -497,7 +498,10 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 			else
 			{
 				ServerUpdateInteractionType(EInteractionType::DEFAULT);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				if (IsLocallyControlled())
+				{
+					UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				}
 			}
 		}
 	}
@@ -530,7 +534,7 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 		{
 			//UE_LOG(THVerbose, Verbose, TEXT("%s End LowerClimbTrigger Overlap!!"), *FString(__FUNCTION__));
 			ServerUpdatebLowerClimbTrigger(false);
-			if ((GetLocalRole() == ROLE_SimulatedProxy) && (GetRemoteRole() == ROLE_Authority))
+			if (IsLocallyControlled())
 			{
 				UE_LOG(THVerbose, Verbose, TEXT("%s bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
 			}
@@ -544,6 +548,7 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 						switch (IdleType)
 						{
 						case EIdleType::ROPE:
+							DisableInput(Cast<AStagePlayerController>(GetController()));
 							ServerPlayMontage(RopeExitBottom);
 							break;
 						case EIdleType::WALL:
@@ -567,7 +572,10 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 			else
 			{
 				ServerUpdateInteractionType(EInteractionType::DEFAULT);
-				UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				if (IsLocallyControlled())
+				{
+					UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				}
 			}
 		}
 	}
@@ -640,13 +648,16 @@ void ATHCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 				{
 					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
 					ExitClimb();
+					AnimInstance->Montage_Stop(0.1f, Montage);
 				}
 				else if ((Montage == RopeExitTop))
 				{
 					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
 					ExitClimb();
+					AnimInstance->Montage_Stop(0.1f, Montage);
 				}
 			}
+			EnableInput(Cast<AStagePlayerController>(GetController()));
 		}
 	}
 }
@@ -666,17 +677,21 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance != NULL)
 	{
-		//DisableInput(GetStagePlayerController());
-		AnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
-		if ((MontageToPlay == RopeExitBottom))
+		if (!AnimInstance->Montage_IsPlaying(MontageToPlay))
 		{
-			UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
+			AnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
+			if (IsLocallyControlled())
+			{
+				if ((MontageToPlay == RopeExitBottom))
+				{
+					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
+				}
+				else if ((MontageToPlay == RopeExitTop))
+				{
+					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+				}
+			}
 		}
-		else if ((MontageToPlay == RopeExitTop))
-		{
-			UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-		}
-		//EnableInput(GetStagePlayerController());
 	}
 	if ((FirstHitPart != nullptr) || (HitOpposite != nullptr))
 	{
