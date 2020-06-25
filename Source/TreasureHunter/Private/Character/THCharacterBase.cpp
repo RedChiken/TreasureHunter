@@ -474,6 +474,7 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 						{
 						case EIdleType::ROPE:
 							DisableInput(Cast<AStagePlayerController>(GetController()));
+							TeleportTo(GetActorLocation() + GetActorForwardVector() * 100 + GetActorUpVector() * 200, GetActorRotation());
 							ServerPlayMontage(RopeExitTop);
 							break;
 						case EIdleType::WALL:
@@ -500,7 +501,7 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 				ServerUpdateInteractionType(EInteractionType::DEFAULT);
 				if (IsLocallyControlled())
 				{
-					UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+					//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 				}
 			}
 		}
@@ -549,6 +550,7 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 						{
 						case EIdleType::ROPE:
 							DisableInput(Cast<AStagePlayerController>(GetController()));
+							TeleportTo(GetActorLocation() - GetActorForwardVector() * 50 + GetActorUpVector() * 75, GetActorRotation());
 							ServerPlayMontage(RopeExitBottom);
 							break;
 						case EIdleType::WALL:
@@ -574,7 +576,7 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 				ServerUpdateInteractionType(EInteractionType::DEFAULT);
 				if (IsLocallyControlled())
 				{
-					UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+					//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 				}
 			}
 		}
