@@ -285,6 +285,21 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateMovementMode(EMovementMode Mode);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerTeleportTo(FVector WorldLocation, FRotator Rotation);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerEnableCollision();
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerDisableCollision();
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerEnableInput(class APlayerController* InputController);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerDisableInput(class APlayerController* InputController);
+
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -391,6 +406,21 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateMovementMode(EMovementMode Mode);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastTeleportTo(FVector WorldLocation, FRotator Rotation);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastEnableCollision();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDisableCollision();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastEnableInput(class APlayerController* InputController);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDisableInput(class APlayerController* InputController);
 
 	UFUNCTION(BlueprintCallable)
 		class UCapsuleComponent* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);

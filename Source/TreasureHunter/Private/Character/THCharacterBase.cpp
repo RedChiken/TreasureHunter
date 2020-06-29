@@ -473,8 +473,15 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 						switch(IdleType)
 						{
 						case EIdleType::ROPE:
-							DisableInput(Cast<AStagePlayerController>(GetController()));
-							TeleportTo(GetActorLocation() + GetActorForwardVector() * 100 + GetActorUpVector() * 200, GetActorRotation());
+							ServerDisableInput(Cast<AStagePlayerController>(GetController()));
+							ServerTeleportTo(GetActorLocation() + GetActorForwardVector() * 50 + GetActorUpVector() * 150, GetActorRotation());
+							if (IsLocallyControlled())
+							{
+								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+							}
+							//ServerDisableCollision(GetMesh());
 							ServerPlayMontage(RopeExitTop);
 							break;
 						case EIdleType::WALL:
@@ -549,8 +556,14 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 						switch (IdleType)
 						{
 						case EIdleType::ROPE:
-							DisableInput(Cast<AStagePlayerController>(GetController()));
-							TeleportTo(GetActorLocation() - GetActorForwardVector() * 50 + GetActorUpVector() * 75, GetActorRotation());
+							ServerDisableInput(Cast<AStagePlayerController>(GetController()));
+							ServerTeleportTo(GetActorLocation() - GetActorForwardVector() * 25, GetActorRotation());
+							if (IsLocallyControlled())
+							{
+								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+							}
 							ServerPlayMontage(RopeExitBottom);
 							break;
 						case EIdleType::WALL:
@@ -649,17 +662,26 @@ void ATHCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 				if ((Montage == RopeExitBottom))
 				{
 					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
-					ExitClimb();
-					AnimInstance->Montage_Stop(0.1f, Montage);
 				}
 				else if ((Montage == RopeExitTop))
 				{
 					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-					ExitClimb();
-					AnimInstance->Montage_Stop(0.1f, Montage);
 				}
 			}
-			EnableInput(Cast<AStagePlayerController>(GetController()));
+			if ((Montage == RopeExitBottom))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
+				ExitClimb();
+				AnimInstance->Montage_Stop(0.1f, Montage);
+			}
+			else if ((Montage == RopeExitTop))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+				ExitClimb();
+				AnimInstance->Montage_Stop(0.1f, Montage);
+			}
+			ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		}
 	}
 }
@@ -1026,6 +1048,81 @@ void ATHCharacterBase::MulticastUpdateMovementMode_Implementation(EMovementMode 
 	//UE_LOG(THVerbose, Verbose, TEXT("%s before MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 	MovementComponent->SetMovementMode(Mode);
 	//UE_LOG(THVerbose, Verbose, TEXT("%s after MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+}
+
+void ATHCharacterBase::ServerTeleportTo_Implementation(FVector WorldLocation, FRotator Rotation)
+{
+	MulticastTeleportTo(WorldLocation, Rotation);
+}
+
+bool ATHCharacterBase::ServerTeleportTo_Validate(FVector WorldLocation, FRotator Rotation)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastTeleportTo_Implementation(FVector WorldLocation, FRotator Rotation)
+{
+	TeleportTo(WorldLocation, Rotation);
+}
+
+void ATHCharacterBase::ServerEnableCollision_Implementation()
+{
+	MulticastEnableCollision();
+}
+
+bool ATHCharacterBase::ServerEnableCollision_Validate()
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastEnableCollision_Implementation()
+{
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void ATHCharacterBase::ServerDisableCollision_Implementation()
+{
+	MulticastDisableCollision();
+}
+
+bool ATHCharacterBase::ServerDisableCollision_Validate()
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastDisableCollision_Implementation()
+{
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ATHCharacterBase::ServerEnableInput_Implementation(APlayerController* InputController)
+{
+	MulticastEnableInput(InputController);
+}
+
+bool ATHCharacterBase::ServerEnableInput_Validate(APlayerController* InputController)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastEnableInput_Implementation(APlayerController* InputController)
+{
+	EnableInput(InputController);
+}
+
+void ATHCharacterBase::ServerDisableInput_Implementation(APlayerController* InputController)
+{
+	MulticastDisableInput(InputController);
+}
+
+bool ATHCharacterBase::ServerDisableInput_Validate(APlayerController* InputController)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastDisableInput_Implementation(APlayerController* InputController)
+{
+	DisableInput(InputController);
 }
 
 UCapsuleComponent* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
