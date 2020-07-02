@@ -470,27 +470,29 @@ void ATHCharacterBase::OnUpperClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 					if (bMiddleClimbTrigger && bLowerClimbTrigger)
 					{	//If TopTrigger is false during MovementMode is MOVE_Flying, Character Exit to Top
 						//ExitClimb();
+						ServerDisableInput(Cast<AStagePlayerController>(GetController()));
+						//TeleportTo(FVector(GetActorForwardVector() * 100 + GetActorUpVector() * 100 + GetActorLocation()), FRotator());
+						ServerTeleportTo(GetActorLocation() + GetActorForwardVector() * 50 + GetActorUpVector() * 150, GetActorRotation());
+						if (IsLocallyControlled())
+						{
+							UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+							UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+							UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+						}
+						//ServerEnableInput(Cast<AStagePlayerController>(GetController()));
 						switch(IdleType)
 						{
 						case EIdleType::ROPE:
-							ServerDisableInput(Cast<AStagePlayerController>(GetController()));
-							ServerTeleportTo(GetActorLocation() + GetActorForwardVector() * 50 + GetActorUpVector() * 150, GetActorRotation());
-							if (IsLocallyControlled())
-							{
-								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
-								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
-								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
-							}
-							//ServerDisableCollision(GetMesh());
 							ServerPlayMontage(RopeExitTop);
 							break;
 						case EIdleType::WALL:
+							ServerPlayMontage(WallExitTop);
 							break;
 						case EIdleType::LADDER:
+							ServerPlayMontage(LadderExitTop);
 							break;
 						}
 						
-						//TeleportTo(FVector(GetActorForwardVector() * 100 + GetActorUpVector() * 200 + GetActorLocation()), FRotator());
 					}
 				}
 				/*
@@ -553,22 +555,25 @@ void ATHCharacterBase::OnLowerClimbEndOverlap(UPrimitiveComponent* OverlappedCom
 					if (bUpperClimbTrigger && bMiddleClimbTrigger)
 					{	//If LowerTrigger is false during MovementMode is MOVE_Flying, Character Exit to Bottom
 						//ExitClimb();
+						ServerDisableInput(Cast<AStagePlayerController>(GetController()));
+						ServerTeleportTo(GetActorLocation() - GetActorForwardVector() * 25, GetActorRotation());
+						if (IsLocallyControlled())
+						{
+							UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
+							UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
+							UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
+						}
+						//ServerEnableInput(Cast<AStagePlayerController>(GetController()));
 						switch (IdleType)
 						{
 						case EIdleType::ROPE:
-							ServerDisableInput(Cast<AStagePlayerController>(GetController()));
-							ServerTeleportTo(GetActorLocation() - GetActorForwardVector() * 25, GetActorRotation());
-							if (IsLocallyControlled())
-							{
-								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bUpperClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bUpperClimbTrigger));
-								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bMiddleClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bMiddleClimbTrigger));
-								UE_LOG(THVerbose, Verbose, TEXT("%s After Teleport, bLowerClimbTrigger: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bLowerClimbTrigger));
-							}
 							ServerPlayMontage(RopeExitBottom);
 							break;
 						case EIdleType::WALL:
+							ServerPlayMontage(WallExitBottom);
 							break;
 						case EIdleType::LADDER:
+							ServerPlayMontage(LadderExitBottom);
 							break;
 						}
 					}
@@ -657,6 +662,7 @@ void ATHCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	{
 		if (AnimInstance->Montage_GetIsStopped(Montage))
 		{
+			/*
 			if (IsLocallyControlled())
 			{
 				if ((Montage == RopeExitBottom))
@@ -680,8 +686,33 @@ void ATHCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 				ExitClimb();
 				AnimInstance->Montage_Stop(0.1f, Montage);
 			}
+			else if ((Montage == LadderExitBottom))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+				ExitClimb();
+				AnimInstance->Montage_Stop(0.1f, Montage);
+			}
+			else if ((Montage == LadderExitTop))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+				ExitClimb();
+				AnimInstance->Montage_Stop(0.1f, Montage);
+			}
+			else if ((Montage == WallExitTop))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+				ExitClimb();
+				AnimInstance->Montage_Stop(0.1f, Montage);
+			}
+			else if ((Montage == WallExitTop))
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
+				ExitClimb();
+				AnimInstance->Montage_Stop(0.1f, Montage);
+			}*/
+			ExitClimb();
 			ServerEnableInput(Cast<AStagePlayerController>(GetController()));
-			GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		}
 	}
 }
@@ -1686,6 +1717,14 @@ void ATHCharacterBase::ExitClimb()
 
 void ATHCharacterBase::EnterClimb()
 {
+	if (MovementType != EMovementType::CLIMB)
+	{
+		if (!bUpperClimbTrigger && !bMiddleClimbTrigger && bLowerClimbTrigger)
+		{
+			ServerTeleportTo(FVector(GetActorLocation() + GetActorForwardVector() * 100 - GetActorUpVector() * 0), FRotator::ZeroRotator);
+		}
+	}
+	
 	ServerUpdateMovementMode(EMovementMode::MOVE_Flying);
 	ServerUpdateIdleType(InteractableClimb);
 	ServerUpdateMovementType(EMovementType::CLIMB);
