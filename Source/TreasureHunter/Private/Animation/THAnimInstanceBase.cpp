@@ -40,3 +40,23 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 		}
 	}
 }
+
+void UTHAnimInstanceBase::AnimNotify_EnterRopeTop()
+{
+	OnEnterRopeTop.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_ExitRopeTop()
+{
+	OnExitRopeTop.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_EnterRopeBottom()
+{
+	OnEnterRopeBottom.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_ExitRopeBottom()
+{
+	OnExitRopeBottom.Broadcast();
+}
