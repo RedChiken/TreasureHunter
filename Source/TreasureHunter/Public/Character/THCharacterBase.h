@@ -446,10 +446,25 @@ protected:
 	UFUNCTION(Blueprintcallable)
 		class UCapsuleComponent* AddLowerClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
 
+	UFUNCTION(Blueprintcallable)
 		class UCapsuleComponent* AddNewClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
 
 	UFUNCTION(Blueprintcallable)
 		class UCapsuleComponent* AddNewInteractionTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
+
+	UFUNCTION()
+		void EnterRopeTop();
+
+	UFUNCTION()
+		void ExitRopeTop();
+
+	UFUNCTION()
+		void EnterRopeBottom();
+
+	UFUNCTION()
+		void ExitRopeBottom();
+
+
 
 	void OnToggleCrouch();
 	void OnToggleSprint();
@@ -479,4 +494,10 @@ private:
 	void ExitClimb();
 	void EnterClimb();
 
+	bool IsClimbing();
+	bool IsClimbUp();
+	bool IsClimbDown();
+	bool IsAttachToTop();
+	bool IsAttachToBottom();
+	bool IsAbleToClimb();
 };

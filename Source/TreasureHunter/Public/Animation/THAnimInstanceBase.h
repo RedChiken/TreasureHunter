@@ -15,6 +15,11 @@
 #include "Containers/EnumAsByte.h"
 #include "THAnimInstanceBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterRopeTop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitRopeTop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterRopeBottom);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitRopeBottom);
+
 /**
  * 
  */
@@ -25,6 +30,31 @@ class TREASUREHUNTER_API UTHAnimInstanceBase : public UAnimInstance
 
 public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_EnterRopeTop();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_ExitRopeTop();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_EnterRopeBottom();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_ExitRopeBottom();
+
+public:
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterRopeTop OnEnterRopeTop;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnExitRopeTop OnExitRopeTop;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterRopeBottom OnEnterRopeBottom;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnExitRopeBottom OnExitRopeBottom;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)
