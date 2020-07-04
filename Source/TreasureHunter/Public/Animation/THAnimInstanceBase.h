@@ -19,6 +19,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterRopeTop);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitRopeTop);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterRopeBottom);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitRopeBottom);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterWallTop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitWallTop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterWallBottom);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitWallBottom);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterLadderTop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitLadderTop);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterLadderBottom);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitLadderBottom);
 
 /**
  * 
@@ -43,6 +51,30 @@ public:
 	UFUNCTION(Blueprintcallable)
 		void AnimNotify_ExitRopeBottom();
 
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_EnterWallTop();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_ExitWallTop();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_EnterWallBottom();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_ExitWallBottom();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_EnterLadderTop();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_ExitLadderTop();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_EnterLadderBottom();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_ExitLadderBottom();
+
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnEnterRopeTop OnEnterRopeTop;
@@ -55,6 +87,30 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 		FOnExitRopeBottom OnExitRopeBottom;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterWallTop OnEnterWallTop;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnExitWallTop OnExitWallTop;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterWallBottom OnEnterWallBottom;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnExitWallBottom OnExitWallBottom;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterLadderTop OnEnterLadderTop;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnExitLadderTop OnExitLadderTop;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnEnterLadderBottom OnEnterLadderBottom;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnExitLadderBottom OnExitLadderBottom;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)

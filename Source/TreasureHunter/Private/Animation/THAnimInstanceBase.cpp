@@ -60,3 +60,43 @@ void UTHAnimInstanceBase::AnimNotify_ExitRopeBottom()
 {
 	OnExitRopeBottom.Broadcast();
 }
+
+void UTHAnimInstanceBase::AnimNotify_EnterWallTop()
+{
+	OnEnterWallTop.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_ExitWallTop()
+{
+	OnExitWallTop.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_EnterWallBottom()
+{
+	OnEnterWallBottom.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_ExitWallBottom()
+{
+	OnExitWallBottom.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_EnterLadderTop()
+{
+	OnEnterLadderTop.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_ExitLadderTop()
+{
+	OnExitLadderTop.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_EnterLadderBottom()
+{
+	OnEnterLadderBottom.Broadcast();
+}
+
+void UTHAnimInstanceBase::AnimNotify_ExitLadderBottom()
+{
+	OnExitLadderBottom.Broadcast();
+}

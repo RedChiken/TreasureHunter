@@ -122,11 +122,18 @@ void ATHCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	UTHAnimInstanceBase* AnimInstance = Cast<UTHAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	AnimInstance->OnMontageEnded.AddDynamic(this, &ATHCharacterBase::OnMontageEnded);
 	AnimInstance->OnEnterRopeTop.AddDynamic(this, &ATHCharacterBase::EnterRopeTop);
 	AnimInstance->OnExitRopeTop.AddDynamic(this, &ATHCharacterBase::ExitRopeTop);
 	AnimInstance->OnEnterRopeBottom.AddDynamic(this, &ATHCharacterBase::EnterRopeBottom);
 	AnimInstance->OnExitRopeBottom.AddDynamic(this, &ATHCharacterBase::ExitRopeBottom);
+	AnimInstance->OnEnterWallTop.AddDynamic(this, &ATHCharacterBase::EnterWallTop);
+	AnimInstance->OnExitWallTop.AddDynamic(this, &ATHCharacterBase::ExitWallTop);
+	AnimInstance->OnEnterWallBottom.AddDynamic(this, &ATHCharacterBase::EnterWallBottom);
+	AnimInstance->OnExitWallBottom.AddDynamic(this, &ATHCharacterBase::ExitWallBottom);
+	AnimInstance->OnEnterLadderTop.AddDynamic(this, &ATHCharacterBase::EnterLadderTop);
+	AnimInstance->OnExitLadderTop.AddDynamic(this, &ATHCharacterBase::ExitLadderTop);
+	AnimInstance->OnEnterLadderBottom.AddDynamic(this, &ATHCharacterBase::EnterLadderBottom);
+	AnimInstance->OnExitLadderBottom.AddDynamic(this, &ATHCharacterBase::ExitLadderBottom);
 }
 
 // Called when the game starts or when spawned
@@ -645,68 +652,6 @@ void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
-void ATHCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance != NULL)
-	{
-		if (AnimInstance->Montage_GetIsStopped(Montage))
-		{
-			/*
-			if (IsLocallyControlled())
-			{
-				if ((Montage == RopeExitBottom))
-				{
-					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
-				}
-				else if ((Montage == RopeExitTop))
-				{
-					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-				}
-			}
-			if ((Montage == RopeExitBottom))
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
-				ExitClimb();
-				AnimInstance->Montage_Stop(0.1f, Montage);
-			}
-			else if ((Montage == RopeExitTop))
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-				ExitClimb();
-				AnimInstance->Montage_Stop(0.1f, Montage);
-			}
-			else if ((Montage == LadderExitBottom))
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-				ExitClimb();
-				AnimInstance->Montage_Stop(0.1f, Montage);
-			}
-			else if ((Montage == LadderExitTop))
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-				ExitClimb();
-				AnimInstance->Montage_Stop(0.1f, Montage);
-			}
-			else if ((Montage == WallExitTop))
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-				ExitClimb();
-				AnimInstance->Montage_Stop(0.1f, Montage);
-			}
-			else if ((Montage == WallExitTop))
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-				ExitClimb();
-				AnimInstance->Montage_Stop(0.1f, Montage);
-			}*/
-			ExitClimb();
-			ServerEnableInput(Cast<AStagePlayerController>(GetController()));
-			//GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		}
-	}
-}
-
 void ATHCharacterBase::ServerPlayMontage_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
 {
 	MulticastPlayMontage(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
@@ -725,25 +670,12 @@ void ATHCharacterBase::MulticastPlayMontage_Implementation(UAnimMontage* Montage
 		if (!AnimInstance->Montage_IsPlaying(MontageToPlay))
 		{
 			AnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
-			if (IsLocallyControlled())
-			{
-				if ((MontageToPlay == RopeExitBottom))
-				{
-					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitBottom End"), *FString(__FUNCTION__));
-				}
-				else if ((MontageToPlay == RopeExitTop))
-				{
-					UE_LOG(THVerbose, Verbose, TEXT("%s: RopeExitTop End"), *FString(__FUNCTION__));
-				}
-			}
 		}
 	}
 	if ((FirstHitPart != nullptr) || (HitOpposite != nullptr))
 	{
 		FirstHitPart = nullptr;
 		HitOpposite = nullptr;
-		//UE_LOG(THVerbose, Verbose, TEXT("%hs: UnLock the FirstHitPart. IsLock = %s"), __FUNCTION__, *GETBOOLSTRING((FirstHitPart != nullptr)));
-		//... Why log occur error?
 	}
 }
 
@@ -1234,6 +1166,66 @@ void ATHCharacterBase::EnterRopeBottom()
 }
 
 void ATHCharacterBase::ExitRopeBottom()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	ExitClimb();
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::EnterWallTop()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	EnterClimb();
+	ServerTeleportTo(GetActorLocation() + GetActorForwardVector() * 100 - GetActorUpVector() * 100, GetActorRotation().Add(0.f, 0.f, 180.f));
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::ExitWallTop()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	ServerTeleportTo(GetActorLocation() + GetActorForwardVector() * 50 + GetActorUpVector() * 150, GetActorRotation());
+	ExitClimb();
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::EnterWallBottom()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	EnterClimb();
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::ExitWallBottom()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	ExitClimb();
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::EnterLadderTop()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	EnterClimb();
+	ServerTeleportTo(GetActorLocation() + GetActorForwardVector() * 100 - GetActorUpVector() * 100, GetActorRotation().Add(0.f, 0.f, 180.f));
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::ExitLadderTop()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	ServerTeleportTo(GetActorLocation() + GetActorForwardVector() * 50 + GetActorUpVector() * 150, GetActorRotation());
+	ExitClimb();
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::EnterLadderBottom()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
+	EnterClimb();
+	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::ExitLadderBottom()
 {
 	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
 	ExitClimb();
@@ -1761,7 +1753,7 @@ bool ATHCharacterBase::IsClimbDown()
 
 bool ATHCharacterBase::IsAttachToTop()
 {
-	return !bUpperClimbTrigger && bMiddleClimbTrigger && bLowerClimbTrigger;
+	return !bUpperClimbTrigger && !bMiddleClimbTrigger && bLowerClimbTrigger;
 }
 
 bool ATHCharacterBase::IsAttachToBottom()

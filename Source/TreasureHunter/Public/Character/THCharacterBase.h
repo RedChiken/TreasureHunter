@@ -126,24 +126,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* LandFromJump;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* RopeExitBottom;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* RopeExitTop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* LadderExitBottom;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* LadderExitTop;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* WallExitBottom;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
-		class UAnimMontage* WallExitTop;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
 		class ATHPieceBase* OverlappedPiece;
 
@@ -350,9 +332,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void OnLatchEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UFUNCTION(BlueprintCallable)
-		void OnMontageEnded(class UAnimMontage* Montage, bool bInterrupted);
-
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
 
@@ -463,6 +442,30 @@ protected:
 
 	UFUNCTION()
 		void ExitRopeBottom();
+
+	UFUNCTION()
+		void EnterWallTop();
+
+	UFUNCTION()
+		void ExitWallTop();
+
+	UFUNCTION()
+		void EnterWallBottom();
+
+	UFUNCTION()
+		void ExitWallBottom();
+
+	UFUNCTION()
+		void EnterLadderTop();
+
+	UFUNCTION()
+		void ExitLadderTop();
+
+	UFUNCTION()
+		void EnterLadderBottom();
+
+	UFUNCTION()
+		void ExitLadderBottom();
 
 
 
