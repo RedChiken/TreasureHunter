@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "THSpawnTrapBase.h"
+#include "Object/Trap/THSpawnTrapBase.h"
 #include "THProjectileTrapBase.generated.h"
 
 /**

@@ -10,11 +10,8 @@
 #include "net/UnrealNetwork.h"
 #include "Engine/World.h"
 
-ATHBlockTrapBase::ATHBlockTrapBase() : ATHActorBase()
+ATHBlockTrapBase::ATHBlockTrapBase() : ATHTrapBase()
 {
-	bInArea = false;
-	bInactive = false;
-	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHBlockTrapBase::OnCharacterInRange);
 }
 
 void ATHBlockTrapBase::Tick(float DeltaTime)
@@ -33,36 +30,4 @@ void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHBlockTrapBase, InterpWallList);
 	DOREPLIFETIME(ATHBlockTrapBase, ActivatingDirection);
 	DOREPLIFETIME(ATHBlockTrapBase, DeactivatingDirection);
-	DOREPLIFETIME(ATHBlockTrapBase, bInArea);
-	DOREPLIFETIME(ATHBlockTrapBase, bInactive);
-}
-
-void ATHBlockTrapBase::ServerUpdatebInactive_Implementation(bool Inactive)
-{
-	MulticastUpdatebInactive(Inactive);
-}
-
-bool ATHBlockTrapBase::ServerUpdatebInactive_Validate(bool Inactive)
-{
-	return true;
-}
-
-void ATHBlockTrapBase::MulticastUpdatebInactive_Implementation(bool Inactive)
-{
-	bInactive = Inactive;
-}
-
-void ATHBlockTrapBase::ServerUpdatebInArea_Implementation(bool inArea)
-{
-	MulticastUpdatebInArea(inArea);
-}
-
-bool ATHBlockTrapBase::ServerUpdatebInArea_Validate(bool inArea)
-{
-	return true;
-}
-
-void ATHBlockTrapBase::MulticastUpdatebInArea_Implementation(bool inArea)
-{
-	bInArea = inArea;
 }

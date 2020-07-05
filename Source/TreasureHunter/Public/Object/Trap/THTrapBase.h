@@ -17,11 +17,24 @@ class TREASUREHUNTER_API ATHTrapBase : public ATHActorBase
 public:
 	ATHTrapBase();
 
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+		void InitializeTrap();
+
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerUpdatebInArea(bool inArea);
+
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerUpdatebInactive(bool Inactive);
+
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-		void InitializeTrap();
+protected:
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebInArea(bool inArea);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdatebInactive(bool Inactive);
 
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;

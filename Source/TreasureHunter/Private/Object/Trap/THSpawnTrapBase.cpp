@@ -9,9 +9,8 @@
 #include "net/UnrealNetwork.h"
 #include "Engine/World.h"
 
-ATHSpawnTrapBase::ATHSpawnTrapBase() : ATHActorBase()
+ATHSpawnTrapBase::ATHSpawnTrapBase() : ATHTrapBase()
 {
-	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHSpawnTrapBase::OnCharacterInRange);
 }
 
 void ATHSpawnTrapBase::BeginPlay()

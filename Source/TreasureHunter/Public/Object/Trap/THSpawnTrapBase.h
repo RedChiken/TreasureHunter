@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Object/THActorBase.h"
+#include "Object/Trap/THTrapBase.h"
 #include "THSpawnTrapBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API ATHSpawnTrapBase : public ATHActorBase
+class TREASUREHUNTER_API ATHSpawnTrapBase : public ATHTrapBase
 {
 	GENERATED_BODY()
 public:
@@ -39,9 +39,6 @@ public:
 
     UFUNCTION(BlueprintCallable)
         void DeactivateAllActor();
-
-    UFUNCTION(BlueprintImplementableEvent)
-        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Spawn)

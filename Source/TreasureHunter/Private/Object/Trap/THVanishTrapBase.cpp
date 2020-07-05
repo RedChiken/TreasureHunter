@@ -17,9 +17,8 @@
 #include "UnrealEd.h"
 */
 
-ATHVanishTrapBase::ATHVanishTrapBase() : ATHActorBase()
+ATHVanishTrapBase::ATHVanishTrapBase() : ATHTrapBase()
 {
-	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHVanishTrapBase::OnCharacterInRange);
 }
 
 void ATHVanishTrapBase::Tick(float DeltaTime)

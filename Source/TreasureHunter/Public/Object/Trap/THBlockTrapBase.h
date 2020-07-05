@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Object/THActorBase.h"
+#include "Object/Trap/THTrapBase.h"
 #include "THBlockTrapBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API ATHBlockTrapBase : public ATHActorBase
+class TREASUREHUNTER_API ATHBlockTrapBase : public ATHTrapBase
 {
 	GENERATED_BODY()
 public:
@@ -24,22 +24,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
         TArray<FVector> DeactivatingDirection;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        bool bInArea;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        bool bInactive;
-
 public:
     ATHBlockTrapBase();
 
     virtual void Tick(float DeltaTime) override;
-
-    UFUNCTION(BlueprintImplementableEvent)
-        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-        void InitializeTrap();
 
     UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
         void SetRelativeControlPoint(class ATHWallBase* Wall, const TArray<FVector>& ControlPointList);
@@ -54,16 +42,4 @@ protected:
 
     UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
         void StopAllInterpWall();
-
-    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-        void ServerUpdatebInArea(bool inArea);
-
-    UFUNCTION(NetMulticast, Reliable)
-        void MulticastUpdatebInArea(bool inArea);
-
-    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-        void ServerUpdatebInactive(bool Inactive);
-
-    UFUNCTION(NetMulticast, Reliable)
-        void MulticastUpdatebInactive(bool Inactive);
 };

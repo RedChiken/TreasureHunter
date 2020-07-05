@@ -8,10 +8,8 @@
 #include "net/UnrealNetwork.h"
 #include "Engine/World.h"
 
-ATHTeleportTrapBase::ATHTeleportTrapBase() : ATHActorBase()
+ATHTeleportTrapBase::ATHTeleportTrapBase() : ATHTrapBase()
 {
-	bActive = true;
-	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHTeleportTrapBase::OnCharacterInRange);
 }
 
 void ATHTeleportTrapBase::BeginPlay()

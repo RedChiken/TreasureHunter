@@ -3,21 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Object/THActorBase.h"
+#include "Object/Trap/THTrapBase.h"
 #include "THTeleportTrapBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API ATHTeleportTrapBase : public ATHActorBase
+class TREASUREHUNTER_API ATHTeleportTrapBase : public ATHTrapBase
 {
 	GENERATED_BODY()
 public:
     ATHTeleportTrapBase();
-
-    UFUNCTION(BlueprintImplementableEvent)
-        void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
     virtual void BeginPlay() override;
