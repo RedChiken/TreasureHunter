@@ -10,6 +10,7 @@
 
 ATHTeleportTrapBase::ATHTeleportTrapBase() : ATHTrapBase()
 {
+	
 }
 
 void ATHTeleportTrapBase::BeginPlay()

@@ -22,6 +22,6 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Actor)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = MovementPoint)
         class ATHTeleportTrapBase* Pair;
 };
