@@ -20,6 +20,23 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 		void InitializeTrap();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintNativeEvent)
+		void OnCharacterBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		virtual void OnCharacterBeginOverlap_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintNativeEvent)
+		void OnCharacterEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		virtual void OnCharacterEndOverlap_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ActivateTrap();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void InactivateTrap();
+
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerUpdatebInArea(bool inArea);
 
@@ -35,19 +52,11 @@ public:
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerSaveCharacterList();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerActivateTrap();
 
-	UFUNCTION(BlueprintNativeEvent)
-		void OnCharacterBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-		virtual void OnCharacterBeginOverlap_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintNativeEvent)
-		void OnCharacterEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-		virtual void OnCharacterEndOverlap_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void ActivateTrap();
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerInactivateTrap();
 
 protected:
 	UFUNCTION(NetMulticast, Reliable)
@@ -65,7 +74,12 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSaveCharacterList();
 
-protected:
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastActivateTrap();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastInactivateTrap();
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
@@ -74,6 +88,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
 		bool bInactive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
+		bool bTrapActive;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Condition)
 		int ActivateLimit;

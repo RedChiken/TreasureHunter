@@ -31,14 +31,45 @@ public:
 		void ActivateWall(float duration, bool bPositionIsRelative);
 
 	UFUNCTION(BlueprintCallable)
+		void InactivateWall(float duration, bool bPositionIsRelative);
+
+	UFUNCTION(BlueprintCallable)
 		void StopWall();
 
 	UFUNCTION(BlueprintCallable)
 		TArray<FInterpControlPoint> ReverseControlPoints(const TArray<FInterpControlPoint>& ControlPoints);
 
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerActivateWall(float duration, bool bPositionIsRelative);
+
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerInactivateWall(float duration, bool bPositionIsRelative);
+
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerStopWall();
+
+protected:
+	UFUNCTION(BlueprintCallable)
+		void InitializeControlPointDirection(const TArray<FVector>& List);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastActivateWall(float duration, bool bPositionIsRelative);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastInactivateWall(float duration, bool bPositionIsRelative);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastStopWall();
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, REplicated, Category = Movement)
 		FVector InitialPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = ControlPoints)
+		TArray<FVector> ActivateDirection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = ControlPoints)
+		TArray<FVector> InactivateDirection;
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Movement)

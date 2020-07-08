@@ -13,7 +13,10 @@ ATHTrapBase::ATHTrapBase() : ATHActorBase()
 {
 	bInArea = false;
 	bInactive = false;
-	ActivateLimit = 3;
+	bTrapActive = true;
+	SetReplicateMovement(true);
+	SetReplicatingMovement(true);
+	SetReplicates(true);
 	//Area->OnComponentBeginOverlap.AddDynamic(this, &ATHTrapBase::OnCharacterInRange);
 	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHTrapBase::OnCharacterBeginOverlap);
 	Area->OnComponentEndOverlap.AddDynamic(this, &ATHTrapBase::OnCharacterEndOverlap);
@@ -24,6 +27,7 @@ void ATHTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHTrapBase, bInArea);
 	DOREPLIFETIME(ATHTrapBase, bInactive);
+	DOREPLIFETIME(ATHTrapBase, bTrapActive);
 	DOREPLIFETIME(ATHTrapBase, ActivateLimit);
 	DOREPLIFETIME(ATHTrapBase, InRangePlayers);
 	DOREPLIFETIME(ATHTrapBase, ExperiencedParty);
@@ -112,32 +116,27 @@ void ATHTrapBase::MulticastSaveCharacterList_Implementation()
 
 void ATHTrapBase::OnCharacterBeginOverlap_Implementation(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor)
+	//UE_LOG(THVerbose, Verbose, TEXT("%s - ActivateLimit: %d"), *FString(__FUNCTION__), ActivateLimit);
+	if (bTrapActive && OtherActor)
 	{
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
 		if (Character)
 		{
-			//it works to here.
 			if (!ExperiencedParty.Contains(Character) && !InRangePlayers.Contains(Character))
 			{
-				//InRangePlayers.Add(Character);
 				if (!ExperiencedParty.Contains(Character))
 				{
+					//UE_LOG(THVerbose, Verbose, TEXT("%s - NewCharacter"), *FString(__FUNCTION__));
 					ServerAddCharacterToInRangeQueue(Character);
 				}
+				//UE_LOG(THVerbose, Verbose, TEXT("%s - Number of InRangePlayers: %d"), *FString(__FUNCTION__), InRangePlayers.Num());
 				if (InRangePlayers.Num() >= ActivateLimit)
 				{
-					ActivateTrap();
-					UE_LOG(THVerbose, Verbose, TEXT("%s - Trap Activated"), *FString(__FUNCTION__));
-					/*
-					for (const auto& iter : InRangePlayers)
-					{
-						ExperiencedParty.Add(iter);
-					}*/
+					ServerActivateTrap();
+					//UE_LOG(THVerbose, Verbose, TEXT("%s - Trap Activated"), *FString(__FUNCTION__));
 					ServerSaveCharacterList();
 				}
-				UE_LOG(THVerbose, Verbose, TEXT("%s - Number of InRangePlayers: %d"), *FString(__FUNCTION__), InRangePlayers.Num());
-				UE_LOG(THVerbose, Verbose, TEXT("%s - Number of ExperiencedPlayer: %d"), *FString(__FUNCTION__), ExperiencedParty.Num());
+				//UE_LOG(THVerbose, Verbose, TEXT("%s - Number of ExperiencedPlayer: %d"), *FString(__FUNCTION__), ExperiencedParty.Num());
 			}
 		}
 	}
@@ -145,20 +144,44 @@ void ATHTrapBase::OnCharacterBeginOverlap_Implementation(UPrimitiveComponent* Ov
 
 void ATHTrapBase::OnCharacterEndOverlap_Implementation(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor)
+	if (bTrapActive && OtherActor)
 	{
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
 		if (Character)
 		{
 			ServerRemoveCharacterFromInRangeQueue(Character);
-			UE_LOG(THVerbose, Verbose, TEXT("%s - Number of InRangePlayers: %d"), *FString(__FUNCTION__), InRangePlayers.Num());
-			UE_LOG(THVerbose, Verbose, TEXT("%s - Number of ExperiencedPlayer: %d"), *FString(__FUNCTION__), ExperiencedParty.Num());
-			/*
-			if (InRangePlayers.Contains(Character))
-			{
-				InRangePlayers.Remove(Character);
-				UE_LOG(THVerbose, Verbose, TEXT("%s - Players out of range: %d"), *FString(__FUNCTION__), InRangePlayers.Num());
-			}*/
+			//UE_LOG(THVerbose, Verbose, TEXT("%s - Number of InRangePlayers: %d"), *FString(__FUNCTION__), InRangePlayers.Num());
+			//UE_LOG(THVerbose, Verbose, TEXT("%s - Number of ExperiencedPlayer: %d"), *FString(__FUNCTION__), ExperiencedParty.Num());
 		}
 	}
+}
+
+void ATHTrapBase::ServerActivateTrap_Implementation()
+{
+	MulticastActivateTrap();
+}
+
+bool ATHTrapBase::ServerActivateTrap_Validate()
+{
+	return true;
+}
+
+void ATHTrapBase::MulticastActivateTrap_Implementation()
+{
+	ActivateTrap();
+}
+
+void ATHTrapBase::ServerInactivateTrap_Implementation()
+{
+	MulticastInactivateTrap();
+}
+
+bool ATHTrapBase::ServerInactivateTrap_Validate()
+{
+	return true;
+}
+
+void ATHTrapBase::MulticastInactivateTrap_Implementation()
+{
+	InactivateTrap();
 }

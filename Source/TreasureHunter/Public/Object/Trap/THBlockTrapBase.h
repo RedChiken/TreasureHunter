@@ -12,7 +12,7 @@
 UCLASS()
 class TREASUREHUNTER_API ATHBlockTrapBase : public ATHTrapBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
@@ -29,6 +29,15 @@ public:
 
     virtual void Tick(float DeltaTime) override;
 
+    UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+        void ServerActivateAllInterpWall(float duration, bool bPositionIsRelative);
+
+    UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+        void ServerInactivateAllInterpWall(float duration, bool bPositionIsRelative);
+
+    UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+        void ServerStopAllInterpWall();
+
     UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
         void SetRelativeControlPoint(class ATHWallBase* Wall, const TArray<FVector>& ControlPointList);
 
@@ -37,9 +46,12 @@ protected:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-        void ActivateAllInterpWall();
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastActivateAllInterpWall(float duration, bool bPositionIsRelative);
 
-    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-        void StopAllInterpWall();
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastInactivateAllInterpWall(float duration, bool bPositionIsRelative);
+
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastStopAllInterpWall();
 };
