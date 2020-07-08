@@ -11,13 +11,10 @@
 
 ATHTrapBase::ATHTrapBase() : ATHActorBase()
 {
-	bInArea = false;
-	bInactive = false;
 	bTrapActive = true;
 	SetReplicateMovement(true);
 	SetReplicatingMovement(true);
 	SetReplicates(true);
-	//Area->OnComponentBeginOverlap.AddDynamic(this, &ATHTrapBase::OnCharacterInRange);
 	Area->OnComponentBeginOverlap.AddDynamic(this, &ATHTrapBase::OnCharacterBeginOverlap);
 	Area->OnComponentEndOverlap.AddDynamic(this, &ATHTrapBase::OnCharacterEndOverlap);
 }
@@ -25,42 +22,10 @@ ATHTrapBase::ATHTrapBase() : ATHActorBase()
 void ATHTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ATHTrapBase, bInArea);
-	DOREPLIFETIME(ATHTrapBase, bInactive);
 	DOREPLIFETIME(ATHTrapBase, bTrapActive);
 	DOREPLIFETIME(ATHTrapBase, ActivateLimit);
 	DOREPLIFETIME(ATHTrapBase, InRangePlayers);
 	DOREPLIFETIME(ATHTrapBase, ExperiencedParty);
-}
-
-void ATHTrapBase::ServerUpdatebInactive_Implementation(bool Inactive)
-{
-	MulticastUpdatebInactive(Inactive);
-}
-
-bool ATHTrapBase::ServerUpdatebInactive_Validate(bool Inactive)
-{
-	return true;
-}
-
-void ATHTrapBase::MulticastUpdatebInactive_Implementation(bool Inactive)
-{
-	bInactive = Inactive;
-}
-
-void ATHTrapBase::ServerUpdatebInArea_Implementation(bool inArea)
-{
-	MulticastUpdatebInArea(inArea);
-}
-
-bool ATHTrapBase::ServerUpdatebInArea_Validate(bool inArea)
-{
-	return true;
-}
-
-void ATHTrapBase::MulticastUpdatebInArea_Implementation(bool inArea)
-{
-	bInArea = inArea;
 }
 
 void ATHTrapBase::ServerAddCharacterToInRangeQueue_Implementation(ATHCharacterBase* input)

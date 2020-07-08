@@ -20,9 +20,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 		void InitializeTrap();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnCharacterInRange(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 	UFUNCTION(BlueprintNativeEvent)
 		void OnCharacterBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 		virtual void OnCharacterBeginOverlap_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -36,12 +33,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void InactivateTrap();
-
-	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerUpdatebInArea(bool inArea);
-
-	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerUpdatebInactive(bool Inactive);
 
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerAddCharacterToInRangeQueue(class ATHCharacterBase* input);
@@ -59,11 +50,6 @@ public:
 		void ServerInactivateTrap();
 
 protected:
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebInArea(bool inArea);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebInactive(bool Inactive);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastAddCharacterToInRangeQueue(class ATHCharacterBase* input);
@@ -83,12 +69,6 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-		bool bInArea;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-		bool bInactive;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
 		bool bTrapActive;
 

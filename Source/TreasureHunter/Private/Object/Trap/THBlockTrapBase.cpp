@@ -24,8 +24,6 @@ void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHBlockTrapBase, InterpWallList);
-	DOREPLIFETIME(ATHBlockTrapBase, ActivatingDirection);
-	DOREPLIFETIME(ATHBlockTrapBase, DeactivatingDirection);
 }
 
 void ATHBlockTrapBase::Tick(float DeltaTime)

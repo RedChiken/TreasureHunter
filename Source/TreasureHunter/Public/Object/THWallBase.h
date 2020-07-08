@@ -36,9 +36,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void StopWall();
 
-	UFUNCTION(BlueprintCallable)
-		TArray<FInterpControlPoint> ReverseControlPoints(const TArray<FInterpControlPoint>& ControlPoints);
-
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerActivateWall(float duration, bool bPositionIsRelative);
 
@@ -62,9 +59,6 @@ protected:
 		void MulticastStopWall();
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, REplicated, Category = Movement)
-		FVector InitialPosition;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = ControlPoints)
 		TArray<FVector> ActivateDirection;
 

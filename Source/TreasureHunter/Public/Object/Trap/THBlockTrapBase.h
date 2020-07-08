@@ -18,12 +18,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
         TArray<class ATHWallBase*> InterpWallList;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        TArray<FVector> ActivatingDirection;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        TArray<FVector> DeactivatingDirection;
-
 public:
     ATHBlockTrapBase();
 
@@ -37,9 +31,6 @@ public:
 
     UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
         void ServerStopAllInterpWall();
-
-    UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-        void SetRelativeControlPoint(class ATHWallBase* Wall, const TArray<FVector>& ControlPointList);
 
 protected:
     virtual void BeginPlay() override;

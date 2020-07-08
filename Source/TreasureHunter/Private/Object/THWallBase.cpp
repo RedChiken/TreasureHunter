@@ -30,7 +30,6 @@ void ATHWallBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ATHWallBase, MovementComponent);
-	DOREPLIFETIME(ATHWallBase, InitialPosition);
 	DOREPLIFETIME(ATHWallBase, ActivateDirection);
 	DOREPLIFETIME(ATHWallBase, InactivateDirection);
 }
@@ -65,19 +64,6 @@ void ATHWallBase::InactivateWall(float duration, bool bPositionIsRelative)
 void ATHWallBase::StopWall()
 {
 	MovementComponent->StopMovementImmediately();
-}
-
-TArray<FInterpControlPoint> ATHWallBase::ReverseControlPoints(const TArray<FInterpControlPoint>& ControlPoints)
-{
-	TArray<FInterpControlPoint> Reverse;
-	Reverse.Add(ControlPoints[0]);
-	int length = ControlPoints.Num();
-	for (int i = 0; i < length - 1; ++i)
-	{
-		auto relativeDestination = ControlPoints[length - i - 1].PositionControlPoint * -1;
-		Reverse.Add(FInterpControlPoint(relativeDestination, true));
-	}
-	return Reverse;
 }
 
 void ATHWallBase::ServerActivateWall_Implementation(float duration, bool bPositionIsRelative)
@@ -129,7 +115,9 @@ void ATHWallBase::MulticastStopWall_Implementation()
 
 void ATHWallBase::InitializeControlPointDirection(const TArray<FVector>& List)
 {
-	for (int i = 0; i < List.Num(); ++i)
+	ActivateDirection.Add(List[0]);
+	InactivateDirection.Add(List[0]);
+	for (int i = 1; i < List.Num(); ++i)
 	{
 		ActivateDirection.Add(List[i]);
 		InactivateDirection.Add(List[List.Num() - i - 1] * -1);
