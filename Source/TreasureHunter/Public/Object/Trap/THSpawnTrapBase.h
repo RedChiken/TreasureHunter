@@ -25,20 +25,33 @@ protected:
 
     virtual void ActivateActor(AActor* actor);
 
-    virtual void DeactivateActor(AActor* actor);
+    virtual void InactivateActor(AActor* actor);
 
 public:
-    UFUNCTION(BlueprintCallable)
-        void ActivateActorByIndex(int index);
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerActivateAllActor();
 
-    UFUNCTION(BlueprintCallable)
-        void ActivateAllActor();
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerActivateActor(int index);
 
-    UFUNCTION(BlueprintCallable)
-        void DeactivateActorByIndex(int index);
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerInactivateAllActor();
 
-    UFUNCTION(BlueprintCallable)
-        void DeactivateAllActor();
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerInactivateActor(int index);
+
+protected:
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastActivateAllActor();
+
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastActivateActor(int index);
+
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastInactivateAllActor();
+
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastInactivateActor(int index);
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Spawn)

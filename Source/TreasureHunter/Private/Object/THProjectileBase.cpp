@@ -10,6 +10,9 @@
 
 ATHProjectileBase::ATHProjectileBase() : ATHActorBase()
 {
+	SetReplicateMovement(true);
+	SetReplicatingMovement(true);
+	SetReplicates(true);
 	CollisionComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	CollisionComponent->SetUpdatedComponent(Object);
 	Object->SetCollisionProfileName(TEXT("Projectile"));
@@ -73,4 +76,19 @@ bool ATHProjectileBase::ServerUpdateDamage_Validate(float damage)
 void ATHProjectileBase::MulticastUpdateDamage_Implementation(float damage)
 {
 	Damage = damage;
+}
+
+void ATHProjectileBase::ServerFireInDirection_Implementation(FVector ShootDirection)
+{
+	MulticastFireInDirection(ShootDirection);
+}
+
+bool ATHProjectileBase::ServerFireInDirection_Validate(FVector ShootDirection)
+{
+	return true;
+}
+
+void ATHProjectileBase::MulticastFireInDirection_Implementation(FVector ShootDirection)
+{
+	CollisionComponent->Velocity = ShootDirection * CollisionComponent->InitialSpeed;
 }

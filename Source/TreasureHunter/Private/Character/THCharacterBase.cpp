@@ -53,6 +53,9 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	GetMesh()->SetupAttachment(FPCameraComponent);
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
+	SetReplicateMovement(true);
+	SetReplicates(true);
+	SetReplicatingMovement(true);
 
 	MovementComponent = Cast<UTHCharacterMovementComponent>(GetMovementComponent());
 	if (MovementComponent)
@@ -1030,7 +1033,30 @@ bool ATHCharacterBase::ServerEnableCollision_Validate()
 
 void ATHCharacterBase::MulticastEnableCollision_Implementation()
 {
+	SetActorTickEnabled(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	InteractionTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	UpperClimbTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	MiddleClimbTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LowerClimbTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HeadHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	UpperBodyHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LowerBodyHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftLowerArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftHandHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightLowerArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightHandHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftUpperLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftLowerLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	LeftFootHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightLowerLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	RightFootHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	FirstHitPart->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HitOpposite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	SetActorHiddenInGame(false);
 }
 
 void ATHCharacterBase::ServerDisableCollision_Implementation()
@@ -1045,7 +1071,30 @@ bool ATHCharacterBase::ServerDisableCollision_Validate()
 
 void ATHCharacterBase::MulticastDisableCollision_Implementation()
 {
+	SetActorTickEnabled(false);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	InteractionTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	UpperClimbTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MiddleClimbTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LowerClimbTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HeadHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	UpperBodyHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LowerBodyHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftLowerArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightLowerArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftUpperLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftLowerLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftFootHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightLowerLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightFootHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FirstHitPart->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitOpposite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetActorHiddenInGame(true);
 }
 
 void ATHCharacterBase::ServerEnableInput_Implementation(APlayerController* InputController)

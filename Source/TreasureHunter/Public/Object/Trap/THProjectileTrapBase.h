@@ -25,5 +25,5 @@ protected:
 
     virtual void ActivateActor(AActor* actor) override;
 
-    virtual void DeactivateActor(AActor* actor) override;
+    virtual void InactivateActor(AActor* actor) override;
 };

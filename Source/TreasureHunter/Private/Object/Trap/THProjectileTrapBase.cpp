@@ -30,11 +30,12 @@ void ATHProjectileTrapBase::ActivateActor(AActor* actor)
 	Super::ActivateActor(actor);
 	auto projectile = Cast<ATHProjectileBase>(actor);
 	projectile->CollisionComponent->Activate(true);
+	projectile->ServerFireInDirection(FVector(0.f, 1.f, 0.f));
 }
 
-void ATHProjectileTrapBase::DeactivateActor(AActor* actor)
+void ATHProjectileTrapBase::InactivateActor(AActor* actor)
 {
-	Super::DeactivateActor(actor);
+	Super::InactivateActor(actor);
 	auto projectile = Cast<ATHProjectileBase>(actor);
 	projectile->CollisionComponent->Deactivate();
 }

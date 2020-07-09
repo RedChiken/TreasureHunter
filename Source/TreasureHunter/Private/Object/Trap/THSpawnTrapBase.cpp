@@ -2,6 +2,7 @@
 
 
 #include "THSpawnTrapBase.h"
+#include "TreasureHunter.h"
 #include "THCharacterBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -26,44 +27,88 @@ void ATHSpawnTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void ATHSpawnTrapBase::ActivateActor(AActor* actor)
 {
-	actor->SetActorHiddenInGame(false);
+	UE_LOG(THVerbose, Verbose, TEXT("%s - ActivateActor"), *FString(__FUNCTION__));
 	actor->SetActorEnableCollision(true);
 	actor->SetActorTickEnabled(true);
+	actor->SetActorHiddenInGame(false);
 }
 
-void ATHSpawnTrapBase::ActivateActorByIndex(int index)
+void ATHSpawnTrapBase::InactivateActor(AActor* actor)
 {
-	auto actor = SpawnedActor[index];
-	ActivateActor(actor);
-}
-
-void ATHSpawnTrapBase::ActivateAllActor()
-{
-	for (int i = 0; i < SpawnedActor.Num(); ++i)
-	{
-		ActivateActorByIndex(i);
-	}
-}
-
-void ATHSpawnTrapBase::DeactivateActor(AActor* actor)
-{
-	actor->SetActorHiddenInGame(true);
+	UE_LOG(THVerbose, Verbose, TEXT("%s - InactivateActor"), *FString(__FUNCTION__));
 	actor->SetActorEnableCollision(false);
 	actor->SetActorTickEnabled(false);
+	actor->SetActorHiddenInGame(true);
 }
 
-void ATHSpawnTrapBase::DeactivateActorByIndex(int index)
+void ATHSpawnTrapBase::ServerActivateAllActor_Implementation()
 {
-	auto actor = SpawnedActor[index];
-	DeactivateActor(actor);
+	UE_LOG(THVerbose, Verbose, TEXT("%s - ServerActivateAllActor"), *FString(__FUNCTION__));
+	MulticastActivateAllActor();
 }
 
-void ATHSpawnTrapBase::DeactivateAllActor()
+bool ATHSpawnTrapBase::ServerActivateAllActor_Validate()
 {
-	for (int i = 0; i < SpawnedActor.Num(); ++i)
+	return true;
+}
+
+void ATHSpawnTrapBase::MulticastActivateAllActor_Implementation()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s - MulticastActivateAllActor"), *FString(__FUNCTION__));
+	for (auto& iter : SpawnedActor)
 	{
-		DeactivateActorByIndex(i);
+		ActivateActor(iter);
 	}
+}
+
+void ATHSpawnTrapBase::ServerActivateActor_Implementation(int index)
+{
+	MulticastActivateActor(index);
+}
+
+bool ATHSpawnTrapBase::ServerActivateActor_Validate(int index)
+{
+	return true;
+}
+
+void ATHSpawnTrapBase::MulticastActivateActor_Implementation(int index)
+{
+	ActivateActor(SpawnedActor[index]);
+}
+
+void ATHSpawnTrapBase::ServerInactivateAllActor_Implementation()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s - ServerInactivateAllActor"), *FString(__FUNCTION__));
+	MulticastInactivateAllActor();
+}
+
+bool ATHSpawnTrapBase::ServerInactivateAllActor_Validate()
+{
+	return true;
+}
+
+void ATHSpawnTrapBase::MulticastInactivateAllActor_Implementation()
+{
+	UE_LOG(THVerbose, Verbose, TEXT("%s -MulticastInactivateAllActor"), *FString(__FUNCTION__));
+	for (auto& iter : SpawnedActor)
+	{
+		InactivateActor(iter);
+	}
+}
+
+void ATHSpawnTrapBase::ServerInactivateActor_Implementation(int index)
+{
+	MulticastInactivateActor(index);
+}
+
+bool ATHSpawnTrapBase::ServerInactivateActor_Validate(int index)
+{
+	return true;
+}
+
+void ATHSpawnTrapBase::MulticastInactivateActor_Implementation(int index)
+{
+	InactivateActor(SpawnedActor[index]);
 }
 
 void ATHSpawnTrapBase::Tick(float DeltaTime)

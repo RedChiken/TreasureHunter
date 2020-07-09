@@ -28,8 +28,8 @@ public:
     UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
         void ServerUpdateDamage(float damage);
 
-    UFUNCTION(NetMulticast, Reliable)
-        void MulticastUpdateDamage(float damage);
+    UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+        void ServerFireInDirection(FVector ShootDirection);
 
     UFUNCTION(BlueprintCallable)
         void FireInDirection(FVector ShootDirection);
@@ -38,6 +38,12 @@ public:
         float GetDamage();
 
 protected:
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastUpdateDamage(float damage);
+
+    UFUNCTION(NetMulticast, Reliable)
+        void MulticastFireInDirection(FVector ShootDirection);
+
     UFUNCTION(BlueprintCallable)
         void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
