@@ -60,4 +60,3 @@ void ATHActorBase::MulticastUpdatebActive_Implementation(bool active)
 {
 	bActive = active;
 }
-

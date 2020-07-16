@@ -27,15 +27,25 @@ void ATHProjectileTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 void ATHProjectileTrapBase::ActivateActor(AActor* actor)
 {
-	Super::ActivateActor(actor);
-	auto projectile = Cast<ATHProjectileBase>(actor);
-	projectile->CollisionComponent->Activate(true);
-	projectile->ServerFireInDirection(FVector(0.f, 1.f, 0.f));
+	if (actor)
+	{
+		auto projectile = Cast<ATHProjectileBase>(actor);
+		Super::ActivateActor(projectile);
+		projectile->CollisionComponent->Activate(true);
+		projectile->ServerFireInDirection(FVector(0.f, 1.f, 0.f));
+		actor->SetActorEnableCollision(true);
+		actor->SetActorHiddenInGame(false);
+	}
 }
 
 void ATHProjectileTrapBase::InactivateActor(AActor* actor)
 {
-	Super::InactivateActor(actor);
-	auto projectile = Cast<ATHProjectileBase>(actor);
-	projectile->CollisionComponent->Deactivate();
+	if (actor)
+	{
+		auto projectile = Cast<ATHProjectileBase>(actor);
+		Super::InactivateActor(projectile);
+		projectile->CollisionComponent->Deactivate();
+		actor->SetActorEnableCollision(false);
+		actor->SetActorHiddenInGame(true);
+	}
 }

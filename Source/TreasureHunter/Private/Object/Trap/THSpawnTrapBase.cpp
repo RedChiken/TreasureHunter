@@ -28,17 +28,23 @@ void ATHSpawnTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void ATHSpawnTrapBase::ActivateActor(AActor* actor)
 {
 	UE_LOG(THVerbose, Verbose, TEXT("%s - ActivateActor"), *FString(__FUNCTION__));
-	actor->SetActorEnableCollision(true);
-	actor->SetActorTickEnabled(true);
-	actor->SetActorHiddenInGame(false);
+	if (actor)
+	{
+		actor->SetActorTickEnabled(true);
+		actor->SetActorEnableCollision(true);	// different with actor by actor
+		actor->SetActorHiddenInGame(false);		// different with actor by actor
+	}
 }
 
 void ATHSpawnTrapBase::InactivateActor(AActor* actor)
 {
 	UE_LOG(THVerbose, Verbose, TEXT("%s - InactivateActor"), *FString(__FUNCTION__));
-	actor->SetActorEnableCollision(false);
-	actor->SetActorTickEnabled(false);
-	actor->SetActorHiddenInGame(true);
+	if (actor)
+	{
+		actor->SetActorTickEnabled(false);
+		actor->SetActorEnableCollision(false);	// different with actor by actor
+		actor->SetActorHiddenInGame(true);		// different with actor by actor
+	}
 }
 
 void ATHSpawnTrapBase::ServerActivateAllActor_Implementation()
@@ -55,6 +61,11 @@ bool ATHSpawnTrapBase::ServerActivateAllActor_Validate()
 void ATHSpawnTrapBase::MulticastActivateAllActor_Implementation()
 {
 	UE_LOG(THVerbose, Verbose, TEXT("%s - MulticastActivateAllActor"), *FString(__FUNCTION__));
+	/*for (int i = 0; i < SpawnedActor.Num(); ++i)
+	{
+		ServerActivateActor(i);
+	}*/
+	
 	for (auto& iter : SpawnedActor)
 	{
 		ActivateActor(iter);
@@ -90,6 +101,11 @@ bool ATHSpawnTrapBase::ServerInactivateAllActor_Validate()
 void ATHSpawnTrapBase::MulticastInactivateAllActor_Implementation()
 {
 	UE_LOG(THVerbose, Verbose, TEXT("%s -MulticastInactivateAllActor"), *FString(__FUNCTION__));
+	/*for (int i = 0; i < SpawnedActor.Num(); ++i)
+	{
+		ServerInactivateActor(i);
+	}
+	*/
 	for (auto& iter : SpawnedActor)
 	{
 		InactivateActor(iter);

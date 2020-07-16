@@ -27,6 +27,10 @@ void ATHProjectileBase::Tick(float DeltaTime)
 void ATHProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+	Object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetActorHiddenInGame(bActive);
+	//SetActorEnableCollision(!bActive);
+	SetActorTickEnabled(!bActive);
 }
 
 void ATHProjectileBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -60,6 +64,7 @@ void ATHProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActo
 			Character->ReceiveDamage(Damage);
 		}
 	}
+	ServerUpdatebActive(false);
 	Destroy();
 }
 
