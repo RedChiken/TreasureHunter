@@ -159,15 +159,6 @@ private:
 		bool bJump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		EEnterDirection EnterDirection;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		EExitDirection ExitDirection;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
-		bool bUpward;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
 		ELayeredAction LayeredAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -205,10 +196,6 @@ private:
 
 
 public:
-	void SyncLocomotionAnimTrigger(float& Speed, bool& Jump, bool& Fall, bool& StandToSprint, EIdleType& Idle, EMovementType& Movement, EMovingDirection& Moving);
-	void SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction, TEnumAsByte<enum EMovementMode>& MovementMode);
-	void SyncStatusAnimTrigger(float& HP);
-
 	void OnMovementStop();
 
 	void StopInteraction();
@@ -237,15 +224,6 @@ public:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdatebJump(bool isJump);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUpdateEnterDirection(EEnterDirection Direction);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUpdateExitDirection(EExitDirection Direction);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUpdatebUpward(bool Upward);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdatebFullBodyMotion(bool FullBodyMotion);
@@ -356,15 +334,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdatebJump(bool isJump);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdateEnterDirection(EEnterDirection Direction);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdateExitDirection(EExitDirection Direction);
-
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastUpdatebUpward(bool Upward);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateLayeredAction(ELayeredAction Action);

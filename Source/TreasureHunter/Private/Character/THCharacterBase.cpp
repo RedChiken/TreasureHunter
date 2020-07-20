@@ -97,10 +97,7 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	IdleType = EIdleType::STAND;
 	MovementType = EMovementType::DEFAULT;
 	MovingDirection = EMovingDirection::DEFAULT;
-	EnterDirection = EEnterDirection::DEFAULT;
-	ExitDirection = EExitDirection::BOTTOM;
 	bFullBodyMotion = false;
-	bUpward = false;
 	bDead = false;
 	bLayeredMotion = false;
 	bStandToSprint = false;
@@ -152,9 +149,6 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, MovementType);
 	DOREPLIFETIME(ATHCharacterBase, MovingDirection);
 	DOREPLIFETIME(ATHCharacterBase, bJump);
-	DOREPLIFETIME(ATHCharacterBase, EnterDirection);
-	DOREPLIFETIME(ATHCharacterBase, ExitDirection);
-	DOREPLIFETIME(ATHCharacterBase, bUpward);
 	DOREPLIFETIME(ATHCharacterBase, LayeredAction);
 	DOREPLIFETIME(ATHCharacterBase, bFullBodyMotion);
 	DOREPLIFETIME(ATHCharacterBase, bLayeredMotion);
@@ -244,36 +238,6 @@ void ATHCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("LookUp", this, &ATHCharacterBase::LookUp);
 }
 
-void ATHCharacterBase::SyncLocomotionAnimTrigger(float& Speed, bool& Jump, bool& Falling, bool& StandToSprint, EIdleType& Idle, EMovementType& Movement, EMovingDirection& Moving)
-{
-	Speed = GetVelocity().Size();
-	Jump = bJump;
-	Falling = MovementComponent->IsFalling();
-	StandToSprint = bStandToSprint;
-	Idle = IdleType;
-	Movement = MovementType;
-	Moving = MovingDirection;
-}
-
-void ATHCharacterBase::SyncFullBodyAnimTrigger(bool& LayeredMotion, bool& FullBodyMotion, bool& Upward, bool& Dead, bool& UpperClimb, bool& MiddleClimb, bool& LowerClimb, ELayeredAction& Layered, EInteractionType& Interaction, TEnumAsByte<enum EMovementMode>& MovementMode)
-{
-	LayeredMotion = bLayeredMotion;
-	FullBodyMotion = bFullBodyMotion;
-	Upward = bUpward;
-	Dead = bDead;
-	UpperClimb = bUpperClimbTrigger;
-	MiddleClimb = bMiddleClimbTrigger;
-	LowerClimb = bLowerClimbTrigger;
-	Layered = LayeredAction;
-	Interaction = InteractionType;
-	MovementMode = MovementComponent->MovementMode;
-}
-
-void ATHCharacterBase::SyncStatusAnimTrigger(float& Hp)
-{
-	Hp = HP;
-}
-
 void ATHCharacterBase::OnMovementStop()
 {
 	if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
@@ -301,11 +265,6 @@ void ATHCharacterBase::StopInteraction()
 void ATHCharacterBase::UpdateIdleType(EIdleType Idle)
 {
 	ServerUpdateIdleType(Idle);
-}
-
-void ATHCharacterBase::UpdateExitDirection(EExitDirection Exit)
-{
-	ServerUpdateExitDirection(Exit);
 }
 
 void ATHCharacterBase::ReceiveDamage(float damage)
@@ -777,51 +736,6 @@ bool ATHCharacterBase::ServerUpdatebJump_Validate(bool isJump)
 void ATHCharacterBase::MulticastUpdatebJump_Implementation(bool isJump)
 {
 	bJump = isJump;
-}
-
-void ATHCharacterBase::ServerUpdateEnterDirection_Implementation(EEnterDirection Direction)
-{
-	MulticastUpdateEnterDirection(Direction);
-}
-
-bool ATHCharacterBase::ServerUpdateEnterDirection_Validate(EEnterDirection Direction)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdateEnterDirection_Implementation(EEnterDirection Direction)
-{
-	EnterDirection = Direction;
-}
-
-void ATHCharacterBase::ServerUpdateExitDirection_Implementation(EExitDirection Direction)
-{
-	MulticastUpdateExitDirection(Direction);
-}
-
-bool ATHCharacterBase::ServerUpdateExitDirection_Validate(EExitDirection Direction)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdateExitDirection_Implementation(EExitDirection Direction)
-{
-	ExitDirection = Direction;
-}
-
-void ATHCharacterBase::ServerUpdatebUpward_Implementation(bool Upward)
-{
-	MulticastUpdatebUpward(Upward);
-}
-
-bool ATHCharacterBase::ServerUpdatebUpward_Validate(bool Upward)
-{
-	return true;
-}
-
-void ATHCharacterBase::MulticastUpdatebUpward_Implementation(bool Upward)
-{
-	bUpward = Upward;
 }
 
 void ATHCharacterBase::ServerUpdateLayeredAction_Implementation(ELayeredAction Action)
@@ -1509,8 +1423,6 @@ void ATHCharacterBase::MoveForward(float val)
 	//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
 	if (IsClimbing())
 	{
-		//UE_LOG(THVerbose, Verbose, TEXT("%s Climb Move!"), *FString(__FUNCTION__));
-			//ServerUpdatebUpward(val > 0);
 		if (val > 0.f)
 		{
 			if (!IsAttachToTop())

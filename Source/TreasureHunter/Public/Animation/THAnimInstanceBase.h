@@ -138,20 +138,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		TEnumAsByte<enum EMovementMode> MovementMode;
 
-	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
-		EEnterDirection EnterDirection;
-
-	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
-		EExitDirection ExitDirection;
-
 	UPROPERTY(BlueprintReadOnly, Category = LayeredMotion)
 		bool bLayeredMotion;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bFullBodyMotion;
-
-	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
-		bool bUpward;
 
 	UPROPERTY(BlueprintReadOnly, Category = FullBodyMotion)
 		bool bDead;
