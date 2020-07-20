@@ -122,18 +122,22 @@ void ATHCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	UTHAnimInstanceBase* AnimInstance = Cast<UTHAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	AnimInstance->OnEnterRopeTop.AddDynamic(this, &ATHCharacterBase::EnterRopeTop);
-	AnimInstance->OnExitRopeTop.AddDynamic(this, &ATHCharacterBase::ExitRopeTop);
-	AnimInstance->OnEnterRopeBottom.AddDynamic(this, &ATHCharacterBase::EnterRopeBottom);
-	AnimInstance->OnExitRopeBottom.AddDynamic(this, &ATHCharacterBase::ExitRopeBottom);
-	AnimInstance->OnEnterWallTop.AddDynamic(this, &ATHCharacterBase::EnterWallTop);
-	AnimInstance->OnExitWallTop.AddDynamic(this, &ATHCharacterBase::ExitWallTop);
-	AnimInstance->OnEnterWallBottom.AddDynamic(this, &ATHCharacterBase::EnterWallBottom);
-	AnimInstance->OnExitWallBottom.AddDynamic(this, &ATHCharacterBase::ExitWallBottom);
-	AnimInstance->OnEnterLadderTop.AddDynamic(this, &ATHCharacterBase::EnterLadderTop);
-	AnimInstance->OnExitLadderTop.AddDynamic(this, &ATHCharacterBase::ExitLadderTop);
-	AnimInstance->OnEnterLadderBottom.AddDynamic(this, &ATHCharacterBase::EnterLadderBottom);
-	AnimInstance->OnExitLadderBottom.AddDynamic(this, &ATHCharacterBase::ExitLadderBottom);
+	if (AnimInstance)
+	{
+		AnimInstance->OnEnterRopeTop.AddDynamic(this, &ATHCharacterBase::EnterRopeTop);
+		AnimInstance->OnExitRopeTop.AddDynamic(this, &ATHCharacterBase::ExitRopeTop);
+		AnimInstance->OnEnterRopeBottom.AddDynamic(this, &ATHCharacterBase::EnterRopeBottom);
+		AnimInstance->OnExitRopeBottom.AddDynamic(this, &ATHCharacterBase::ExitRopeBottom);
+		AnimInstance->OnEnterWallTop.AddDynamic(this, &ATHCharacterBase::EnterWallTop);
+		AnimInstance->OnExitWallTop.AddDynamic(this, &ATHCharacterBase::ExitWallTop);
+		AnimInstance->OnEnterWallBottom.AddDynamic(this, &ATHCharacterBase::EnterWallBottom);
+		AnimInstance->OnExitWallBottom.AddDynamic(this, &ATHCharacterBase::ExitWallBottom);
+		AnimInstance->OnEnterLadderTop.AddDynamic(this, &ATHCharacterBase::EnterLadderTop);
+		AnimInstance->OnExitLadderTop.AddDynamic(this, &ATHCharacterBase::ExitLadderTop);
+		AnimInstance->OnEnterLadderBottom.AddDynamic(this, &ATHCharacterBase::EnterLadderBottom);
+		AnimInstance->OnExitLadderBottom.AddDynamic(this, &ATHCharacterBase::ExitLadderBottom);
+		AnimInstance->OnJump.AddDynamic(this, &ACharacter::Jump);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -1252,9 +1256,6 @@ void ATHCharacterBase::OnJumpPressed()
 	case EIdleType::STAND:
 		ServerUpdatebJump(true);
 		UE_LOG(THVerbose, Verbose, TEXT("bJump is %s"), (bJump ? TEXT("On") : TEXT("Off")));
-		Super::Jump();
-		//TODO: If possible, Jump it with MovementComponent
-		//	TODO: Repeat with delay
 		break;
 	case EIdleType::LADDER:
 	case EIdleType::ROPE:

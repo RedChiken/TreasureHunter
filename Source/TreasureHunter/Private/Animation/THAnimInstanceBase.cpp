@@ -51,6 +51,11 @@ void UTHAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
+void UTHAnimInstanceBase::AnimNotify_Jump()
+{
+	OnJump.Broadcast();
+}
+
 void UTHAnimInstanceBase::AnimNotify_EnterRopeTop()
 {
 	OnEnterRopeTop.Broadcast();
