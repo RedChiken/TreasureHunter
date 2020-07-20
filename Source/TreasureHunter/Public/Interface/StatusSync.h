@@ -22,4 +22,6 @@ class TREASUREHUNTER_API IStatusSync
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void SyncHP(float& Hp);
+	virtual void SyncbDead(bool& Dead);
 };
