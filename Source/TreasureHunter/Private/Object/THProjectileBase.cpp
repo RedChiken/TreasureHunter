@@ -3,6 +3,7 @@
 
 #include "THProjectileBase.h"
 #include "Character/THCharacterBase.h"
+#include "Interface/Damagable.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -47,9 +48,9 @@ void ATHProjectileBase::FireInDirection(FVector ShootDirection)
 	//GEngine->AddOnScreenDebugMessage(-1, 60.0f, FColor::Blue, FString::Printf(TEXT("velocity: %s"), *CollisionComponent->Velocity.ToString()));
 }
 
-float ATHProjectileBase::GetDamage()
+float ATHProjectileBase::GetDamageBP()
 {
-	return Damage;
+	return GetDamage();
 }
 
 void ATHProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -57,15 +58,32 @@ void ATHProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActo
 	if (OtherActor)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("Projectile Hit Actor"));
+		IDamagable* Damagable = Cast<IDamagable>(OtherActor);
+		if (Damagable)
+		{
+			Damagable->ReceiveDamage(Damage);
+		}
+		/*
 		auto Character = Cast<ATHCharacterBase>(OtherActor);
 		if (Character)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Blue, TEXT("Projectile Hit Character"));
 			Character->ReceiveDamage(Damage);
 		}
+		*/
 	}
 	ServerUpdatebActive(false);
 	Destroy();
+}
+
+const float ATHProjectileBase::GetDamage()
+{
+	return Damage;
+}
+
+void ATHProjectileBase::UpdateDamage(const float& damage)
+{
+	ServerUpdateDamage(damage);
 }
 
 void ATHProjectileBase::ServerUpdateDamage_Implementation(float damage)

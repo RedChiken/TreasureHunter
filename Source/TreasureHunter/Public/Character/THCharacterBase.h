@@ -17,13 +17,14 @@
 #include "Interface/FullBodyMotionSync.h"
 #include "Interface/LayeredMotionSync.h"
 #include "Interface/StatusSync.h"
+#include "Interface/Damagable.h"
 #include "Animation/AnimInstance.h"
 #include "Engine/EngineTypes.h"
 #include "Containers/EnumAsByte.h"
 #include "THCharacterBase.generated.h"
 
 UCLASS()
-class TREASUREHUNTER_API ATHCharacterBase : public ACharacter, public ILocomotionSync, public IFullBodyMotionSync, public ILayeredMotionSync, public IStatusSync
+class TREASUREHUNTER_API ATHCharacterBase : public ACharacter, public ILocomotionSync, public IFullBodyMotionSync, public ILayeredMotionSync, public IStatusSync, public IDamagable
 {
 	GENERATED_BODY()
 
@@ -201,8 +202,6 @@ public:
 	void StopInteraction();
 	void UpdateIdleType(EIdleType Idle);
 	void UpdateExitDirection(EExitDirection Exit);
-
-	void ReceiveDamage(float damage);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
@@ -479,6 +478,9 @@ public:
 
 	virtual void SyncHP(float& Hp);
 	virtual void SyncbDead(bool& Dead);
+
+	virtual void ReceiveDamage(const float& damage) override;
+	virtual void ReceiveHeal(const float& heal) override;
 
 private:
 	void AddMovement(const FVector vector, float val); 

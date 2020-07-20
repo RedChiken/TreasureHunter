@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Object/THActorBase.h"
+#include "Interface/DamageActivity.h"
 #include "THProjectileBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TREASUREHUNTER_API ATHProjectileBase : public ATHActorBase
+class TREASUREHUNTER_API ATHProjectileBase : public ATHActorBase, public IDamageActivity
 {
 	GENERATED_BODY()
 
@@ -35,7 +36,7 @@ public:
         void FireInDirection(FVector ShootDirection);
 
     UFUNCTION(BlueprintCallable)
-        float GetDamage();
+        float GetDamageBP();
 
 protected:
     UFUNCTION(NetMulticast, Reliable)
@@ -46,6 +47,10 @@ protected:
 
     UFUNCTION(BlueprintCallable)
         void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+public:
+    virtual const float GetDamage() override;
+    virtual void UpdateDamage(const float& damage) override;
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Projectile)

@@ -271,16 +271,6 @@ void ATHCharacterBase::UpdateIdleType(EIdleType Idle)
 	ServerUpdateIdleType(Idle);
 }
 
-void ATHCharacterBase::ReceiveDamage(float damage)
-{
-	ServerUpdateHP(-1 * damage);
-	UE_LOG(THVerbose, Verbose, TEXT("%s: Got %f Damage. HP = %f"), *FString(__FUNCTION__), damage, HP);
-	if (!bDead && (HP <= 0.0f))
-	{
-		SetCharacterDead();
-	}
-}
-
 void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherComp && OverlappedComp)
@@ -295,7 +285,7 @@ void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AA
 			{
 				if ((FirstHitPart == nullptr) && (HitOpposite == nullptr))
 				{
-					Character->ReceiveDamage(20.f);
+					Character->ReceiveDamage(2.f);
 					FirstHitPart = Self;
 					HitOpposite = Hit;
 					UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Occur. Lock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
@@ -1682,6 +1672,22 @@ void ATHCharacterBase::SyncHP(float& Hp)
 void ATHCharacterBase::SyncbDead(bool& Dead)
 {
 	Dead = bDead;
+}
+
+void ATHCharacterBase::ReceiveDamage(const float& damage)
+{
+	ServerUpdateHP(damage * -1);
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Got %f Damage. HP = %f"), *FString(__FUNCTION__), damage, HP);
+	if (!bDead && (HP <= 0.0f))
+	{
+		SetCharacterDead();
+	}
+}
+
+void ATHCharacterBase::ReceiveHeal(const float& heal)
+{
+	ServerUpdateHP(heal);
+	UE_LOG(THVerbose, Verbose, TEXT("%s: Got %f Heal. HP = %f"), *FString(__FUNCTION__), heal, HP);
 }
 
 void ATHCharacterBase::AddMovement(const FVector vector, float val)

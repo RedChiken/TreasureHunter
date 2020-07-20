@@ -2,5 +2,6 @@
 
 
 #include "DamageActivity.h"
+#include "..\..\Public\Interface\DamageActivity.h"
 
 // Add default functionality here for any IDamageActivity functions that are not pure virtual.

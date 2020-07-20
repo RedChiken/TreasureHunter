@@ -22,4 +22,6 @@ class TREASUREHUNTER_API IDamageActivity
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual const float GetDamage() = 0;
+	virtual void UpdateDamage(const float& Damage) = 0;
 };
