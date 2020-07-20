@@ -24,7 +24,7 @@ class TREASUREHUNTER_API ILayeredMotionSync
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void SyncbLayeredMotion(bool& LayeredMotion);
-	virtual void SyncLayeredAction(ELayeredAction& Layered);
-	virtual void SyncInteractionType(EInteractionType& Interaction);
+	virtual void SyncbLayeredMotion(bool& LayeredMotion) = 0;
+	virtual void SyncLayeredAction(ELayeredAction& Layered) = 0;
+	virtual void SyncInteractionType(EInteractionType& Interaction) = 0;
 };

@@ -23,9 +23,9 @@ class TREASUREHUNTER_API IFullBodyMotionSync
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void SyncbFullBodyMotion(bool& FullBody);
-	virtual void SyncbUpperClimb(bool& Upper);
-	virtual void SyncbMiddleClimb(bool& Middle);
-	virtual void SyncbLowerClimb(bool& Lower);
-	virtual void SyncMovementMode(TEnumAsByte<EMovementMode>& MovementMode);
+	virtual void SyncbFullBodyMotion(bool& FullBody) = 0;
+	virtual void SyncbUpperClimb(bool& Upper) = 0;
+	virtual void SyncbMiddleClimb(bool& Middle) = 0;
+	virtual void SyncbLowerClimb(bool& Lower) = 0;
+	virtual void SyncMovementMode(TEnumAsByte<EMovementMode>& MovementMode) = 0;
 };

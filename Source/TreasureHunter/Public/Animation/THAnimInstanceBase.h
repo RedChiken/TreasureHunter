@@ -11,6 +11,7 @@
 #include "DataType/THExitDirection.h"
 #include "DataType/THLayeredAction.h"
 #include "DataType/THInteractionType.h"
+#include "DataType/THInteractionType.h"
 #include "Engine/EngineTypes.h"
 #include "Containers/EnumAsByte.h"
 #include "THAnimInstanceBase.generated.h"

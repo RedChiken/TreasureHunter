@@ -1686,6 +1686,91 @@ void ATHCharacterBase::LookUp(float val)
 	MovementComponent->UpdateBasedRotation(rot, FRotator(-val, 0.f, 0.f));
 }
 
+void ATHCharacterBase::SyncSpeed(float& Speed)
+{
+	Speed = GetVelocity().Size();
+}
+
+void ATHCharacterBase::SyncbJump(bool& Jump)
+{
+	Jump = bJump;
+}
+
+void ATHCharacterBase::SyncbFalling(bool& Falling)
+{
+	Falling = MovementComponent->IsFalling();
+}
+
+void ATHCharacterBase::SyncStandToSparint(bool& STS)
+{
+	STS = bStandToSprint;
+}
+
+void ATHCharacterBase::SyncIdleType(EIdleType& Idle)
+{
+	Idle = IdleType;
+}
+
+void ATHCharacterBase::SyncMovementType(EMovementType& Movement)
+{
+	Movement = MovementType;
+}
+
+void ATHCharacterBase::SyncMovingDirection(EMovingDirection& Moving)
+{
+	Moving = MovingDirection;
+}
+
+void ATHCharacterBase::SyncbFullBodyMotion(bool& FullBody)
+{
+	FullBody = bFullBodyMotion;
+}
+
+void ATHCharacterBase::SyncbUpperClimb(bool& Upper)
+{
+	Upper = bUpperClimbTrigger;
+}
+
+void ATHCharacterBase::SyncbMiddleClimb(bool& Middle)
+{
+	Middle = bMiddleClimbTrigger;
+}
+
+void ATHCharacterBase::SyncbLowerClimb(bool& Lower)
+{
+	Lower = bLowerClimbTrigger;
+}
+
+void ATHCharacterBase::SyncMovementMode(TEnumAsByte<EMovementMode>& MovementMode)
+{
+	MovementMode = MovementComponent->MovementMode;
+}
+
+void ATHCharacterBase::SyncbLayeredMotion(bool& LayeredMotion)
+{
+	LayeredMotion = bLayeredMotion;
+}
+
+void ATHCharacterBase::SyncLayeredAction(ELayeredAction& Layered)
+{
+	Layered = LayeredAction;
+}
+
+void ATHCharacterBase::SyncInteractionType(EInteractionType& Interaction)
+{
+	Interaction = InteractionType;
+}
+
+void ATHCharacterBase::SyncHP(float& Hp)
+{
+	Hp = HP;
+}
+
+void ATHCharacterBase::SyncbDead(bool& Dead)
+{
+	Dead = bDead;
+}
+
 void ATHCharacterBase::AddMovement(const FVector vector, float val)
 {
 	if (val != 0)

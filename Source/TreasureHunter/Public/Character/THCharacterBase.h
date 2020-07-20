@@ -13,13 +13,17 @@
 #include "DataType/THLayeredAction.h"
 #include "DataType/THInteractionType.h"
 #include "DataType/THAttachSequence.h"
+#include "Interface/LocomotionSync.h"
+#include "Interface/FullBodyMotionSync.h"
+#include "Interface/LayeredMotionSync.h"
+#include "Interface/StatusSync.h"
 #include "Animation/AnimInstance.h"
 #include "Engine/EngineTypes.h"
 #include "Containers/EnumAsByte.h"
 #include "THCharacterBase.generated.h"
 
 UCLASS()
-class TREASUREHUNTER_API ATHCharacterBase : public ACharacter
+class TREASUREHUNTER_API ATHCharacterBase : public ACharacter, public ILocomotionSync, public IFullBodyMotionSync, public ILayeredMotionSync, public IStatusSync
 {
 	GENERATED_BODY()
 
@@ -484,6 +488,28 @@ protected:
 	void MoveRight(float val);
 	void Turn(float val);
 	void LookUp(float val);
+
+public:
+	virtual void SyncSpeed(float& Speed) override;
+	virtual void SyncbJump(bool& Jump) override;
+	virtual void SyncbFalling(bool& Falling) override;
+	virtual void SyncStandToSparint(bool& STS) override;
+	virtual void SyncIdleType(EIdleType& Idle) override;
+	virtual void SyncMovementType(EMovementType& Movement) override;
+	virtual void SyncMovingDirection(EMovingDirection& Moving) override;
+
+	virtual void SyncbFullBodyMotion(bool& FullBody) override;
+	virtual void SyncbUpperClimb(bool& Upper) override;
+	virtual void SyncbMiddleClimb(bool& Middle) override;
+	virtual void SyncbLowerClimb(bool& Lower) override;
+	virtual void SyncMovementMode(TEnumAsByte<EMovementMode>& MovementMode) override;
+
+	virtual void SyncbLayeredMotion(bool& LayeredMotion) override;
+	virtual void SyncLayeredAction(ELayeredAction& Layered) override;
+	virtual void SyncInteractionType(EInteractionType& Interaction) override;
+
+	virtual void SyncHP(float& Hp);
+	virtual void SyncbDead(bool& Dead);
 
 private:
 	void AddMovement(const FVector vector, float val); 
