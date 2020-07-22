@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "UObject/Object.h"
 #include "CheckInRangeCharacter.generated.h"
 
 // This class does not need to be modified.
@@ -22,4 +23,14 @@ class TREASUREHUNTER_API ICheckInRangeCharacter
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void AddtoBuffer(UObject* input) = 0;
+	virtual void RemovefromBuffer(UObject* input) = 0;
+	virtual bool IsValidinBuffer(const UObject* input) = 0;
+	virtual void ResetBuffer() = 0;
+	virtual void Flush() = 0;
+	virtual void AddtoMemory(UObject* input) = 0;
+	virtual void RemovefromMemory(UObject* input) = 0;
+	virtual bool IsValidinMemory(const UObject* input) = 0;
+	virtual void ResetMemory() = 0;
+
 };
