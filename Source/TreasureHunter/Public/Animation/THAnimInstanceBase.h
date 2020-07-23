@@ -29,6 +29,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterLadderTop);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitLadderTop);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterLadderBottom);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitLadderBottom);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnableLeftHandHitBox);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDisableLeftHandHitBox);
 
 /**
  * 
@@ -80,6 +82,12 @@ public:
 	UFUNCTION(Blueprintcallable)
 		void AnimNotify_ExitLadderBottom();
 
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_EnableLeftHandHitBox();
+
+	UFUNCTION(Blueprintcallable)
+		void AnimNotify_DisableLeftHandHitBox();
+
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnJump OnJump;
@@ -119,6 +127,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 		FOnExitLadderBottom OnExitLadderBottom;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnEnableLeftHandHitBox OnEnableLeftHandHitBox;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnDisableLeftHandHitBox OnDisableLeftHandHitBox;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion)

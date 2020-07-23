@@ -4,6 +4,7 @@
 #include "THCharacterBase.h"
 #include "TreasureHunter.h"
 #include "ConstructorHelpers.h"
+#include "HitBox/THCharacterHitBox.h"
 #include "Animation/THAnimInstanceBase.h"
 #include "Animation/THCharacterMovementComponent.h"
 #include "camera/CameraComponent.h"
@@ -87,6 +88,8 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	RightLowerLegHitTrigger = AddNewHitTrigger(TEXT("RightLowerLeg"), 12.5f, 32.5f, TEXT("foot_r"), FVector(-17.5f, -2.5f, -2.5f), FRotator(90.f, 0.f, -10.f));
 	RightFootHitTrigger = AddNewHitTrigger(TEXT("RightFoot"), 7.5f, 17.5f, TEXT("ball_r"), FVector(7.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
 
+	AddtoMemory(this);
+
 	bReplicates = true;
 	SetReplicatingMovement(true);
 
@@ -137,6 +140,8 @@ void ATHCharacterBase::PostInitializeComponents()
 		AnimInstance->OnEnterLadderBottom.AddDynamic(this, &ATHCharacterBase::EnterLadderBottom);
 		AnimInstance->OnExitLadderBottom.AddDynamic(this, &ATHCharacterBase::ExitLadderBottom);
 		AnimInstance->OnJump.AddDynamic(this, &ACharacter::Jump);
+		AnimInstance->OnEnableLeftHandHitBox.AddDynamic(this, &ATHCharacterBase::EnableLeftPunchMeleeAttack);
+		AnimInstance->OnDisableLeftHandHitBox.AddDynamic(this, &ATHCharacterBase::DisableLeftPunchMeleeAttack);
 	}
 }
 
@@ -166,7 +171,10 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ATHCharacterBase, AttachSequence);
 	DOREPLIFETIME(ATHCharacterBase, FirstHitPart);
 	DOREPLIFETIME(ATHCharacterBase, HitOpposite);
+	DOREPLIFETIME(ATHCharacterBase, HitObject);
+	DOREPLIFETIME(ATHCharacterBase, Ally);
 	DOREPLIFETIME(ATHCharacterBase, MovementComponent);
+
 	DOREPLIFETIME(ATHCharacterBase, bUpperClimbTrigger);
 	DOREPLIFETIME(ATHCharacterBase, bMiddleClimbTrigger);
 	DOREPLIFETIME(ATHCharacterBase, bLowerClimbTrigger);
@@ -273,50 +281,28 @@ void ATHCharacterBase::UpdateIdleType(EIdleType Idle)
 
 void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherComp && OverlappedComp)
+	if (OverlappedComp && OtherComp)
 	{
-		auto Character = Cast<ATHCharacterBase>(OtherComp->GetOwner());
-		auto SelfCharacter = Cast<ATHCharacterBase>(OverlappedComp->GetOwner());
-		auto Hit = Cast<UCapsuleComponent>(OtherComp);
-		auto Self = Cast<UCapsuleComponent>(OverlappedComp);
-		if (Character && Hit && (Character != SelfCharacter))
+		auto MyHitBox = Cast<UTHCharacterHitBox>(OverlappedComp);
+		if (MyHitBox && MyHitBox->getAbletoHit())
 		{
-			if (LayeredAction == ELayeredAction::MELEEATTACK)
+			IDamagable* Target = Cast<IDamagable>(OtherComp->GetOwner());
+			if (Target)
 			{
-				if ((FirstHitPart == nullptr) && (HitOpposite == nullptr))
+				if (!IsValidinMemory(OtherComp->GetOwner()) && !IsValidinBuffer(OtherComp->GetOwner()))
 				{
-					Character->ReceiveDamage(2.f);
-					FirstHitPart = Self;
-					HitOpposite = Hit;
-					UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Occur. Lock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+					AddtoBuffer(OtherComp->GetOwner());
+					Target->ReceiveDamage(Cast<IDamageActivity>(MyHitBox)->GetDamage());
+					//UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Other Character"), *FString(__FUNCTION__));
 				}
-				else if ((FirstHitPart == Self) && (HitOpposite == Hit))
+				else
 				{
-					FirstHitPart = nullptr;
-					HitOpposite = nullptr;
-					UE_LOG(THVerbose, Verbose, TEXT("%s: UnLock the FirstHitPart. IsLock = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+			//		UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Itself"), *FString(__FUNCTION__));
 				}
 			}
-		}
-	}
-}
-
-void ATHCharacterBase::OnHitEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherComp)
-	{
-		auto Character = Cast<ATHCharacterBase>(OtherComp->GetOwner());
-		auto SelfCharacter = Cast<ATHCharacterBase>(OverlappedComp->GetOwner());
-		auto Hit = Cast<UCapsuleComponent>(OtherComp);
-		if (Character && Hit && (Character != SelfCharacter))
-		{
-			if (LayeredAction == ELayeredAction::MELEEATTACK)
+			else
 			{
-				if (Hit == FirstHitPart)
-				{
-					//FirstHitPart = nullptr;
-				}
-				//UE_LOG(THVerbose, Verbose, TEXT("%s: Hit = %s"), *FString(__FUNCTION__), ((FirstHitPart != nullptr) ? TEXT("true") : TEXT("false")));
+			//	UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Motion Occur, but dont have enemy"), *FString(__FUNCTION__));
 			}
 		}
 	}
@@ -1035,16 +1021,49 @@ void ATHCharacterBase::MulticastDisableInput_Implementation(APlayerController* I
 	DisableInput(InputController);
 }
 
-UCapsuleComponent* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+void ATHCharacterBase::ServerActivateHitBox_Implementation(UObject* HitBox)
 {
-	auto Trigger = CreateDefaultSubobject<UCapsuleComponent>(SubobjectName);
+	MulticastActivateHitBox(HitBox);
+}
+
+bool ATHCharacterBase::ServerActivateHitBox_Validate(UObject* HitBox)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastActivateHitBox_Implementation(UObject* HitBox)
+{
+	auto CharacterHitBox = Cast<UTHCharacterHitBox>(HitBox);
+	CharacterHitBox->Activate();
+}
+
+void ATHCharacterBase::ServerInactivateHitBox_Implementation(UObject* HitBox)
+{
+	MulticastInactivateHitBox(HitBox);
+}
+
+bool ATHCharacterBase::ServerInactivateHitBox_Validate(UObject* HitBox)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastInactivateHitBox_Implementation(UObject* HitBox)
+{
+	auto CharacterHitBox = Cast<UTHCharacterHitBox>(HitBox);
+	CharacterHitBox->InActivate();
+}
+
+UTHCharacterHitBox* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
+{
+	auto Trigger = CreateDefaultSubobject<UTHCharacterHitBox>(SubobjectName);
 	Trigger->InitCapsuleSize(Radius, HalfHeight);
 	Trigger->SetRelativeLocation(RelativeLocation);
 	Trigger->SetRelativeRotation(RelativeRotation);
 	Trigger->SetCollisionProfileName(TEXT("Trigger"));
 	Trigger->SetupAttachment(GetMesh(), AttachedSocket);
+	Trigger->UpdateDamage(5);
+	Trigger->InActivate();
 	Trigger->OnComponentBeginOverlap.AddDynamic(this, &ATHCharacterBase::OnHitStartOverlap);
-	Trigger->OnComponentEndOverlap.AddDynamic(this, &ATHCharacterBase::OnHitEndOverlap);
 	return Trigger;
 }
 
@@ -1187,6 +1206,26 @@ void ATHCharacterBase::ExitLadderBottom()
 	UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
 	ExitClimb();
 	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
+}
+
+void ATHCharacterBase::EnableLeftPunchMeleeAttack()
+{
+	if (IsMeleeAttack())
+	{
+		UE_LOG(THVerbose, Verbose, TEXT("%s: Right Hand Trigger Activate!"), *FString(__FUNCTION__));
+		ServerActivateHitBox(LeftHandHitTrigger);
+		//TODO: CHange to Right Hand and Fix
+	}
+}
+
+void ATHCharacterBase::DisableLeftPunchMeleeAttack()
+{
+	if (IsMeleeAttack())
+	{
+		UE_LOG(THVerbose, Verbose, TEXT("%s: Right Hand Trigger Inactivate!"), *FString(__FUNCTION__));
+		ServerInactivateHitBox(LeftHandHitTrigger);
+		ResetBuffer();
+	}
 }
 
 void ATHCharacterBase::OnToggleCrouch()
@@ -1690,6 +1729,51 @@ void ATHCharacterBase::ReceiveHeal(const float& heal)
 	UE_LOG(THVerbose, Verbose, TEXT("%s: Got %f Heal. HP = %f"), *FString(__FUNCTION__), heal, HP);
 }
 
+void ATHCharacterBase::AddtoBuffer(UObject* input)
+{
+	ServerAddHitObject(input);
+}
+
+void ATHCharacterBase::RemovefromBuffer(UObject* input)
+{
+	ServerRemoveHitObject(input);
+}
+
+bool ATHCharacterBase::IsValidinBuffer(const UObject* input)
+{
+	return HitObject.Contains(input);
+}
+
+void ATHCharacterBase::ResetBuffer()
+{
+	ServerResetHitObject();
+}
+
+void ATHCharacterBase::Flush()
+{
+	//Implement when it need
+}
+
+void ATHCharacterBase::AddtoMemory(UObject* input)
+{
+	ServerAddAlly(input);
+}
+
+void ATHCharacterBase::RemovefromMemory(UObject* input)
+{
+	ServerRemoveAlly(input);
+}
+
+bool ATHCharacterBase::IsValidinMemory(const UObject* input)
+{
+	return Ally.Contains(input);
+}
+
+void ATHCharacterBase::ResetMemory()
+{
+	ServerResetAlly();
+}
+
 void ATHCharacterBase::AddMovement(const FVector vector, float val)
 {
 	if (val != 0)
@@ -1817,4 +1901,108 @@ bool ATHCharacterBase::IsAttachToBottom()
 bool ATHCharacterBase::IsAbleToClimb()
 {
 	return bUpperClimbTrigger || bMiddleClimbTrigger || bLowerClimbTrigger;
+}
+
+bool ATHCharacterBase::IsMeleeAttack()
+{
+	return bLayeredMotion && (LayeredAction == ELayeredAction::MELEEATTACK);
+}
+
+void ATHCharacterBase::ServerAddHitObject_Implementation(UObject* target)
+{
+	MulticastAddHitObject(target);
+}
+
+bool ATHCharacterBase::ServerAddHitObject_Validate(UObject* target)
+{
+	return true;
+}
+
+void ATHCharacterBase::ServerRemoveHitObject_Implementation(UObject* target)
+{
+	MulticastRemoveHitObject(target);
+}
+
+bool ATHCharacterBase::ServerRemoveHitObject_Validate(UObject* target)
+{
+	return true;
+}
+
+void ATHCharacterBase::ServerResetHitObject_Implementation()
+{
+	MulticastResetHitObject();
+}
+
+bool ATHCharacterBase::ServerResetHitObject_Validate()
+{
+	return true;
+}
+
+void ATHCharacterBase::ServerAddAlly_Implementation(UObject* target)
+{
+	MulticastAddAlly(target);
+}
+
+bool ATHCharacterBase::ServerAddAlly_Validate(UObject* target)
+{
+	return true;
+}
+
+void ATHCharacterBase::ServerRemoveAlly_Implementation(UObject* target)
+{
+	MulticastRemoveAlly(target);
+}
+
+bool ATHCharacterBase::ServerRemoveAlly_Validate(UObject* target)
+{
+	return true;
+}
+
+void ATHCharacterBase::ServerResetAlly_Implementation()
+{
+	MulticastResetAlly();
+}
+
+bool ATHCharacterBase::ServerResetAlly_Validate()
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastAddHitObject_Implementation(UObject* target)
+{
+	if (!Ally.Contains(target))
+	{
+		HitObject.AddUnique(target);
+	}
+}
+
+void ATHCharacterBase::MulticastRemoveHitObject_Implementation(UObject* target)
+{
+	if (HitObject.Contains(target))
+	{
+		HitObject.Remove(target);
+	}
+}
+
+void ATHCharacterBase::MulticastResetHitObject_Implementation()
+{
+	HitObject.Empty();
+}
+
+void ATHCharacterBase::MulticastAddAlly_Implementation(UObject* target)
+{
+	Ally.AddUnique(target);
+}
+
+void ATHCharacterBase::MulticastRemoveAlly_Implementation(UObject* target)
+{
+	if (Ally.Contains(target))
+	{
+		Ally.Remove(target);
+	}
+}
+
+void ATHCharacterBase::MulticastResetAlly_Implementation()
+{
+	Ally.Empty();
 }

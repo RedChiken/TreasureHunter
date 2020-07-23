@@ -18,13 +18,17 @@
 #include "Interface/LayeredMotionSync.h"
 #include "Interface/StatusSync.h"
 #include "Interface/Damagable.h"
+#include "Interface/CheckInRangeCharacter.h"
+#include "Interface/ObjectActivity.h"
 #include "Animation/AnimInstance.h"
 #include "Engine/EngineTypes.h"
 #include "Containers/EnumAsByte.h"
 #include "THCharacterBase.generated.h"
 
 UCLASS()
-class TREASUREHUNTER_API ATHCharacterBase : public ACharacter, public ILocomotionSync, public IFullBodyMotionSync, public ILayeredMotionSync, public IStatusSync, public IDamagable
+class TREASUREHUNTER_API ATHCharacterBase : public ACharacter, 
+	public ILocomotionSync, public IFullBodyMotionSync, public ILayeredMotionSync, public IStatusSync, 
+	public IDamagable, public ICheckInRangeCharacter
 {
 	GENERATED_BODY()
 
@@ -81,46 +85,46 @@ public:
 		class UCapsuleComponent* HeadHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* UpperBodyHitTrigger;
+		class UTHCharacterHitBox* UpperBodyHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* LowerBodyHitTrigger;
+		class UTHCharacterHitBox* LowerBodyHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* LeftUpperArmHitTrigger;
+		class UTHCharacterHitBox* LeftUpperArmHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* LeftLowerArmHitTrigger;
+		class UTHCharacterHitBox* LeftLowerArmHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* LeftHandHitTrigger;
+		class UTHCharacterHitBox* LeftHandHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* RightUpperArmHitTrigger;
+		class UTHCharacterHitBox* RightUpperArmHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* RightLowerArmHitTrigger;
+		class UTHCharacterHitBox* RightLowerArmHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* RightHandHitTrigger;
+		class UTHCharacterHitBox* RightHandHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* LeftUpperLegHitTrigger;
+		class UTHCharacterHitBox* LeftUpperLegHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* LeftLowerLegHitTrigger;
+		class UTHCharacterHitBox* LeftLowerLegHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* LeftFootHitTrigger;
+		class UTHCharacterHitBox* LeftFootHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* RightUpperLegHitTrigger;
+		class UTHCharacterHitBox* RightUpperLegHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* RightLowerLegHitTrigger;
+		class UTHCharacterHitBox* RightLowerLegHitTrigger;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = HitTrigger)
-		class UCapsuleComponent* RightFootHitTrigger;
+		class UTHCharacterHitBox* RightFootHitTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Montage)
 		class UAnimMontage* MeleeAttackMontage;
@@ -145,6 +149,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
 		class UCapsuleComponent* HitOpposite;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
+		TArray<UObject*> HitObject;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
+		TArray<UObject*> Ally;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -275,13 +285,34 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerDisableInput(class APlayerController* InputController);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerAddHitObject(UObject* target);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerRemoveHitObject(UObject* target);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerResetHitObject();
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerAddAlly(UObject* target);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerRemoveAlly(UObject* target);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerResetAlly();
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerActivateHitBox(UObject* HitBox);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerInactivateHitBox(UObject* HitBox);
+
 
 protected:
 	UFUNCTION(BlueprintCallable)
 		void OnHitStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintCallable)
-		void OnHitEndOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
 		void OnPieceStartOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -385,8 +416,32 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastDisableInput(class APlayerController* InputController);
 
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastAddHitObject(UObject* target);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastRemoveHitObject(UObject* target);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastResetHitObject();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastAddAlly(UObject* target);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastRemoveAlly(UObject* target);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastResetAlly();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastActivateHitBox(UObject* HitBox);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastInactivateHitBox(UObject* HitBox);
+
 	UFUNCTION(BlueprintCallable)
-		class UCapsuleComponent* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
+		class UTHCharacterHitBox* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
 
 	UFUNCTION(Blueprintcallable)
 		class UCapsuleComponent* AddUpperClimbTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);
@@ -439,6 +494,12 @@ protected:
 	UFUNCTION()
 		void ExitLadderBottom();
 
+	UFUNCTION()
+		void EnableLeftPunchMeleeAttack();
+
+	UFUNCTION()
+		void DisableLeftPunchMeleeAttack();
+
 
 
 	void OnToggleCrouch();
@@ -482,6 +543,16 @@ public:
 	virtual void ReceiveDamage(const float& damage) override;
 	virtual void ReceiveHeal(const float& heal) override;
 
+	virtual void AddtoBuffer(UObject* input) override;
+	virtual void RemovefromBuffer(UObject* input) override;
+	virtual bool IsValidinBuffer(const UObject* input) override;
+	virtual void ResetBuffer() override;
+	virtual void Flush() override;
+	virtual void AddtoMemory(UObject* input) override;
+	virtual void RemovefromMemory(UObject* input) override;
+	virtual bool IsValidinMemory(const UObject* input) override;
+	virtual void ResetMemory() override;
+
 private:
 	void AddMovement(const FVector vector, float val); 
 
@@ -500,4 +571,6 @@ private:
 	bool IsAttachToTop();
 	bool IsAttachToBottom();
 	bool IsAbleToClimb();
+
+	bool IsMeleeAttack();
 };
