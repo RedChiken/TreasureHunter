@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "CheckAnswer.generated.h"
+#include "PuzzleActivity.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UCheckAnswer : public UInterface
+class UPuzzleActivity : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,14 +16,14 @@ class UCheckAnswer : public UInterface
 /**
  * 
  */
-class TREASUREHUNTER_API ICheckAnswer
+class TREASUREHUNTER_API IPuzzleActivity
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual bool IsCorrect() = 0;
-	virtual void Submit(UObject* Input) = 0;
-	virtual void Accept(UObject* Input) = 0;
-	virtual void Reject(UObject* Input) = 0;
+	virtual void ActivateCurrentSequence() = 0;
+	virtual void InActivateCurrentSequence() = 0;
+	virtual void ResetCurrentSequence() = 0;
+	virtual void ResetPuzzle() = 0;
 };

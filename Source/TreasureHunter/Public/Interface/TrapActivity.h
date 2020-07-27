@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ProjectileActivity.generated.h"
+#include "TrapActivity.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UProjectileActivity : public UInterface
+class UTrapActivity : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,10 +16,13 @@ class UProjectileActivity : public UInterface
 /**
  * 
  */
-class TREASUREHUNTER_API IProjectileActivity
+class TREASUREHUNTER_API ITrapActivity
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void ActivateTrap() = 0;
+	virtual void InActivateTrap() = 0;
+	virtual void ResetTrap() = 0;
 };
