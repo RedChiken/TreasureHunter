@@ -495,10 +495,10 @@ protected:
 		void ExitLadderBottom();
 
 	UFUNCTION()
-		void EnableLeftPunchMeleeAttack();
+		void EnableRightPunchMeleeAttack();
 
 	UFUNCTION()
-		void DisableLeftPunchMeleeAttack();
+		void DisableRightPunchMeleeAttack();
 
 
 

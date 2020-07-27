@@ -116,12 +116,12 @@ void UTHAnimInstanceBase::AnimNotify_ExitLadderBottom()
 	OnExitLadderBottom.Broadcast();
 }
 
-void UTHAnimInstanceBase::AnimNotify_EnableLeftHandHitBox()
+void UTHAnimInstanceBase::AnimNotify_EnableRightHandHitBox()
 {
-	OnEnableLeftHandHitBox.Broadcast();
+	OnEnableRightHandHitBox.Broadcast();
 }
 
-void UTHAnimInstanceBase::AnimNotify_DisableLeftHandHitBox()
+void UTHAnimInstanceBase::AnimNotify_DisableRightHandHitBox()
 {
-	OnDisableLeftHandHitBox.Broadcast();
+	OnDisableRightHandHitBox.Broadcast();
 }

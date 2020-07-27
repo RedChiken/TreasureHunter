@@ -50,7 +50,7 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	TPCameraComponent->SetupAttachment(GetCapsuleComponent());
 	TPCameraComponent->SetRelativeLocation(FVector(0.0f, -100.0f, 50.0f));
 	
-	GetMesh()->SetRelativeLocationAndRotation(FVector(35.0f, -3.5f, -164.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeLocationAndRotation(FVector(40.5f, -3.5f, -164.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetupAttachment(FPCameraComponent);
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->SetIsReplicated(true);
@@ -66,11 +66,11 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 		MovementComponent->SetIsReplicated(true);
 	}
 
-	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(50.f, 0.f, 0.f));
+	InteractionTrigger = AddNewInteractionTrigger(TEXT("Interaction"), 30.f, 100.f, FVector(30.f, 0.f, 0.f));
 
-	UpperClimbTrigger = AddUpperClimbTrigger(TEXT("UpperClimb"), 20.f, 30.f, FVector(60.f, 0.f, 150.f), FRotator(0.f, 0.f, 90.f));
-	MiddleClimbTrigger = AddMiddleClimbTrigger(TEXT("MiddleClimb"), 20.f, 30.f, FVector(60.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
-	LowerClimbTrigger = AddLowerClimbTrigger(TEXT("LowerClimb"), 20.f, 30.f, FVector(60.f, 0.f, -150.f), FRotator(0.f, 0.f, 90.f));
+	UpperClimbTrigger = AddUpperClimbTrigger(TEXT("UpperClimb"), 20.f, 30.f, FVector(30.f, 0.f, 150.f), FRotator(0.f, 0.f, 90.f));
+	MiddleClimbTrigger = AddMiddleClimbTrigger(TEXT("MiddleClimb"), 20.f, 30.f, FVector(30.f, 0.f, 0.f), FRotator(0.f, 0.f, 90.f));
+	LowerClimbTrigger = AddLowerClimbTrigger(TEXT("LowerClimb"), 20.f, 30.f, FVector(30.f, 0.f, -150.f), FRotator(0.f, 0.f, 90.f));
 
 	HeadHitTrigger = AddNewHitTrigger(TEXT("Head"), 13.f, 13.f, TEXT("head"), FVector(5.f, 2.5f, 0.f), FRotator(90.f, 0.f, 0.f));
 	UpperBodyHitTrigger = AddNewHitTrigger(TEXT("UpperBody"), 22.5f, 27.5f, TEXT("spine_03"), FVector(-2.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
@@ -140,8 +140,8 @@ void ATHCharacterBase::PostInitializeComponents()
 		AnimInstance->OnEnterLadderBottom.AddDynamic(this, &ATHCharacterBase::EnterLadderBottom);
 		AnimInstance->OnExitLadderBottom.AddDynamic(this, &ATHCharacterBase::ExitLadderBottom);
 		AnimInstance->OnJump.AddDynamic(this, &ACharacter::Jump);
-		AnimInstance->OnEnableLeftHandHitBox.AddDynamic(this, &ATHCharacterBase::EnableLeftPunchMeleeAttack);
-		AnimInstance->OnDisableLeftHandHitBox.AddDynamic(this, &ATHCharacterBase::DisableLeftPunchMeleeAttack);
+		AnimInstance->OnEnableRightHandHitBox.AddDynamic(this, &ATHCharacterBase::EnableRightPunchMeleeAttack);
+		AnimInstance->OnDisableRightHandHitBox.AddDynamic(this, &ATHCharacterBase::DisableRightPunchMeleeAttack);
 	}
 }
 
@@ -1208,22 +1208,22 @@ void ATHCharacterBase::ExitLadderBottom()
 	ServerEnableInput(Cast<AStagePlayerController>(GetController()));
 }
 
-void ATHCharacterBase::EnableLeftPunchMeleeAttack()
+void ATHCharacterBase::EnableRightPunchMeleeAttack()
 {
 	if (IsMeleeAttack())
 	{
 		UE_LOG(THVerbose, Verbose, TEXT("%s: Right Hand Trigger Activate!"), *FString(__FUNCTION__));
-		ServerActivateHitBox(LeftHandHitTrigger);
+		ServerActivateHitBox(RightHandHitTrigger);
 		//TODO: CHange to Right Hand and Fix
 	}
 }
 
-void ATHCharacterBase::DisableLeftPunchMeleeAttack()
+void ATHCharacterBase::DisableRightPunchMeleeAttack()
 {
 	if (IsMeleeAttack())
 	{
 		UE_LOG(THVerbose, Verbose, TEXT("%s: Right Hand Trigger Inactivate!"), *FString(__FUNCTION__));
-		ServerInactivateHitBox(LeftHandHitTrigger);
+		ServerInactivateHitBox(RightHandHitTrigger);
 		ResetBuffer();
 	}
 }
