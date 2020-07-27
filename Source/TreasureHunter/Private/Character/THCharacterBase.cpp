@@ -948,8 +948,6 @@ void ATHCharacterBase::MulticastEnableCollision_Implementation()
 	RightUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	RightLowerLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	RightFootHitTrigger->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//FirstHitPart->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	//HitOpposite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	SetActorHiddenInGame(false);
 }
 
@@ -986,8 +984,6 @@ void ATHCharacterBase::MulticastDisableCollision_Implementation()
 	RightUpperArmHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RightLowerLegHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RightFootHitTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//FirstHitPart->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//HitOpposite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetActorHiddenInGame(true);
 }
 
@@ -1772,6 +1768,21 @@ bool ATHCharacterBase::IsValidinMemory(const UObject* input)
 void ATHCharacterBase::ResetMemory()
 {
 	ServerResetAlly();
+}
+
+void ATHCharacterBase::Activate()
+{
+	ServerEnableCollision();
+}
+
+void ATHCharacterBase::InActivate()
+{
+	ServerDisableCollision();
+}
+
+void ATHCharacterBase::Reset()
+{
+	//TODO: Implement When Character Implement Success
 }
 
 void ATHCharacterBase::AddMovement(const FVector vector, float val)

@@ -28,7 +28,7 @@
 UCLASS()
 class TREASUREHUNTER_API ATHCharacterBase : public ACharacter, 
 	public ILocomotionSync, public IFullBodyMotionSync, public ILayeredMotionSync, public IStatusSync, 
-	public IDamagable, public ICheckInRangeCharacter
+	public IDamagable, public ICheckInRangeCharacter, public IObjectActivity
 {
 	GENERATED_BODY()
 
@@ -552,6 +552,11 @@ public:
 	virtual void RemovefromMemory(UObject* input) override;
 	virtual bool IsValidinMemory(const UObject* input) override;
 	virtual void ResetMemory() override;
+
+	// Inherited via IObjectActivity
+	virtual void InActivate() override;
+	virtual void Reset() override;
+	virtual void Activate();
 
 private:
 	void AddMovement(const FVector vector, float val); 

@@ -228,3 +228,20 @@ void ATHActorBase::ResetMemory()
 {
 	ServerResetMemory();
 }
+
+void ATHActorBase::Activate()
+{
+	ServerUpdatebActive(true);
+}
+
+void ATHActorBase::InActivate()
+{
+	ServerUpdatebActive(false);
+}
+
+void ATHActorBase::Reset()
+{
+	ServerUpdatebActive(true);
+	ResetBuffer();
+	ResetMemory();
+}

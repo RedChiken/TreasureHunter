@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/CheckInRangeCharacter.h"
+#include "Interface/ObjectActivity.h"
 #include "THActorBase.generated.h"
 
 UCLASS()
-class TREASUREHUNTER_API ATHActorBase : public AActor, public ICheckInRangeCharacter
+class TREASUREHUNTER_API ATHActorBase : public AActor, public ICheckInRangeCharacter, public IObjectActivity
 {
 	GENERATED_BODY()
 	
@@ -71,6 +72,10 @@ public:
 	virtual void RemovefromMemory(UObject* input) override;
 	virtual bool IsValidinMemory(const UObject* input) override;
 	virtual void ResetMemory() override;
+
+	virtual void Activate() override;
+	virtual void InActivate() override;
+	virtual void Reset() override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Actor)
