@@ -30,17 +30,17 @@ public:
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerUpdatebActive(bool active);
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerAddtoBuffer(UObject* input);
+		void ServerAddtoBuffer(const FString& input);
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerRemovefromBuffer(UObject* input);
+		void ServerRemovefromBuffer(const FString& input);
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerResetBuffer();
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerFlush();
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerAddtoMemory(UObject* input);
+		void ServerAddtoMemory(const FString& input);
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerRemovefromMemory(UObject* input);
+		void ServerRemovefromMemory(const FString& input);
 	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
 		void ServerResetMemory();
 
@@ -48,29 +48,29 @@ protected:
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
 		void MulticastUpdatebActive(bool active);
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
-		void MulticastAddtoBuffer(UObject* input);
+		void MulticastAddtoBuffer(const FString& input);
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
-		void MulticastRemovefromBuffer(UObject* input);
+		void MulticastRemovefromBuffer(const FString& input);
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
 		void MulticastResetBuffer();
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
 		void MulticastFlush();
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
-		void MulticastAddtoMemory(UObject* input);
+		void MulticastAddtoMemory(const FString& input);
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
-		void MulticastRemovefromMemory(UObject* input);
+		void MulticastRemovefromMemory(const FString& input);
 	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
 		void MulticastResetMemory();
 
 public:
-	virtual void AddtoBuffer(UObject* input) override;
-	virtual void RemovefromBuffer(UObject* input) override;
-	virtual bool IsValidinBuffer(const UObject* input) override;
+	virtual void AddtoBuffer(FString input) override;
+	virtual void RemovefromBuffer(FString input) override;
+	virtual bool IsValidinBuffer(const FString input) override;
 	virtual void ResetBuffer() override;
 	virtual void Flush() override;
-	virtual void AddtoMemory(UObject* input) override;
-	virtual void RemovefromMemory(UObject* input) override;
-	virtual bool IsValidinMemory(const UObject* input) override;
+	virtual void AddtoMemory(FString input) override;
+	virtual void RemovefromMemory(FString input) override;
+	virtual bool IsValidinMemory(const FString input) override;
 	virtual void ResetMemory() override;
 
 	virtual void Activate() override;
@@ -88,8 +88,8 @@ public:
 		bool bActive;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = InRange)
-		TArray<UObject*> Entry;
+		TArray<FString> Entry;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = InRange)
-		TArray<UObject*> Record;
+		TArray<FString> Record;
 };

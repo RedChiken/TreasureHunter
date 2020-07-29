@@ -8,7 +8,7 @@
 #include "Animation/THAnimInstanceBase.h"
 #include "Animation/THCharacterMovementComponent.h"
 #include "camera/CameraComponent.h"
-#include "Object/THProjectileBase.h"
+#include "Object/Projectile/THProjectileBase.h"
 #include "THPieceBase.h"
 #include "THLatchBase.h"
 #include "THWallBase.h"
@@ -88,7 +88,7 @@ ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitial
 	RightLowerLegHitTrigger = AddNewHitTrigger(TEXT("RightLowerLeg"), 12.5f, 32.5f, TEXT("foot_r"), FVector(-17.5f, -2.5f, -2.5f), FRotator(90.f, 0.f, -10.f));
 	RightFootHitTrigger = AddNewHitTrigger(TEXT("RightFoot"), 7.5f, 17.5f, TEXT("ball_r"), FVector(7.5f, 0.f, 0.f), FRotator(90.f, 0.f, 0.f));
 
-	AddtoMemory(this);
+	AddtoMemory(FString::FromInt(GetUniqueID()));
 
 	bReplicates = true;
 	SetReplicatingMovement(true);
@@ -192,38 +192,38 @@ void ATHCharacterBase::Tick(float DeltaTime)
 		{
 			if (bUpperClimbTrigger && bMiddleClimbTrigger && !bLowerClimbTrigger)
 			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s AbleToClimb"), *FString(__FUNCTION__));
+				UE_LOG(THVerbose, Verbose, TEXT("%s AbleToClimb"), *const FString&(__FUNCTION__));
 			}
 		}
 		else if (MovementComponent->MovementMode == EMovementMode::MOVE_Flying)
 		{
 			if ((MovingDirection == EMovingDirection::DOWNSIDE) && IsAttachToBottom())
 			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s Exit Climb To Bottom"), *FString(__FUNCTION__));
+				UE_LOG(THVerbose, Verbose, TEXT("%s Exit Climb To Bottom"), *const FString&(__FUNCTION__));
 			}
 			if ((MovingDirection == EMovingDirection::UPSIDE) && IsAttachToTop())
 			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s Exit Climb To Top"), *FString(__FUNCTION__));
+				UE_LOG(THVerbose, Verbose, TEXT("%s Exit Climb To Top"), *const FString&(__FUNCTION__));
 			}
-			//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-			//UE_LOG(THVerbose, Verbose, TEXT("%s CurrentSpeed = %f"), *FString(__FUNCTION__), GetVelocity().Size());
-			//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
+			//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+			//UE_LOG(THVerbose, Verbose, TEXT("%s CurrentSpeed = %f"), *const FString&(__FUNCTION__), GetVelocity().Size());
+			//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
 		}
 	}*/
 
 	/*
-	UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-	UE_LOG(THVerbose, Verbose, TEXT("%s CurrentSpeed = %f"), *FString(__FUNCTION__), GetVelocity().Size());
+	UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	UE_LOG(THVerbose, Verbose, TEXT("%s CurrentSpeed = %f"), *const FString&(__FUNCTION__), GetVelocity().Size());
 	if (!bLowerClimbTrigger)
 	{
 		if (GetRemoteRole() == ROLE_AutonomousProxy)
 		{
-			UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-			UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
+			UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+			UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
 		}
 		
-		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 	}
 	*/
 }
@@ -265,7 +265,7 @@ void ATHCharacterBase::OnMovementStop()
 	}
 	else
 	{
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 	}
 }
 
@@ -289,20 +289,13 @@ void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AA
 			IDamagable* Target = Cast<IDamagable>(OtherComp->GetOwner());
 			if (Target)
 			{
-				if (!IsValidinMemory(OtherComp->GetOwner()) && !IsValidinBuffer(OtherComp->GetOwner()))
+				FString ID = FString::FromInt(OtherComp->GetOwner()->GetUniqueID());
+				if (!IsValidinMemory(ID) && !IsValidinBuffer(ID))
 				{
-					AddtoBuffer(OtherComp->GetOwner());
+					AddtoBuffer(ID);
 					Target->ReceiveDamage(Cast<IDamageActivity>(MyHitBox)->GetDamage());
-					//UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Other Character"), *FString(__FUNCTION__));
+					//UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Other Character"), *const FString&(__FUNCTION__));
 				}
-				else
-				{
-			//		UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Itself"), *FString(__FUNCTION__));
-				}
-			}
-			else
-			{
-			//	UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Motion Occur, but dont have enemy"), *FString(__FUNCTION__));
 			}
 		}
 	}
@@ -317,9 +310,9 @@ void ATHCharacterBase::OnPieceStartOverlap(UPrimitiveComponent* OverlappedComp, 
 		{
 			OverlappedPiece = piece;
 			ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece == nullptr));
+			UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(AttachedPiece == nullptr));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch == nullptr));
 			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
 			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
@@ -544,6 +537,7 @@ void ATHCharacterBase::OnLatchStartOverlap(UPrimitiveComponent* OverlappedComp, 
 {
 	if (OtherActor)
 	{
+		/*
 		auto latch = Cast<ATHLatchBase>(OtherActor);
 		if (latch)
 		{
@@ -563,7 +557,7 @@ void ATHCharacterBase::OnLatchStartOverlap(UPrimitiveComponent* OverlappedComp, 
 			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
 			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
 			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-		}
+		}*/
 	}
 }
 
@@ -571,6 +565,7 @@ void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 {
 	if (OtherActor)
 	{
+		/*
 		auto latch = Cast<ATHLatchBase>(OtherActor);
 		if (latch && (OverlappedLatch == latch))
 		{
@@ -590,7 +585,7 @@ void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
 			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
 			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-		}
+		}*/
 	}
 }
 
@@ -895,9 +890,9 @@ bool ATHCharacterBase::ServerUpdateMovementMode_Validate(EMovementMode Mode)
 
 void ATHCharacterBase::MulticastUpdateMovementMode_Implementation(EMovementMode Mode)
 {
-	//UE_LOG(THVerbose, Verbose, TEXT("%s before MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	//UE_LOG(THVerbose, Verbose, TEXT("%s before MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 	MovementComponent->SetMovementMode(Mode);
-	//UE_LOG(THVerbose, Verbose, TEXT("%s after MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+	//UE_LOG(THVerbose, Verbose, TEXT("%s after MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
 }
 
 void ATHCharacterBase::ServerTeleportTo_Implementation(FVector WorldLocation, FRotator Rotation)
@@ -1208,7 +1203,7 @@ void ATHCharacterBase::EnableRightPunchMeleeAttack()
 {
 	if (IsMeleeAttack())
 	{
-		UE_LOG(THVerbose, Verbose, TEXT("%s: Right Hand Trigger Activate!"), *FString(__FUNCTION__));
+		UE_LOG(THVerbose, Verbose, TEXT("%s: Notify!"), *FString(__FUNCTION__));
 		ServerActivateHitBox(RightHandHitTrigger);
 		//TODO: CHange to Right Hand and Fix
 	}
@@ -1290,7 +1285,7 @@ void ATHCharacterBase::OnJumpPressed()
 		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
 		UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
 		//ServerUpdateInteractionType(EInteractionType::CLIMB);
-		//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
 		break;
 	}
@@ -1329,6 +1324,7 @@ void ATHCharacterBase::OnInteractionPressed()
 	switch (InteractionType)
 	{
 	case EInteractionType::ATTACH:
+		/*
 		switch (AttachSequence)
 		{
 		case EAttachSequence::ATTACHABLE:
@@ -1394,6 +1390,7 @@ void ATHCharacterBase::OnInteractionPressed()
 		UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		break;
 		//TODO: Play New Animation
+		*/
 	case EInteractionType::CLIMB:
 		//From Climbing to Stand
 		auto MovementMode = MovementComponent->MovementMode;
@@ -1416,10 +1413,10 @@ void ATHCharacterBase::OnInteractionPressed()
 			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
 		}
-		//UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-		//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *const FString&(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
 		break;
 	case EInteractionType::INVESTIGATE:
 		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
@@ -1446,7 +1443,7 @@ void ATHCharacterBase::OnInteractionReleased()
 
 void ATHCharacterBase::MoveForward(float val)
 {
-	//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
+	//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
 	if (IsClimbing())
 	{
 		if (val > 0.f)
@@ -1475,11 +1472,11 @@ void ATHCharacterBase::MoveForward(float val)
 			MovementComponent->StopMovementImmediately();
 			
 		}
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
 	}
 	else
 	{
-		//UE_LOG(THVerbose, Verbose, TEXT("%s Move on Ground"), *FString(__FUNCTION__));
+		//UE_LOG(THVerbose, Verbose, TEXT("%s Move on Ground"), *const FString&(__FUNCTION__));
 		AddMovement(GetActorForwardVector(), val);
 		if (val > 0)
 		{
@@ -1725,17 +1722,17 @@ void ATHCharacterBase::ReceiveHeal(const float& heal)
 	UE_LOG(THVerbose, Verbose, TEXT("%s: Got %f Heal. HP = %f"), *FString(__FUNCTION__), heal, HP);
 }
 
-void ATHCharacterBase::AddtoBuffer(UObject* input)
+void ATHCharacterBase::AddtoBuffer(FString input)
 {
 	ServerAddHitObject(input);
 }
 
-void ATHCharacterBase::RemovefromBuffer(UObject* input)
+void ATHCharacterBase::RemovefromBuffer(FString input)
 {
 	ServerRemoveHitObject(input);
 }
 
-bool ATHCharacterBase::IsValidinBuffer(const UObject* input)
+bool ATHCharacterBase::IsValidinBuffer(const FString input)
 {
 	return HitObject.Contains(input);
 }
@@ -1750,17 +1747,17 @@ void ATHCharacterBase::Flush()
 	//Implement when it need
 }
 
-void ATHCharacterBase::AddtoMemory(UObject* input)
+void ATHCharacterBase::AddtoMemory(FString input)
 {
 	ServerAddAlly(input);
 }
 
-void ATHCharacterBase::RemovefromMemory(UObject* input)
+void ATHCharacterBase::RemovefromMemory(FString input)
 {
 	ServerRemoveAlly(input);
 }
 
-bool ATHCharacterBase::IsValidinMemory(const UObject* input)
+bool ATHCharacterBase::IsValidinMemory(const FString input)
 {
 	return Ally.Contains(input);
 }
@@ -1848,7 +1845,7 @@ void ATHCharacterBase::AttachPiece(FName Socket)
 	{
 		AttachedPiece = OverlappedPiece;
 		OverlappedPiece->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, Socket);
-		UE_LOG(THVerbose, Verbose, TEXT("%s: Piece Index = %d"), *FString(__FUNCTION__), AttachedPiece->GetIndex());
+		//UE_LOG(THVerbose, Verbose, TEXT("%s: Piece Index = %d"), *FString(__FUNCTION__), AttachedPiece->GetIndex());
 		OverlappedPiece = nullptr;
 	}
 }
@@ -1919,22 +1916,22 @@ bool ATHCharacterBase::IsMeleeAttack()
 	return bLayeredMotion && (LayeredAction == ELayeredAction::MELEEATTACK);
 }
 
-void ATHCharacterBase::ServerAddHitObject_Implementation(UObject* target)
+void ATHCharacterBase::ServerAddHitObject_Implementation(const FString& target)
 {
 	MulticastAddHitObject(target);
 }
 
-bool ATHCharacterBase::ServerAddHitObject_Validate(UObject* target)
+bool ATHCharacterBase::ServerAddHitObject_Validate(const FString& target)
 {
 	return true;
 }
 
-void ATHCharacterBase::ServerRemoveHitObject_Implementation(UObject* target)
+void ATHCharacterBase::ServerRemoveHitObject_Implementation(const FString& target)
 {
 	MulticastRemoveHitObject(target);
 }
 
-bool ATHCharacterBase::ServerRemoveHitObject_Validate(UObject* target)
+bool ATHCharacterBase::ServerRemoveHitObject_Validate(const FString& target)
 {
 	return true;
 }
@@ -1949,22 +1946,22 @@ bool ATHCharacterBase::ServerResetHitObject_Validate()
 	return true;
 }
 
-void ATHCharacterBase::ServerAddAlly_Implementation(UObject* target)
+void ATHCharacterBase::ServerAddAlly_Implementation(const FString& target)
 {
 	MulticastAddAlly(target);
 }
 
-bool ATHCharacterBase::ServerAddAlly_Validate(UObject* target)
+bool ATHCharacterBase::ServerAddAlly_Validate(const FString& target)
 {
 	return true;
 }
 
-void ATHCharacterBase::ServerRemoveAlly_Implementation(UObject* target)
+void ATHCharacterBase::ServerRemoveAlly_Implementation(const FString& target)
 {
 	MulticastRemoveAlly(target);
 }
 
-bool ATHCharacterBase::ServerRemoveAlly_Validate(UObject* target)
+bool ATHCharacterBase::ServerRemoveAlly_Validate(const FString& target)
 {
 	return true;
 }
@@ -1979,17 +1976,17 @@ bool ATHCharacterBase::ServerResetAlly_Validate()
 	return true;
 }
 
-void ATHCharacterBase::MulticastAddHitObject_Implementation(UObject* target)
+void ATHCharacterBase::MulticastAddHitObject_Implementation(const FString& target)
 {
-	if (!Ally.Contains(target))
+	if (!IsValidinBuffer(target) && !IsValidinMemory(target))
 	{
-		HitObject.AddUnique(target);
+		HitObject.Add(target);
 	}
 }
 
-void ATHCharacterBase::MulticastRemoveHitObject_Implementation(UObject* target)
+void ATHCharacterBase::MulticastRemoveHitObject_Implementation(const FString& target)
 {
-	if (HitObject.Contains(target))
+	if (IsValidinBuffer(target))
 	{
 		HitObject.Remove(target);
 	}
@@ -2000,14 +1997,17 @@ void ATHCharacterBase::MulticastResetHitObject_Implementation()
 	HitObject.Empty();
 }
 
-void ATHCharacterBase::MulticastAddAlly_Implementation(UObject* target)
+void ATHCharacterBase::MulticastAddAlly_Implementation(const FString& target)
 {
-	Ally.AddUnique(target);
+	if (!IsValidinMemory(target))
+	{
+		Ally.Add(target);
+	}
 }
 
-void ATHCharacterBase::MulticastRemoveAlly_Implementation(UObject* target)
+void ATHCharacterBase::MulticastRemoveAlly_Implementation(const FString& target)
 {
-	if (Ally.Contains(target))
+	if (IsValidinMemory(target))
 	{
 		Ally.Remove(target);
 	}

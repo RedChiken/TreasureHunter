@@ -63,35 +63,35 @@ void ATHActorBase::MulticastUpdatebActive_Implementation(bool active)
 	bActive = active;
 }
 
-void ATHActorBase::ServerAddtoBuffer_Implementation(UObject* input)
+void ATHActorBase::ServerAddtoBuffer_Implementation(const FString& input)
 {
 	MulticastAddtoBuffer(input);
 }
 
-bool ATHActorBase::ServerAddtoBuffer_Validate(UObject* input)
+bool ATHActorBase::ServerAddtoBuffer_Validate(const FString& input)
 {
 	return true;
 }
 
-void ATHActorBase::MulticastAddtoBuffer_Implementation(UObject* input)
+void ATHActorBase::MulticastAddtoBuffer_Implementation(const FString& input)
 {
 	if (bActive && !IsValidinBuffer(input) && !IsValidinMemory(input))
 	{
-		Entry.AddUnique(input);
+		Entry.Add(input);
 	}
 }
 
-void ATHActorBase::ServerRemovefromBuffer_Implementation(UObject* input)
+void ATHActorBase::ServerRemovefromBuffer_Implementation(const FString& input)
 {
 	MulticastRemovefromBuffer(input);
 }
 
-bool ATHActorBase::ServerRemovefromBuffer_Validate(UObject* input)
+bool ATHActorBase::ServerRemovefromBuffer_Validate(const FString& input)
 {
 	return true;
 }
 
-void ATHActorBase::MulticastRemovefromBuffer_Implementation(UObject* input)
+void ATHActorBase::MulticastRemovefromBuffer_Implementation(const FString& input)
 {
 	if (bActive && IsValidinBuffer(input))
 	{
@@ -128,40 +128,40 @@ void ATHActorBase::MulticastFlush_Implementation()
 {
 	for (const auto& iter : Entry)
 	{
-		Record.AddUnique(iter);
+		Record.Add(iter);
 	}
 	Entry.Empty();
 }
 
-void ATHActorBase::ServerAddtoMemory_Implementation(UObject* input)
+void ATHActorBase::ServerAddtoMemory_Implementation(const FString& input)
 {
 	MulticastAddtoMemory(input);
 }
 
-bool ATHActorBase::ServerAddtoMemory_Validate(UObject* input)
+bool ATHActorBase::ServerAddtoMemory_Validate(const FString& input)
 {
 	return true;
 }
 
-void ATHActorBase::MulticastAddtoMemory_Implementation(UObject* input)
+void ATHActorBase::MulticastAddtoMemory_Implementation(const FString& input)
 {
 	if (bActive && !IsValidinMemory(input))
 	{
-		Record.AddUnique(input);
+		Record.Add(input);
 	}
 }
 
-void ATHActorBase::ServerRemovefromMemory_Implementation(UObject* input)
+void ATHActorBase::ServerRemovefromMemory_Implementation(const FString& input)
 {
 	MulticastRemovefromMemory(input);
 }
 
-bool ATHActorBase::ServerRemovefromMemory_Validate(UObject* input)
+bool ATHActorBase::ServerRemovefromMemory_Validate(const FString& input)
 {
 	return true;
 }
 
-void ATHActorBase::MulticastRemovefromMemory_Implementation(UObject* input)
+void ATHActorBase::MulticastRemovefromMemory_Implementation(const FString& input)
 {
 	if (bActive && IsValidinMemory(input))
 	{
@@ -184,17 +184,17 @@ void ATHActorBase::MulticastResetMemory_Implementation()
 	Record.Empty();
 }
 
-void ATHActorBase::AddtoBuffer(UObject* input)
+void ATHActorBase::AddtoBuffer(FString input)
 {
 	ServerAddtoBuffer(input);
 }
 
-void ATHActorBase::RemovefromBuffer(UObject* input)
+void ATHActorBase::RemovefromBuffer(FString input)
 {
 	ServerRemovefromBuffer(input);
 }
 
-bool ATHActorBase::IsValidinBuffer(const UObject* input)
+bool ATHActorBase::IsValidinBuffer(const FString input)
 {
 	return Entry.Contains(input);
 }
@@ -209,17 +209,17 @@ void ATHActorBase::Flush()
 	ServerFlush();
 }
 
-void ATHActorBase::AddtoMemory(UObject* input)
+void ATHActorBase::AddtoMemory(FString input)
 {
 	ServerAddtoMemory(input);
 }
 
-void ATHActorBase::RemovefromMemory(UObject* input)
+void ATHActorBase::RemovefromMemory(FString input)
 {
 	ServerRemovefromMemory(input);
 }
 
-bool ATHActorBase::IsValidinMemory(const UObject* input)
+bool ATHActorBase::IsValidinMemory(const FString input)
 {
 	return Record.Contains(input);
 }

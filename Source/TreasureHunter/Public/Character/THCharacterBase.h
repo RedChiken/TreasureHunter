@@ -151,10 +151,10 @@ public:
 		class UCapsuleComponent* HitOpposite;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
-		TArray<UObject*> HitObject;
+		TArray<FString> HitObject;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
-		TArray<UObject*> Ally;
+		TArray<FString> Ally;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -286,19 +286,19 @@ public:
 		void ServerDisableInput(class APlayerController* InputController);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerAddHitObject(UObject* target);
+		void ServerAddHitObject(const FString& target);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerRemoveHitObject(UObject* target);
+		void ServerRemoveHitObject(const FString& target);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerResetHitObject();
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerAddAlly(UObject* target);
+		void ServerAddAlly(const FString& target);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerRemoveAlly(UObject* target);
+		void ServerRemoveAlly(const FString& target);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerResetAlly();
@@ -417,19 +417,19 @@ protected:
 		void MulticastDisableInput(class APlayerController* InputController);
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastAddHitObject(UObject* target);
+		void MulticastAddHitObject(const FString& target);
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastRemoveHitObject(UObject* target);
+		void MulticastRemoveHitObject(const FString& target);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastResetHitObject();
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastAddAlly(UObject* target);
+		void MulticastAddAlly(const FString& target);
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastRemoveAlly(UObject* target);
+		void MulticastRemoveAlly(const FString& target);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastResetAlly();
@@ -543,14 +543,14 @@ public:
 	virtual void ReceiveDamage(const float& damage) override;
 	virtual void ReceiveHeal(const float& heal) override;
 
-	virtual void AddtoBuffer(UObject* input) override;
-	virtual void RemovefromBuffer(UObject* input) override;
-	virtual bool IsValidinBuffer(const UObject* input) override;
+	virtual void AddtoBuffer(FString input) override;
+	virtual void RemovefromBuffer(FString input) override;
+	virtual bool IsValidinBuffer(const FString input) override;
 	virtual void ResetBuffer() override;
 	virtual void Flush() override;
-	virtual void AddtoMemory(UObject* input) override;
-	virtual void RemovefromMemory(UObject* input) override;
-	virtual bool IsValidinMemory(const UObject* input) override;
+	virtual void AddtoMemory(FString input) override;
+	virtual void RemovefromMemory(FString input) override;
+	virtual bool IsValidinMemory(const FString input) override;
 	virtual void ResetMemory() override;
 
 	// Inherited via IObjectActivity
