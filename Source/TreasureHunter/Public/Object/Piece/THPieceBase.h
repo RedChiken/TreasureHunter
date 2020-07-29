@@ -19,23 +19,8 @@ public:
 
     virtual void Tick(float DeltaTime) override;
 
-    UFUNCTION(BlueprintCallable)
-        void InitializeIndex(int32 index);
-
-    int32 GetIndex();
-
-    UFUNCTION(BlueprintCallable)
-        void ActivateKey();
-
-    UFUNCTION(BlueprintCallable)
-        void DeactivateKey();
-
 protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
-protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Key)
-        int32 Index;
 };
