@@ -26,16 +26,8 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-	virtual bool CheckInput() override;
-
 	UFUNCTION(BlueprintCallable)
 		void OnCharacterNearKey(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintCallable)
-		void ActivateAllLatch();
-
-	UFUNCTION(BlueprintCallable)
-		void DeactivateAllLatch();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Latch)

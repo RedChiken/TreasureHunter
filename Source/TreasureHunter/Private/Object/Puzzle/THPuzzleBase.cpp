@@ -2,7 +2,6 @@
 
 
 #include "THPuzzleBase.h"
-#include "THPieceBase.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
 
@@ -30,30 +29,4 @@ void ATHPuzzleBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ATHPuzzleBase, Input);
 	DOREPLIFETIME(ATHPuzzleBase, Answer);
 	DOREPLIFETIME(ATHPuzzleBase, Trap);
-}
-
-void ATHPuzzleBase::ActivateAllKey()
-{
-	for (int i = 0; i < KeyObject.Num(); ++i)
-	{
-		KeyObject[i]->ActivateKey();
-	}
-}
-
-void ATHPuzzleBase::DeactivateAllKey()
-{
-	for (int i = 0; i < KeyObject.Num(); ++i)
-	{
-		KeyObject[i]->DeactivateKey();
-	}
-}
-
-bool ATHPuzzleBase::CheckAnswer()
-{
-	return CheckInput();
-}
-
-bool ATHPuzzleBase::CheckInput()
-{
-	return false;
 }

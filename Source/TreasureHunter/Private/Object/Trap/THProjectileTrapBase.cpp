@@ -2,7 +2,7 @@
 
 
 #include "THProjectileTrapBase.h"
-#include "Object/THProjectileBase.h"
+#include "Object/Projectile/THProjectileBase.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 

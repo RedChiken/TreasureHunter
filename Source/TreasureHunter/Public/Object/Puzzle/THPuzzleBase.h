@@ -23,17 +23,6 @@ protected:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-    UFUNCTION(BlueprintCallable)
-        void ActivateAllKey();
-
-    UFUNCTION(BlueprintCallable)
-        void DeactivateAllKey();
-
-    UFUNCTION(BlueprintCallable)
-        bool CheckAnswer();
-
-    virtual bool CheckInput();
-
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Key)
         TArray<class ATHPieceBase*> KeyObject;
