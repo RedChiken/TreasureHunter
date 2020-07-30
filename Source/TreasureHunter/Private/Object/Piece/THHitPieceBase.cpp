@@ -11,14 +11,17 @@ ATHHitPieceBase::ATHHitPieceBase() : ATHPieceBase()
 
 void ATHHitPieceBase::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
 }
 
 void ATHHitPieceBase::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 void ATHHitPieceBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 void ATHHitPieceBase::ReceiveDamage(const float& damage)

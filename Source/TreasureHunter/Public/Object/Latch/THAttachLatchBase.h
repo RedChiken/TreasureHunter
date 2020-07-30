@@ -26,8 +26,29 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
-	virtual bool IsAttachable(class IAttachable* Input) override;
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerAttachPiece(class ATHAttachPieceBase* AttachPiece);
+
+	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+		void ServerDetachPiece(class ATHPieceBase* AttPiece, class ATHAttachPieceBase* RetPiece);
+
+protected:
+	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+		void MulticastAttachPiece(class ATHAttachPieceBase* AttachPiece);
+
+	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+		void MulticastDetachPiece(class ATHPieceBase* AttPiece, class ATHAttachPieceBase* RetPiece);
+	
+public:
+	virtual bool IsAttachable(class IAttachable* attach) override;
 	virtual bool IsDetachable() override;
-	virtual void Attach(class IAttachable* Input) override;
+	virtual void Attach(class IAttachable* attach, IAttachActivity* Attacher) override;
 	virtual class IAttachable* Detach() override;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Piece)
+		class ATHPieceBase* Piece;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Piece)
+		FVector AttachedPosition;
 };

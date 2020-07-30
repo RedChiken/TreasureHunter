@@ -28,11 +28,35 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerUpdateInput(const FString& input);
+
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerUpdateAnswer(const FString& input);
+
+protected:
+    UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+        void MulticastUpdateInput(const FString& input);
+
+    UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+        void MulticastUpdateAnswer(const FString& input);
+
+
+public:
+    // Inherited via ICheckAnswer
+    virtual bool IsCorrect() override;
+    virtual void Submit(const FString& input) override;
+    virtual void ResetInput() override;
+    virtual void ResetAnswer() override;
+    virtual void InitializeAnswer(const FString& input) override;
+
+public:
     UPROPERTY(BlueprintAssignable)
         FOnCorrectAnswer OnCorrectAnswer;
 
-public:
-
-    // Inherited via ICheckAnswer
-    virtual bool IsCorrect();
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = InRange)
+        FString Input;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = InRange)
+        FString Answer;
 };

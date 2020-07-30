@@ -10,12 +10,20 @@ ATHWidgetLatchBase::ATHWidgetLatchBase() : ATHLatchBase()
 
 void ATHWidgetLatchBase::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
 }
 
 void ATHWidgetLatchBase::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 void ATHWidgetLatchBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+bool ATHWidgetLatchBase::IsCorrect()
+{
+	return false;
 }

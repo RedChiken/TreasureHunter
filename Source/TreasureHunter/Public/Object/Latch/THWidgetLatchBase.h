@@ -23,4 +23,8 @@ protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+public:
+    // Inherited via ICheckAnswer
+    virtual bool IsCorrect() override;
 };
