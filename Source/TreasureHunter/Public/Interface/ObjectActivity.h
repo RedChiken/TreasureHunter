@@ -25,4 +25,5 @@ public:
 	virtual void Activate() = 0;
 	virtual void InActivate() = 0;
 	virtual void Reset() = 0;
+	virtual FString GetID() = 0;
 };

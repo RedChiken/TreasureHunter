@@ -24,6 +24,6 @@ class TREASUREHUNTER_API IAttachActivity
 public:
 	virtual bool IsAttachable(class IAttachable* Input) = 0;
 	virtual bool IsDetachable() = 0;
-	virtual void Attach(class IAttachable* Input) = 0;
+	virtual void Attach(class IAttachable* Input, IAttachActivity* Attacher) = 0;
 	virtual class IAttachable* Detach() = 0;
 };

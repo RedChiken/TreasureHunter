@@ -23,4 +23,8 @@ class TREASUREHUNTER_API ICheckAnswer
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual bool IsCorrect() = 0;
+	virtual void Submit(const FString& input) = 0;
+	virtual void ResetInput() = 0;
+	virtual void ResetAnswer() = 0;
+	virtual void InitializeAnswer(const FString& input) = 0;
 };
