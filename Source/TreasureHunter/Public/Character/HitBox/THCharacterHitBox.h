@@ -32,6 +32,7 @@ public:
 	virtual void Activate() override;
 	virtual void InActivate() override;
 	virtual void Reset() override;
+	virtual FString GetID() override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Damage)

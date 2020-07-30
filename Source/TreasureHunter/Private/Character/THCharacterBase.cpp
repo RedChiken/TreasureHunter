@@ -23,6 +23,7 @@
 #include "UObject/UObjectGlobals.h"
 #include "net/UnrealNetwork.h"
 #include "Engine.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ATHCharacterBase::ATHCharacterBase(const class FObjectInitializer& ObjectInitializer) : ACharacter(ObjectInitializer.SetDefaultSubobjectClass<UTHCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -1770,6 +1771,11 @@ void ATHCharacterBase::ResetMemory()
 void ATHCharacterBase::Activate()
 {
 	ServerEnableCollision();
+}
+
+FString ATHCharacterBase::GetID()
+{
+	return UKismetSystemLibrary::GetObjectName(this);
 }
 
 void ATHCharacterBase::InActivate()

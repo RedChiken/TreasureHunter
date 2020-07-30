@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ATHActorBase::ATHActorBase() : AActor()
@@ -244,4 +245,9 @@ void ATHActorBase::Reset()
 	ServerUpdatebActive(true);
 	ResetBuffer();
 	ResetMemory();
+}
+
+FString ATHActorBase::GetID()
+{
+	return UKismetSystemLibrary::GetObjectName(this);
 }

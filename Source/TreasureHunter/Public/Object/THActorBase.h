@@ -76,6 +76,7 @@ public:
 	virtual void Activate() override;
 	virtual void InActivate() override;
 	virtual void Reset() override;
+	virtual FString GetID() override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Actor)

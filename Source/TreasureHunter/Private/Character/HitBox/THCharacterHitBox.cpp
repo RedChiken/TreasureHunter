@@ -4,6 +4,7 @@
 #include "THCharacterHitBox.h"
 #include "net/UnrealNetwork.h"
 #include "Engine.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UTHCharacterHitBox::UTHCharacterHitBox() : UCapsuleComponent()
 {
@@ -46,4 +47,9 @@ void UTHCharacterHitBox::InActivate()
 
 void UTHCharacterHitBox::Reset()
 {
+}
+
+FString UTHCharacterHitBox::GetID()
+{
+	return UKismetSystemLibrary::GetObjectName(this);
 }

@@ -556,7 +556,8 @@ public:
 	// Inherited via IObjectActivity
 	virtual void InActivate() override;
 	virtual void Reset() override;
-	virtual void Activate();
+	virtual void Activate() override;
+	virtual FString GetID() override;
 
 private:
 	void AddMovement(const FVector vector, float val); 
