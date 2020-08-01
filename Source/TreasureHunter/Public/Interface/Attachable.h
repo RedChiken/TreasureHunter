@@ -22,6 +22,5 @@ class TREASUREHUNTER_API IAttachable
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual bool IsAttachable() = 0;
-	virtual bool HasAuthorize(const class IAttachActivity* Attacher) = 0;
+	virtual bool IsAttachable(const class IAttachActivity* Attacher) = 0;
 };

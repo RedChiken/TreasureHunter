@@ -42,12 +42,12 @@ protected:
 public:
 	virtual bool IsAttachable(class IAttachable* attach) override;
 	virtual bool IsDetachable() override;
-	virtual void Attach(class IAttachable* attach, IAttachActivity* Attacher) override;
+	virtual void Attach(class IAttachable* attach) override;
 	virtual class IAttachable* Detach() override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Piece)
-		class ATHPieceBase* Piece;
+		class ATHAttachPieceBase* Piece;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Piece)
 		FVector AttachedPosition;

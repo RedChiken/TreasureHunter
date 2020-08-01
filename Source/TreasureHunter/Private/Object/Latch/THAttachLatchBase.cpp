@@ -3,7 +3,6 @@
 
 #include "THAttachLatchBase.h"
 #include "Interface/Attachable.h"
-#include "Piece/THPieceBase.h"
 #include "Piece/THAttachPieceBase.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
@@ -73,36 +72,25 @@ bool ATHAttachLatchBase::IsAttachable(IAttachable* attach)
 
 bool ATHAttachLatchBase::IsDetachable()
 {
-	return Piece && Piece->HasAuthorize(this) && (Input.IsEmpty());
+	return Piece && (Input.IsEmpty());
 }
 
-void ATHAttachLatchBase::Attach(IAttachable* attach, IAttachActivity* Attacher)
+void ATHAttachLatchBase::Attach(IAttachable* attach)
 {
-	if (bActive)
+	auto AttachPiece = Cast<ATHAttachPieceBase>(attach);
+	if (bActive && IsAttachable(attach))
 	{
-		auto AttachPiece = Cast<ATHAttachPieceBase>(attach);
-		if (IsAttachable(attach))
-		{
-			ServerAttachPiece(AttachPiece);
-			Submit(AttachPiece->GetID());
-		}
-		else
-		{
-			auto DetachPiece = Detach();
-			ServerAttachPiece(AttachPiece);
-			Submit(AttachPiece->GetID());
-			Attacher->Attach(DetachPiece);
-		}
+		ServerAttachPiece(AttachPiece);
+		Submit(AttachPiece->GetID());
 	}
 }
 
 IAttachable* ATHAttachLatchBase::Detach()
 {
 	ATHAttachPieceBase* ret = nullptr;
-	auto AttachPiece = Cast<ATHAttachPieceBase>(Piece);
-	if (bActive && IsDetachable() && AttachPiece->HasAuthorize(this))
+	if (bActive && IsDetachable())
 	{
-		ServerDetachPiece(AttachPiece, ret);
+		ServerDetachPiece(Piece, ret);
 		ResetInput();
 	}
 	return ret;

@@ -41,7 +41,6 @@ protected:
     UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
         void MulticastUpdateAnswer(const FString& input);
 
-
 public:
     // Inherited via ICheckAnswer
     virtual bool IsCorrect() override;

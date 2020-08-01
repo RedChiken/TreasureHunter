@@ -4,6 +4,7 @@
 #include "THAttachPieceBase.h"
 #include "Interface/AttachActivity.h"
 #include "Object/THActorBase.h"
+#include "..\..\..\Public\Object\Piece\THAttachPieceBase.h"
 
 ATHAttachPieceBase::ATHAttachPieceBase() : ATHPieceBase()
 {
@@ -25,12 +26,7 @@ void ATHAttachPieceBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-bool ATHAttachPieceBase::IsAttachable()
+bool ATHAttachPieceBase::IsAttachable(const IAttachActivity* Attacher)
 {
-	return GetAttachParentActor() == nullptr;
-}
-
-bool ATHAttachPieceBase::HasAuthorize(const IAttachActivity* Attacher)
-{
-	return (Cast<IAttachActivity>(GetAttachParentActor()) == Attacher);
+	return (GetAttachParentActor() == nullptr) || (Cast<IAttachActivity>(GetAttachParentActor()) == Attacher);
 }

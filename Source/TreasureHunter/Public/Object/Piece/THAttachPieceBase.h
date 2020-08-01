@@ -26,6 +26,5 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 public:
-    virtual bool IsAttachable() override;
-    virtual bool HasAuthorize(const class IAttachActivity* Attacher) override;
+    virtual bool IsAttachable(const class IAttachActivity* Attacher) override;
 };
