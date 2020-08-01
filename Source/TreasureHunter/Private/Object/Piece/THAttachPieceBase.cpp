@@ -4,11 +4,14 @@
 #include "THAttachPieceBase.h"
 #include "Interface/AttachActivity.h"
 #include "Object/THActorBase.h"
+#include "Engine.h"
+#include "net/UnrealNetwork.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "..\..\..\Public\Object\Piece\THAttachPieceBase.h"
 
 ATHAttachPieceBase::ATHAttachPieceBase() : ATHPieceBase()
 {
-
+	
 }
 
 void ATHAttachPieceBase::Tick(float DeltaTime)
@@ -28,5 +31,23 @@ void ATHAttachPieceBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 bool ATHAttachPieceBase::IsAttachable(const IAttachActivity* Attacher)
 {
-	return (GetAttachParentActor() == nullptr) || (Cast<IAttachActivity>(GetAttachParentActor()) == Attacher);
+	return bActive && ((GetAttachParentActor() == nullptr) || (Cast<IAttachActivity>(GetAttachParentActor()) == Attacher));
+}
+
+void ATHAttachPieceBase::Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
+{
+	AttachToActor(Parent, AttachmentRules, SocketName);
+	InActivate();
+}
+
+void ATHAttachPieceBase::Attach(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
+{
+	AttachToComponent(Parent, AttachmentRules, SocketName);
+	InActivate();
+}
+
+void ATHAttachPieceBase::Detach(const FDetachmentTransformRules& DetachmentRules)
+{
+	DetachFromActor(DetachmentRules);
+	Activate();
 }

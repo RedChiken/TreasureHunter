@@ -24,20 +24,6 @@ protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
-public:
-	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerAttachPiece(class ATHAttachPieceBase* AttachPiece);
-
-	UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
-		void ServerDetachPiece(class ATHPieceBase* AttPiece, class ATHAttachPieceBase* RetPiece);
-
-protected:
-	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
-		void MulticastAttachPiece(class ATHAttachPieceBase* AttachPiece);
-
-	UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
-		void MulticastDetachPiece(class ATHPieceBase* AttPiece, class ATHAttachPieceBase* RetPiece);
 	
 public:
 	virtual bool IsAttachable(class IAttachable* attach) override;

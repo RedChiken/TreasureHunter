@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Object/Piece/THPieceBase.h"
 #include "Interface/Attachable.h"
+#include "Engine/EngineTypes.h"
 #include "THAttachPieceBase.generated.h"
 
 /**
@@ -27,4 +28,7 @@ protected:
 
 public:
     virtual bool IsAttachable(const class IAttachActivity* Attacher) override;
+    virtual void Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName = NAME_None) override;
+    virtual void Attach(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName = NAME_None) override;
+    virtual void Detach(const FDetachmentTransformRules& DetachmentRules) override;
 };

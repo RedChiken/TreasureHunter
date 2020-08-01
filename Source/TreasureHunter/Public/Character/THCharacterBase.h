@@ -18,17 +18,19 @@
 #include "Interface/LayeredMotionSync.h"
 #include "Interface/StatusSync.h"
 #include "Interface/Damagable.h"
+#include "Interface/AttachActivity.h"
 #include "Interface/CheckInRangeCharacter.h"
 #include "Interface/ObjectActivity.h"
 #include "Animation/AnimInstance.h"
 #include "Engine/EngineTypes.h"
 #include "Containers/EnumAsByte.h"
+#include "UObject/ScriptInterface.h"
 #include "THCharacterBase.generated.h"
 
 UCLASS()
 class TREASUREHUNTER_API ATHCharacterBase : public ACharacter, 
 	public ILocomotionSync, public IFullBodyMotionSync, public ILayeredMotionSync, public IStatusSync, 
-	public IDamagable, public ICheckInRangeCharacter, public IObjectActivity
+	public IDamagable, public ICheckInRangeCharacter, public IObjectActivity, public IAttachActivity
 {
 	GENERATED_BODY()
 
@@ -139,22 +141,16 @@ public:
 		class ATHPieceBase* OverlappedPiece;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
-		class ATHPieceBase* AttachedPiece;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Interaction)
 		class ATHLatchBase* OverlappedLatch;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
-		class UCapsuleComponent* FirstHitPart;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
-		class UCapsuleComponent* HitOpposite;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
 		TArray<FString> HitObject;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
 		TArray<FString> Ally;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Hit)
+		class ATHAttachPieceBase* HoldingPiece;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Action, meta = (AllowPrivateAccess = "true"))
@@ -211,7 +207,6 @@ public:
 
 	void StopInteraction();
 	void UpdateIdleType(EIdleType Idle);
-	void UpdateExitDirection(EExitDirection Exit);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerPlayMontage(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::MontageLength, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
@@ -559,14 +554,19 @@ public:
 	virtual void Activate() override;
 	virtual FString GetID() override;
 
+	// Inherited via IAttachActivity
+	virtual bool IsAttachable(IAttachable* Input) override;
+	virtual bool IsDetachable() override;
+	virtual void Attach(class IAttachable* Input) override;
+	virtual IAttachable* Detach() override;
+
+
+	virtual void Attach(IAttachActivity* Input);
+
 private:
 	void AddMovement(const FVector vector, float val); 
 
 	void SetCharacterDead();
-
-	void AttachPiece(FName Socket = NAME_None);
-
-	class ATHPieceBase* DetachPiece();
 
 	void ExitClimb();
 	void EnterClimb();
