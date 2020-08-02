@@ -184,47 +184,6 @@ void ATHCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void ATHCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	/*
-	if (IsLocallyControlled())
-	{
-		if (MovementComponent->MovementMode == EMovementMode::MOVE_Walking)
-		{
-			if (bUpperClimbTrigger && bMiddleClimbTrigger && !bLowerClimbTrigger)
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s AbleToClimb"), *const FString&(__FUNCTION__));
-			}
-		}
-		else if (MovementComponent->MovementMode == EMovementMode::MOVE_Flying)
-		{
-			if ((MovingDirection == EMovingDirection::DOWNSIDE) && IsAttachToBottom())
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s Exit Climb To Bottom"), *const FString&(__FUNCTION__));
-			}
-			if ((MovingDirection == EMovingDirection::UPSIDE) && IsAttachToTop())
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s Exit Climb To Top"), *const FString&(__FUNCTION__));
-			}
-			//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-			//UE_LOG(THVerbose, Verbose, TEXT("%s CurrentSpeed = %f"), *const FString&(__FUNCTION__), GetVelocity().Size());
-			//UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
-		}
-	}*/
-
-	/*
-	UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-	UE_LOG(THVerbose, Verbose, TEXT("%s CurrentSpeed = %f"), *const FString&(__FUNCTION__), GetVelocity().Size());
-	if (!bLowerClimbTrigger)
-	{
-		if (GetRemoteRole() == ROLE_AutonomousProxy)
-		{
-			UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
-			UE_LOG(THVerbose, Verbose, TEXT("%s MovingDirection: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovingDirection", MovingDirection));
-		}
-		
-		UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-	}
-	*/
 }
 
 // Called to bind functionality to input
@@ -262,10 +221,6 @@ void ATHCharacterBase::OnMovementStop()
 			}
 		}
 	}
-	else
-	{
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-	}
 }
 
 void ATHCharacterBase::StopInteraction()
@@ -293,7 +248,6 @@ void ATHCharacterBase::OnHitStartOverlap(UPrimitiveComponent* OverlappedComp, AA
 				{
 					AddtoBuffer(ID);
 					Target->ReceiveDamage(Cast<IDamageActivity>(MyHitBox)->GetDamage());
-					//UE_LOG(THVerbose, Verbose, TEXT("%s: Hit Other Character"), *const FString&(__FUNCTION__));
 				}
 			}
 		}
@@ -305,15 +259,17 @@ void ATHCharacterBase::OnPieceStartOverlap(UPrimitiveComponent* OverlappedComp, 
 	if (OtherActor)
 	{
 		ATHPieceBase* piece = Cast<ATHPieceBase>(OtherActor);
-		if (piece)
+		if (piece && (OverlappedPiece == nullptr))
 		{
 			ServerUpdateInteractionType(EInteractionType::ATTACH);
-			OverlappedPiece = piece;
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			ServerUpdateOverlappedPiece(piece);
+			if (IsLocallyControlled())
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Piece, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			}
 		}
 	}
 }
@@ -323,15 +279,20 @@ void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	if (OtherActor)
 	{
 		ATHPieceBase* piece = Cast<ATHPieceBase>(OtherActor);
-		if (piece)
+		if (piece && OverlappedPiece)
 		{
-			ServerUpdateInteractionType(EInteractionType::DEFAULT);
-			OverlappedPiece = nullptr;
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			if (HoldingPiece == nullptr)
+			{
+				ServerUpdateInteractionType(EInteractionType::DEFAULT);
+				UE_LOG(THVerbose, Verbose, TEXT("%s Not Hold Any Piece. InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			}
+			ServerUpdateOverlappedPiece(nullptr);
+			if (IsLocallyControlled())
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+			}
 		}
 	}
 }
@@ -531,15 +492,17 @@ void ATHCharacterBase::OnLatchStartOverlap(UPrimitiveComponent* OverlappedComp, 
 	{
 		
 		auto latch = Cast<ATHLatchBase>(OtherActor);
-		if (latch)
+		if (latch && OverlappedLatch)
 		{
 			ServerUpdateInteractionType(EInteractionType::ATTACH);
-			OverlappedLatch = latch;
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			ServerUpdateOverlappedLatch(latch);
+			if (IsLocallyControlled())
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			}
 		}
 	}
 }
@@ -549,15 +512,20 @@ void ATHCharacterBase::OnLatchEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	if (OtherActor)
 	{
 		auto latch = Cast<ATHLatchBase>(OtherActor);
-		if (latch)
+		if (latch && !OverlappedLatch)
 		{
-			ServerUpdateInteractionType(EInteractionType::DEFAULT);
-			OverlappedLatch = nullptr;
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			ServerUpdateOverlappedLatch(nullptr);
+			if (HoldingPiece == nullptr)
+			{
+				ServerUpdateInteractionType(EInteractionType::DEFAULT);
+				UE_LOG(THVerbose, Verbose, TEXT("%s On End Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			}
+			if (IsLocallyControlled())
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
+				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+			}
 		}
 	}
 }
@@ -601,6 +569,36 @@ void ATHCharacterBase::MulticastStopMontage_Implementation(float blendOut, UAnim
 	{
 		AnimInstance->Montage_Stop(blendOut, InteractionMontage);
 	}
+}
+
+void ATHCharacterBase::ServerUpdateOverlappedPiece_Implementation(ATHPieceBase* Piece)
+{
+	MulticastUpdateOverlappedPiece(Piece);
+}
+
+bool ATHCharacterBase::ServerUpdateOverlappedPiece_Validate(ATHPieceBase* Piece)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateOverlappedPiece_Implementation(ATHPieceBase* Piece)
+{
+	OverlappedPiece = Piece;
+}
+
+void ATHCharacterBase::ServerUpdateOverlappedLatch_Implementation(ATHLatchBase* Latch)
+{
+	MulticastUpdateOverlappedLatch(Latch);
+}
+
+bool ATHCharacterBase::ServerUpdateOverlappedLatch_Validate(ATHLatchBase* Latch)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateOverlappedLatch_Implementation(ATHLatchBase* Latch)
+{
+	OverlappedLatch = Latch;
 }
 
 void ATHCharacterBase::ServerUpdateMovementType_Implementation(EMovementType type)
@@ -1114,6 +1112,94 @@ void ATHCharacterBase::MulticastResetAlly_Implementation()
 	Ally.Empty();
 }
 
+void ATHCharacterBase::ServerUpdateHoldingPiece_Implementation(ATHAttachPieceBase* Piece)
+{
+	MulticastUpdateHoldingPiece(Piece);
+}
+
+bool ATHCharacterBase::ServerUpdateHoldingPiece_Validate(ATHAttachPieceBase* Piece)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastUpdateHoldingPiece_Implementation(ATHAttachPieceBase* Piece)
+{
+	HoldingPiece = Piece;
+}
+
+void ATHCharacterBase::ServerAttach_Implementation(ATHAttachPieceBase* Input)
+{
+	MulticastAttach(Input);
+}
+
+bool ATHCharacterBase::ServerAttach_Validate(ATHAttachPieceBase* Input)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastAttach_Implementation(ATHAttachPieceBase* Input)
+{
+	//Attach Piece to Character
+	if (IsDetachable())
+	{
+		//If already has Piece, Detach it.
+		UE_LOG(THVerbose, Verbose, TEXT("%s Detach HoldingPiece"), *FString(__FUNCTION__));
+		Detach();
+	}
+	UE_LOG(THVerbose, Verbose, TEXT("%s Attach Piece to Character"), *FString(__FUNCTION__));
+	Input->Attach(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("socket_melee_r"));
+}
+
+void ATHCharacterBase::ServerAttachTo_Implementation(ATHAttachLatchBase* Input, ATHAttachPieceBase* Output)
+{
+	MulticastAttachTo(Input, Output);
+}
+
+bool ATHCharacterBase::ServerAttachTo_Validate(ATHAttachLatchBase* Input, ATHAttachPieceBase* Output)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastAttachTo_Implementation(ATHAttachLatchBase* Input, ATHAttachPieceBase* Output)
+{
+	if (Input->IsDetachable())
+	{
+		//Get Piece
+		Output = Cast<ATHAttachPieceBase>(Input->Detach());
+		if (IsDetachable())
+		{
+			//If already has Piece, Detach it.
+			Input->Attach(Detach());
+		}
+		Attach(Output);
+	}
+	else
+	{
+		if (IsDetachable())
+		{
+			//Submit Piece
+			Input->Attach(Detach());
+			ServerUpdateInteractionType(EInteractionType::DEFAULT);
+		}
+	}
+}
+
+void ATHCharacterBase::ServerDetach_Implementation(ATHAttachPieceBase* Output)
+{
+	MulticastDetach(Output);
+}
+
+bool ATHCharacterBase::ServerDetach_Validate(ATHAttachPieceBase* Output)
+{
+	return true;
+}
+
+void ATHCharacterBase::MulticastDetach_Implementation(ATHAttachPieceBase* Output)
+{
+	Output = HoldingPiece;
+	HoldingPiece->Detach(FDetachmentTransformRules::KeepRelativeTransform);
+}
+
 UTHCharacterHitBox* ATHCharacterBase::AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket, const FVector& RelativeLocation, const FRotator& RelativeRotation)
 {
 	auto Trigger = CreateDefaultSubobject<UTHCharacterHitBox>(SubobjectName);
@@ -1395,81 +1481,34 @@ void ATHCharacterBase::OnInteractionPressed()
 		auto AttachedLatch = Cast<ATHAttachLatchBase>(OverlappedLatch);
 		if (AttachedPiece)
 		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s Attach Piece to Character"), *FString(__FUNCTION__));
 			Attach(AttachedPiece);
+			ServerUpdateOverlappedPiece(nullptr);
 		}
 		else if (AttachedLatch)
 		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s Attach Activity with AttachedLatch"), *FString(__FUNCTION__));
 			Attach(AttachedLatch);
 		}
-	}
-		/*
-		switch (AttachSequence)
+		else
 		{
-		case EAttachSequence::ATTACHABLE:
-			if (OverlappedLatch)
+			if (HoldingPiece)
 			{
-				//Attach Piece from Latch to Character
-				OverlappedPiece = OverlappedLatch->WithdrawPiece();
-				AttachPiece(TEXT("socket_melee_r"));
-				ServerUpdateAttachSequence(EAttachSequence::SUBMITTABLE);
+				UE_LOG(THVerbose, Verbose, TEXT("%s Detach Piece"), *FString(__FUNCTION__));
+				ATHAttachPieceBase* temp = nullptr;
+				ServerDetach(temp);
+				ServerUpdateInteractionType(EInteractionType::DEFAULT);
 			}
-			else
-			{
-				//Attach Piece to Character
-				AttachPiece(TEXT("socket_melee_r"));
-				ServerUpdateAttachSequence(EAttachSequence::ATTACH);
-			}
-			break;
-		case EAttachSequence::ATTACH:
-			if (OverlappedPiece)
-			{
-				//Switch Attached Piece and NOT Attached Piece
-				auto detaching = DetachPiece();
-				AttachPiece(TEXT("socket_melee_r"));
-				OverlappedPiece = detaching;
-			}
-			else if (AttachedPiece)
-			{
-				//Detach Piece
-				OverlappedPiece = DetachPiece();
-				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
-			}
-			break;
-		case EAttachSequence::SUBMITTABLE:
-			if (OverlappedLatch->GetPiece())
-			{
-				//Switch Piece from Latch and Piece from Character
-				auto temp = OverlappedLatch->WithdrawPiece();
-				OverlappedLatch->SubmitPiece(DetachPiece());
-				OverlappedPiece = temp;
-				AttachPiece(TEXT("socket_melee_r"));
-			}
-			else
-			{
-				//Attach Piece to Latch
-				OverlappedLatch->SubmitPiece(DetachPiece());
-				ServerUpdateAttachSequence(EAttachSequence::ATTACHABLE);
-			}
-			if (OverlappedLatch->IsCorrectPair())
-			{
-				OverlappedLatch->OnCorrectAnswer.Broadcast();
-			}
-			//TODO: Check Answer. If Correct, Deactivate All Latches and Keys. Than, Open Wall.
-			break;
-		case EAttachSequence::DEFAULT:
-			break;
 		}
-		ServerUpdatebLayeredMotion(true);
-		ServerPlayMontage(InteractionMontage);
-		UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), (OverlappedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-		UE_LOG(THVerbose, Verbose, TEXT("%s AttachedPiece: %s"), *FString(__FUNCTION__), (AttachedPiece == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-		UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), (OverlappedLatch == nullptr) ? TEXT("InValid!") : TEXT("Valid!"));
-		UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, AttachSequence: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EAttachSequence", AttachSequence));
-		UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Latch, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-		break;
-		//TODO: Play New Animation
-		*/
+		if (IsLocallyControlled())
+		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+		}
+	}
+	break;
 	case EInteractionType::CLIMB:
+	{
 		//From Climbing to Stand
 		auto MovementMode = MovementComponent->MovementMode;
 		ServerDisableInput(Cast<AStagePlayerController>(GetController()));
@@ -1491,10 +1530,7 @@ void ATHCharacterBase::OnInteractionPressed()
 			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 			UE_LOG(THVerbose, Verbose, TEXT("%s InteractableClimb: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EIdleType", InteractableClimb));
 		}
-		//UE_LOG(THVerbose, Verbose, TEXT("%s bFullBodyMotion: %s"), *const FString&(__FUNCTION__), GETBOOLSTRING(bFullBodyMotion));
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementMode: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementMode", MovementComponent->MovementMode));
-		//UE_LOG(THVerbose, Verbose, TEXT("%s IdleType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EIdleType", IdleType));
-		//UE_LOG(THVerbose, Verbose, TEXT("%s MovementType: %s"), *const FString&(__FUNCTION__), *GETENUMSTRING("EMovementType", MovementType));
+	}
 		break;
 	case EInteractionType::INVESTIGATE:
 		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
@@ -1515,7 +1551,6 @@ void ATHCharacterBase::OnInteractionPressed()
 void ATHCharacterBase::OnInteractionReleased()
 {
 	ServerUpdatebLayeredMotion(false);
-	//ServerUpdateInteractionType(EInteractionType::DEFAULT);
 	ServerStopMontage(0.25f, InteractionMontage);
 }
 
@@ -1868,7 +1903,7 @@ void ATHCharacterBase::Reset()
 bool ATHCharacterBase::IsAttachable(IAttachable* Input)
 {
 	auto attachPiece = Cast<ATHAttachPieceBase>(Input);
-	return (HoldingPiece == nullptr) || ((HoldingPiece == nullptr) && !(HoldingPiece->GetID().Equals(attachPiece->GetID())));
+	return (HoldingPiece == nullptr) || ((HoldingPiece == attachPiece) && !(HoldingPiece->GetID().Equals(attachPiece->GetID())));
 }
 
 bool ATHCharacterBase::IsDetachable()
@@ -1876,51 +1911,54 @@ bool ATHCharacterBase::IsDetachable()
 	return (HoldingPiece != nullptr);
 }
 
-void ATHCharacterBase::Attach(class IAttachable* Input)
+void ATHCharacterBase::Attach(IAttachable* Input)
 {
 	if (Input->IsAttachable(this))
 	{
-		if (IsDetachable())
+		UE_LOG(THVerbose, Verbose, TEXT("%s Attach Occur"), *FString(__FUNCTION__));
+		ATHAttachPieceBase* AttachInput = Cast<ATHAttachPieceBase>(Input);
+		ServerAttach(AttachInput);
+		ServerUpdateHoldingPiece(AttachInput);
+		if (HoldingPiece == AttachInput)
 		{
-			//Switch Input and HoldingAttachable
-			HoldingPiece->Detach(FDetachmentTransformRules::KeepRelativeTransform);
-			Input->Attach(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("socket_melee_r"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s Successfully Set HoldingPiece to AttachInput"), *FString(__FUNCTION__));
+			HoldingPiece->InActivate();
 		}
-		else
+		ServerUpdateInteractionType(EInteractionType::ATTACH);
+		if (IsLocallyControlled())
 		{
-			//Attach Input
-			Input->Attach(this, FAttachmentTransformRules::SnapToTargetIncludingScale, TEXT("socket_melee_r"));
+			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece is Cleared now: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece == nullptr));
+			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece == Cast<ATHAttachPieceBase>(Input)));
+			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Piece, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
-		HoldingPiece = Cast<ATHAttachPieceBase>(Input);
 	}
 }
 
 void ATHCharacterBase::Attach(IAttachActivity* Input)
 {
-	if (Input->IsDetachable())
+	ATHAttachPieceBase* DetachedPiece = nullptr;
+	ServerAttachTo(Cast<ATHAttachLatchBase>(Input), DetachedPiece);
+	if (DetachedPiece != nullptr)
 	{
-		auto DetachedPiece = Cast<ATHAttachPieceBase>(Input->Detach());
-		if (IsDetachable())
-		{
-			Input->Attach(Detach());
-		}
-		Attach(DetachedPiece);
-		HoldingPiece = DetachedPiece;
+		DetachedPiece->InActivate();
 	}
-	else if(IsDetachable())
+	if (IsLocallyControlled())
 	{
-		//Submit Attachable
-		Input->Attach(Detach());
-		HoldingPiece = nullptr;
+		UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece is Cleared now: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece == nullptr));
+		UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Cast<ATHAttachPieceBase>(DetachedPiece) == HoldingPiece));
+		UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Piece, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 	}
 }
 
 IAttachable* ATHCharacterBase::Detach()
 {
-	HoldingPiece->Detach(FDetachmentTransformRules::KeepRelativeTransform);
-	auto ret = HoldingPiece;
-	ret->Activate();
-	HoldingPiece = nullptr;
+	ATHAttachPieceBase* ret = nullptr;
+	ServerDetach(ret);
+	if (ret != nullptr)
+	{
+		ret->Activate();
+		ServerUpdateHoldingPiece(nullptr);
+	}
 	return ret;
 }
 

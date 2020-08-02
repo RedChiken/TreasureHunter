@@ -215,6 +215,12 @@ public:
 		void ServerStopMontage(float blendOut, UAnimMontage* MontageToStop);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateOverlappedPiece(class ATHPieceBase* Piece);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateOverlappedLatch(class ATHLatchBase* Latch);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUpdateMovementType(EMovementType type);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
@@ -304,6 +310,18 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerInactivateHitBox(UObject* HitBox);
 
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUpdateHoldingPiece(class ATHAttachPieceBase* Piece);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerAttach(class ATHAttachPieceBase* Input);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerAttachTo(class ATHAttachLatchBase* Input, class ATHAttachPieceBase* Output);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerDetach(class ATHAttachPieceBase* Output);
+
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -344,6 +362,12 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastStopMontage(float blendOut, UAnimMontage* MontageToStop);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateOverlappedPiece(class ATHPieceBase* Piece);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateOverlappedLatch(class ATHLatchBase* Latch);
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastUpdateMovementType(EMovementType type);
@@ -434,6 +458,18 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastInactivateHitBox(UObject* HitBox);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateHoldingPiece(class ATHAttachPieceBase* Piece);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastAttach(class ATHAttachPieceBase* Input);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastAttachTo(class ATHAttachLatchBase* Input, class ATHAttachPieceBase* Output);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDetach(ATHAttachPieceBase* Output);
 
 	UFUNCTION(BlueprintCallable)
 		class UTHCharacterHitBox* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);

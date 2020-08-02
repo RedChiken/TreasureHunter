@@ -1,17 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "TreasureHunter.h"
 #include "THAttachPieceBase.h"
 #include "Interface/AttachActivity.h"
 #include "Object/THActorBase.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "..\..\..\Public\Object\Piece\THAttachPieceBase.h"
 
 ATHAttachPieceBase::ATHAttachPieceBase() : ATHPieceBase()
 {
-	
+
 }
 
 void ATHAttachPieceBase::Tick(float DeltaTime)
@@ -37,17 +38,20 @@ bool ATHAttachPieceBase::IsAttachable(const IAttachActivity* Attacher)
 void ATHAttachPieceBase::Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
 {
 	AttachToActor(Parent, AttachmentRules, SocketName);
-	InActivate();
+	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToActor Success"), *FString(__FUNCTION__));
+	SetReplicateMovement(false);
 }
 
 void ATHAttachPieceBase::Attach(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
 {
 	AttachToComponent(Parent, AttachmentRules, SocketName);
-	InActivate();
+	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToComponent Successs"), *FString(__FUNCTION__));
+	SetReplicateMovement(false);
 }
 
 void ATHAttachPieceBase::Detach(const FDetachmentTransformRules& DetachmentRules)
 {
 	DetachFromActor(DetachmentRules);
-	Activate();
+	UE_LOG(THVerbose, Verbose, TEXT("%s DetachFromActor Success"), *FString(__FUNCTION__));
+	SetReplicateMovement(true);
 }

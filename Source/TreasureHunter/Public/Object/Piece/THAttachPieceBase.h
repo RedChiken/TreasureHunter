@@ -25,7 +25,7 @@ protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
+    
 public:
     virtual bool IsAttachable(const class IAttachActivity* Attacher) override;
     virtual void Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName = NAME_None) override;

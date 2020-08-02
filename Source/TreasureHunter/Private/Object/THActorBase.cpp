@@ -23,7 +23,8 @@ ATHActorBase::ATHActorBase() : AActor()
 	Area->SetVisibility(true);
 	Area->SetCollisionProfileName("Trigger");
 	bActive = true;
-	bReplicates = true;
+	SetReplicateMovement(true);
+	SetReplicates(true);
 }
 
 // Called when the game starts or when spawned
