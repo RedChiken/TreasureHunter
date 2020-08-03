@@ -32,13 +32,14 @@ void ATHAttachPieceBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 bool ATHAttachPieceBase::IsAttachable(const IAttachActivity* Attacher)
 {
-	return bActive && ((GetAttachParentActor() == nullptr) || (Cast<IAttachActivity>(GetAttachParentActor()) == Attacher));
+	return bActive && (GetAttachParentActor() == nullptr); 
 }
 
 void ATHAttachPieceBase::Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
 {
 	AttachToActor(Parent, AttachmentRules, SocketName);
 	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToActor Success"), *FString(__FUNCTION__));
+	UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
 	SetReplicateMovement(false);
 }
 
@@ -46,6 +47,7 @@ void ATHAttachPieceBase::Attach(USceneComponent* Parent, const FAttachmentTransf
 {
 	AttachToComponent(Parent, AttachmentRules, SocketName);
 	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToComponent Successs"), *FString(__FUNCTION__));
+	//UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
 	SetReplicateMovement(false);
 }
 
@@ -53,5 +55,6 @@ void ATHAttachPieceBase::Detach(const FDetachmentTransformRules& DetachmentRules
 {
 	DetachFromActor(DetachmentRules);
 	UE_LOG(THVerbose, Verbose, TEXT("%s DetachFromActor Success"), *FString(__FUNCTION__));
+	UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
 	SetReplicateMovement(true);
 }
