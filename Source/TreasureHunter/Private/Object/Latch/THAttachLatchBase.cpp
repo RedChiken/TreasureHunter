@@ -50,6 +50,7 @@ void ATHAttachLatchBase::Attach(IAttachable* attach)
 		AttachPiece->Attach(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		//Set Transform
 		Submit(AttachPiece->GetID());
+		AttachPiece->InActivate();
 	}
 }
 
@@ -63,6 +64,7 @@ IAttachable* ATHAttachLatchBase::Detach()
 		Piece = nullptr;
 		//Set Transform
 		ResetInput();
+		ret->Activate();
 	}
 	return ret;
 }

@@ -234,12 +234,12 @@ void ATHActorBase::ResetMemory()
 
 void ATHActorBase::Activate()
 {
-	ServerUpdatebActive(true);
+	bActive = true;
 }
 
 void ATHActorBase::InActivate()
 {
-	ServerUpdatebActive(false);
+	bActive = false;
 }
 
 void ATHActorBase::Reset()

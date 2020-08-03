@@ -279,19 +279,23 @@ void ATHCharacterBase::OnPieceEndOverlap(UPrimitiveComponent* OverlappedComp, AA
 	if (OtherActor)
 	{
 		ATHPieceBase* piece = Cast<ATHPieceBase>(OtherActor);
+		// It called when Actor is Attached to Character. Ignore it.
 		if (piece && OverlappedPiece)
 		{
-			if (HoldingPiece == nullptr)
+			if (!piece->IsAttachedTo(this))
 			{
-				ServerUpdateInteractionType(EInteractionType::DEFAULT);
-				UE_LOG(THVerbose, Verbose, TEXT("%s Not Hold Any Piece. InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
-			}
-			ServerUpdateOverlappedPiece(nullptr);
-			if (IsLocallyControlled())
-			{
-				UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
-				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
-				UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+				if (HoldingPiece == nullptr)
+				{
+					ServerUpdateInteractionType(EInteractionType::DEFAULT);
+					UE_LOG(THVerbose, Verbose, TEXT("%s Not Hold Any Piece. InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+				}
+				ServerUpdateOverlappedPiece(nullptr);
+				if (IsLocallyControlled())
+				{
+					UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
+					UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
+					UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+				}
 			}
 		}
 	}
@@ -584,6 +588,7 @@ bool ATHCharacterBase::ServerUpdateOverlappedPiece_Validate(ATHPieceBase* Piece)
 void ATHCharacterBase::MulticastUpdateOverlappedPiece_Implementation(ATHPieceBase* Piece)
 {
 	OverlappedPiece = Piece;
+	UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece Updated. IsValid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
 }
 
 void ATHCharacterBase::ServerUpdateOverlappedLatch_Implementation(ATHLatchBase* Latch)
@@ -599,6 +604,7 @@ bool ATHCharacterBase::ServerUpdateOverlappedLatch_Validate(ATHLatchBase* Latch)
 void ATHCharacterBase::MulticastUpdateOverlappedLatch_Implementation(ATHLatchBase* Latch)
 {
 	OverlappedLatch = Latch;
+	UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch Updated. IsVAlid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
 }
 
 void ATHCharacterBase::ServerUpdateMovementType_Implementation(EMovementType type)
@@ -1125,6 +1131,7 @@ bool ATHCharacterBase::ServerUpdateHoldingPiece_Validate(ATHAttachPieceBase* Pie
 void ATHCharacterBase::MulticastUpdateHoldingPiece_Implementation(ATHAttachPieceBase* Piece)
 {
 	HoldingPiece = Piece;
+	UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece Updated. IsValid : %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
 }
 
 void ATHCharacterBase::ServerAttach_Implementation(ATHAttachPieceBase* Input)
@@ -1144,10 +1151,12 @@ void ATHCharacterBase::MulticastAttach_Implementation(ATHAttachPieceBase* Input)
 	{
 		//If already has Piece, Detach it.
 		UE_LOG(THVerbose, Verbose, TEXT("%s Detach HoldingPiece"), *FString(__FUNCTION__));
-		Detach();
+		//Detach();
+		MulticastDetach(nullptr);
 	}
 	UE_LOG(THVerbose, Verbose, TEXT("%s Attach Piece to Character"), *FString(__FUNCTION__));
 	Input->Attach(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("socket_melee_r"));
+	Input->InActivate();
 }
 
 void ATHCharacterBase::ServerAttachTo_Implementation(ATHAttachLatchBase* Input, ATHAttachPieceBase* Output)
@@ -1171,15 +1180,20 @@ void ATHCharacterBase::MulticastAttachTo_Implementation(ATHAttachLatchBase* Inpu
 			//If already has Piece, Detach it.
 			Input->Attach(Detach());
 		}
-		Attach(Output);
+		//Attach(Output);
+		MulticastAttach(Output);
 	}
 	else
 	{
 		if (IsDetachable())
 		{
 			//Submit Piece
-			Input->Attach(Detach());
-			ServerUpdateInteractionType(EInteractionType::DEFAULT);
+			ATHAttachPieceBase* ret = nullptr;
+			MulticastDetach(ret);
+			Input->Attach(ret);
+			InteractionType = EInteractionType::DEFAULT;
+			UE_LOG(THVerbose, Verbose, TEXT("%s Submit Piece, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			//ServerUpdateInteractionType(EInteractionType::DEFAULT);
 		}
 	}
 }
@@ -1489,6 +1503,7 @@ void ATHCharacterBase::OnInteractionPressed()
 		{
 			UE_LOG(THVerbose, Verbose, TEXT("%s Attach Activity with AttachedLatch"), *FString(__FUNCTION__));
 			Attach(AttachedLatch);
+			ServerUpdateOverlappedLatch(nullptr);
 		}
 		else
 		{
@@ -1502,8 +1517,8 @@ void ATHCharacterBase::OnInteractionPressed()
 		}
 		if (IsLocallyControlled())
 		{
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
-			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedPiece IsValid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedPiece != nullptr));
+			UE_LOG(THVerbose, Verbose, TEXT("%s OverlappedLatch IsValid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(OverlappedLatch != nullptr));
 		}
 	}
 	break;
@@ -1919,17 +1934,28 @@ void ATHCharacterBase::Attach(IAttachable* Input)
 		ATHAttachPieceBase* AttachInput = Cast<ATHAttachPieceBase>(Input);
 		ServerAttach(AttachInput);
 		ServerUpdateHoldingPiece(AttachInput);
-		if (HoldingPiece == AttachInput)
+		if (HoldingPiece != nullptr)
 		{
-			UE_LOG(THVerbose, Verbose, TEXT("%s Successfully Set HoldingPiece to AttachInput"), *FString(__FUNCTION__));
-			HoldingPiece->InActivate();
+			if (HoldingPiece == AttachInput)
+			{
+				//HoldingPiece->ServerUpdatebActive(false);
+				UE_LOG(THVerbose, Verbose, TEXT("%s Work!"), *FString(__FUNCTION__));
+			}
+			else
+			{
+				UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece is not AttachInput"), *FString(__FUNCTION__));
+			}
+		}
+		else
+		{
+			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece is nullptr"), *FString(__FUNCTION__));
 		}
 		ServerUpdateInteractionType(EInteractionType::ATTACH);
 		if (IsLocallyControlled())
 		{
-			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece is Cleared now: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece == nullptr));
+			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece != nullptr));
 			UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece == Cast<ATHAttachPieceBase>(Input)));
-			UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Piece, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+			UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 		}
 	}
 }
@@ -1938,15 +1964,16 @@ void ATHCharacterBase::Attach(IAttachActivity* Input)
 {
 	ATHAttachPieceBase* DetachedPiece = nullptr;
 	ServerAttachTo(Cast<ATHAttachLatchBase>(Input), DetachedPiece);
+	/*
 	if (DetachedPiece != nullptr)
 	{
 		DetachedPiece->InActivate();
-	}
+	}*/
 	if (IsLocallyControlled())
 	{
 		UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece is Cleared now: %s"), *FString(__FUNCTION__), GETBOOLSTRING(HoldingPiece == nullptr));
 		UE_LOG(THVerbose, Verbose, TEXT("%s HoldingPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Cast<ATHAttachPieceBase>(DetachedPiece) == HoldingPiece));
-		UE_LOG(THVerbose, Verbose, TEXT("%s On Start Overlap With Piece, InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
+		UE_LOG(THVerbose, Verbose, TEXT("%s InteractionType: %s"), *FString(__FUNCTION__), *GETENUMSTRING("EInteractionType", InteractionType));
 	}
 }
 
@@ -1956,7 +1983,7 @@ IAttachable* ATHCharacterBase::Detach()
 	ServerDetach(ret);
 	if (ret != nullptr)
 	{
-		ret->Activate();
+		//ret->Activate();
 		ServerUpdateHoldingPiece(nullptr);
 	}
 	return ret;
