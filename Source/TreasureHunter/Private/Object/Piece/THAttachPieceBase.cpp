@@ -37,10 +37,13 @@ bool ATHAttachPieceBase::IsAttachable(const IAttachActivity* Attacher)
 
 void ATHAttachPieceBase::Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
 {
+	UE_LOG(THVerbose, Verbose, TEXT("%s Parent Input is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Parent != nullptr));
 	AttachToActor(Parent, AttachmentRules, SocketName);
 	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToActor Success"), *FString(__FUNCTION__));
 	UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
 	SetReplicateMovement(false);
+	bActive = false;
+	Object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ATHAttachPieceBase::Attach(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
@@ -49,6 +52,8 @@ void ATHAttachPieceBase::Attach(USceneComponent* Parent, const FAttachmentTransf
 	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToComponent Successs"), *FString(__FUNCTION__));
 	//UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
 	SetReplicateMovement(false);
+	bActive = false;
+	Object->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ATHAttachPieceBase::Detach(const FDetachmentTransformRules& DetachmentRules)
@@ -57,4 +62,6 @@ void ATHAttachPieceBase::Detach(const FDetachmentTransformRules& DetachmentRules
 	UE_LOG(THVerbose, Verbose, TEXT("%s DetachFromActor Success"), *FString(__FUNCTION__));
 	UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
 	SetReplicateMovement(true);
+	bActive = true;
+	Object->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
