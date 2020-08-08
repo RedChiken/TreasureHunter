@@ -27,4 +27,8 @@ public:
 	virtual void Attach(AActor* ParentActor, const FAttachmentTransformRules& AttachmentRules, FName SocketName = NAME_None) = 0;
 	virtual void Attach(USceneComponent* ParentActor, const FAttachmentTransformRules& AttachmentRules, FName SocketName = NAME_None) = 0;
 	virtual void Detach(const FDetachmentTransformRules& DetachmentRules) = 0;
+	virtual void Visualize() = 0;
+	virtual void Invisualize() = 0;
+	virtual void EnableCollision() = 0;
+	virtual void DisableCollision() = 0;
 };

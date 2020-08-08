@@ -317,10 +317,10 @@ public:
 		void ServerAttach(class ATHAttachPieceBase* Input);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerAttachTo(class ATHAttachLatchBase* Input, class ATHAttachPieceBase* Output);
+		void ServerAttachTo(class ATHAttachLatchBase* Input);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerDetach(class ATHAttachPieceBase* Output);
+		void ServerDetach();
 
 
 protected:
@@ -466,10 +466,10 @@ protected:
 		void MulticastAttach(class ATHAttachPieceBase* Input);
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastAttachTo(class ATHAttachLatchBase* Input, class ATHAttachPieceBase* Output);
+		void MulticastAttachTo(class ATHAttachLatchBase* Input);
 
 	UFUNCTION(NetMulticast, Reliable)
-		void MulticastDetach(ATHAttachPieceBase* Output);
+		void MulticastDetach();
 
 	UFUNCTION(BlueprintCallable)
 		class UTHCharacterHitBox* AddNewHitTrigger(const FName& SubobjectName, const int32& Radius, const int32& HalfHeight, const FName& AttachedSocket = NAME_None, const FVector& RelativeLocation = FVector::ZeroVector, const FRotator& RelativeRotation = FRotator::ZeroRotator);

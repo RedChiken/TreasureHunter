@@ -52,14 +52,13 @@ void ATHAttachLatchBase::Attach(IAttachable* attach)
 	{
 		UE_LOG(THVerbose, Verbose, TEXT("%s Attach bActive and isAttachable"), *FString(__FUNCTION__));
 		UE_LOG(THVerbose, Verbose, TEXT("%s AttachPiece is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(AttachPiece != nullptr));
-		FAttachmentTransformRules AttachmentRule(EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, false);
-		UE_LOG(THVerbose, Verbose, TEXT("%s AttachRule Done"), *FString(__FUNCTION__));
+		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, false);
 		AttachPiece->Attach(Object, AttachmentRule);
+		AttachPiece->SetActorRelativeLocation(GetActorLocation() + GetActorUpVector() * 300.f);
 		UE_LOG(THVerbose, Verbose, TEXT("%s Attach Done"), *FString(__FUNCTION__));
 		//Set Transform
 		Submit(AttachPiece->GetID());
 		UE_LOG(THVerbose, Verbose, TEXT("%s Submit Done"), *FString(__FUNCTION__));
-		AttachPiece->InActivate();
 	}
 }
 
@@ -75,7 +74,9 @@ IAttachable* ATHAttachLatchBase::Detach()
 		Piece = nullptr;
 		//Set Transform
 		ResetInput();
-		ret->Activate();
 	}
+	UE_LOG(THVerbose, Verbose, TEXT("%s ret is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(ret != nullptr));
+	UE_LOG(THVerbose, Verbose, TEXT("%s Piece is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Piece != nullptr));
+	UE_LOG(THVerbose, Verbose, TEXT("%s Compare ret and Piece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(ret == Piece));
 	return ret;
 }

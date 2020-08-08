@@ -25,10 +25,39 @@ protected:
     virtual void BeginPlay() override;
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-    
+
+public:
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerEnableCollision();
+
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerDisableCollision();
+
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerVisualize();
+
+    UFUNCTION(Server, BlueprintCallable, Reliable, WithValidation)
+        void ServerInvisualize();
+
+    UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+        void MulticastEnableCollision();
+
+    UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+        void MulticastDisableCollision();
+
+    UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+        void MulticastVisualize();
+
+    UFUNCTION(NetMulticast, BlueprintCallable, Reliable)
+        void MulticastInvisualize();
+
 public:
     virtual bool IsAttachable(const class IAttachActivity* Attacher) override;
     virtual void Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName = NAME_None) override;
     virtual void Attach(USceneComponent* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName = NAME_None) override;
     virtual void Detach(const FDetachmentTransformRules& DetachmentRules) override;
+    virtual void Visualize() override;
+    virtual void Invisualize() override;
+    virtual void EnableCollision() override;
+    virtual void DisableCollision() override;
 };
