@@ -99,13 +99,11 @@ bool ATHAttachPieceBase::IsAttachable(const IAttachActivity* Attacher)
 
 void ATHAttachPieceBase::Attach(AActor* Parent, const FAttachmentTransformRules& AttachmentRules, FName SocketName)
 {
-	UE_LOG(THVerbose, Verbose, TEXT("%s Parent Input is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Parent != nullptr));
 	DisableCollision();
 	AttachToActor(Parent, AttachmentRules, SocketName);
-	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToActor Success"), *FString(__FUNCTION__));
-	UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
 	SetReplicateMovement(false);
 	bActive = false;
+	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToActor Successs bActive: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bActive));
 	UE_LOG(THVerbose, Verbose, TEXT("%s Attached Piece ID: %s"), *FString(__FUNCTION__), *GetID());
 }
 
@@ -116,8 +114,7 @@ void ATHAttachPieceBase::Attach(USceneComponent* Parent, const FAttachmentTransf
 	SetReplicateMovement(false);
 	bActive = false;
 	AttachToComponent(Parent, AttachmentRules, SocketName);
-	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToComponent Successs"), *FString(__FUNCTION__));
-	UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
+	UE_LOG(THVerbose, Verbose, TEXT("%s AttachToComponent Successs bActive: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bActive));
 	UE_LOG(THVerbose, Verbose, TEXT("%s Attached Piece ID: %s"), *FString(__FUNCTION__), *GetID());
 }
 
@@ -126,8 +123,7 @@ void ATHAttachPieceBase::Detach(const FDetachmentTransformRules& DetachmentRules
 	SetReplicateMovement(true);
 	bActive = true;
 	DetachFromActor(DetachmentRules);
-	UE_LOG(THVerbose, Verbose, TEXT("%s DetachFromActor Success"), *FString(__FUNCTION__));
-	UE_LOG(THVerbose, Verbose, TEXT("%s ParentActor is valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(GetAttachParentActor() != nullptr));
+	UE_LOG(THVerbose, Verbose, TEXT("%s DetachFromActor Success. bActive: %s"), *FString(__FUNCTION__), GETBOOLSTRING(bActive));
 	UE_LOG(THVerbose, Verbose, TEXT("%s Detached Piece ID: %s"), *FString(__FUNCTION__), *GetID());
 }
 

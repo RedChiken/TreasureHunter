@@ -32,10 +32,24 @@ void ATHAttachLatchBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(ATHAttachLatchBase, AttachedPosition);
 }
 
+void ATHAttachLatchBase::ServerUpdatePiece_Implementation(ATHAttachPieceBase* InputPiece)
+{
+	MulticastUpdatePiece(InputPiece);
+}
+
+bool ATHAttachLatchBase::ServerUpdatePiece_Validate(ATHAttachPieceBase* InputPiece)
+{
+	return true;
+}
+
+void ATHAttachLatchBase::MulticastUpdatePiece_Implementation(ATHAttachPieceBase* InputPiece)
+{
+	Piece = InputPiece;
+}
+
 bool ATHAttachLatchBase::IsAttachable(IAttachable* attach)
 {
-	auto attachPiece = Cast<ATHAttachPieceBase>(attach);
-	return (Piece == nullptr) || ((Piece != nullptr) && !(attachPiece->GetID().Equals(Piece->GetID())));
+	return (attach != nullptr);
 }
 
 bool ATHAttachLatchBase::IsDetachable()
@@ -45,38 +59,37 @@ bool ATHAttachLatchBase::IsDetachable()
 
 void ATHAttachLatchBase::Attach(IAttachable* attach)
 {
-	UE_LOG(THVerbose, Verbose, TEXT("%s attach is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(attach != nullptr));
-	UE_LOG(THVerbose, Verbose, TEXT("%s attach is Attachable: %s"), *FString(__FUNCTION__), GETBOOLSTRING(IsAttachable(attach)));
 	auto AttachPiece = Cast<ATHAttachPieceBase>(attach);
 	if (bActive && IsAttachable(attach))
 	{
 		UE_LOG(THVerbose, Verbose, TEXT("%s Attach bActive and isAttachable"), *FString(__FUNCTION__));
-		UE_LOG(THVerbose, Verbose, TEXT("%s AttachPiece is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(AttachPiece != nullptr));
 		FAttachmentTransformRules AttachmentRule(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, false);
 		AttachPiece->Attach(Object, AttachmentRule);
-		AttachPiece->SetActorRelativeLocation(GetActorLocation() + GetActorUpVector() * 300.f);
+		AttachPiece->SetActorRelativeLocation(GetActorUpVector() * 75.f);
 		UE_LOG(THVerbose, Verbose, TEXT("%s Attach Done"), *FString(__FUNCTION__));
 		//Set Transform
 		Submit(AttachPiece->GetID());
-		UE_LOG(THVerbose, Verbose, TEXT("%s Submit Done"), *FString(__FUNCTION__));
+		MulticastUpdatePiece(AttachPiece);
+		UE_LOG(THVerbose, Verbose, TEXT("%s Compare ID of Piece and AttachPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Piece->GetID() == AttachPiece->GetID()));
 	}
+	UE_LOG(THVerbose, Verbose, TEXT("%s AttachPiece is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(AttachPiece != nullptr));
+	UE_LOG(THVerbose, Verbose, TEXT("%s Piece is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Piece != nullptr));
+	UE_LOG(THVerbose, Verbose, TEXT("%s Compare Piece and AttachPiece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Piece == AttachPiece));
 }
 
 IAttachable* ATHAttachLatchBase::Detach()
 {
-	UE_LOG(THVerbose, Verbose, TEXT("%s attach is Detachable: %s"), *FString(__FUNCTION__), GETBOOLSTRING(IsDetachable()));
 	ATHAttachPieceBase* ret = nullptr;
 	if (bActive && IsDetachable())
 	{
 		FDetachmentTransformRules DetachRule(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, false);
 		Piece->Detach(DetachRule);
 		ret = Piece;
-		Piece = nullptr;
+		MulticastUpdatePiece(nullptr);
 		//Set Transform
 		ResetInput();
 	}
 	UE_LOG(THVerbose, Verbose, TEXT("%s ret is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(ret != nullptr));
 	UE_LOG(THVerbose, Verbose, TEXT("%s Piece is Valid: %s"), *FString(__FUNCTION__), GETBOOLSTRING(Piece != nullptr));
-	UE_LOG(THVerbose, Verbose, TEXT("%s Compare ret and Piece: %s"), *FString(__FUNCTION__), GETBOOLSTRING(ret == Piece));
 	return ret;
 }
