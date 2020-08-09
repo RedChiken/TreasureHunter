@@ -16,7 +16,7 @@ class TREASUREHUNTER_API ATHBlockTrapBase : public ATHTrapBase
 public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = Block)
-        TArray<class ATHWallBase*> InterpWallList;
+        TArray<class ATHInterpToObstacleBase*> InterpToObstacleList;
 
 public:
     ATHBlockTrapBase();

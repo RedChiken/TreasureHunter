@@ -4,9 +4,9 @@
 #include "THBlockTrapBase.h"
 #include "TreasureHunter.h"
 #include "THCharacterBase.h"
-#include "THWallBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Object/Obstacle/THInterpToObstacleBase.h"
 #include "Engine.h"
 #include "net/UnrealNetwork.h"
 #include "Engine/World.h"
@@ -23,7 +23,7 @@ void ATHBlockTrapBase::BeginPlay()
 void ATHBlockTrapBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(ATHBlockTrapBase, InterpWallList);
+	DOREPLIFETIME(ATHBlockTrapBase, InterpToObstacleList);
 }
 
 void ATHBlockTrapBase::Tick(float DeltaTime)
@@ -45,7 +45,7 @@ bool ATHBlockTrapBase::ServerActivateAllInterpWall_Validate(float duration, bool
 void ATHBlockTrapBase::MulticastActivateAllInterpWall_Implementation(float duration, bool bPositionIsRelative)
 {
 	UE_LOG(THVerbose, Verbose, TEXT("%s - Multicast ActivateAllInterpWall Called"), *FString(__FUNCTION__));
-	for (const auto& iter : InterpWallList)
+	for (const auto& iter : InterpToObstacleList)
 	{
 		iter->ServerActivateWall(duration, bPositionIsRelative);
 	}
@@ -63,7 +63,7 @@ bool ATHBlockTrapBase::ServerInactivateAllInterpWall_Validate(float duration, bo
 
 void ATHBlockTrapBase::MulticastInactivateAllInterpWall_Implementation(float duration, bool bPositionIsRelative)
 {
-	for (const auto& iter : InterpWallList)
+	for (const auto& iter : InterpToObstacleList)
 	{
 		iter->ServerInactivateWall(duration, bPositionIsRelative);
 	}
@@ -81,7 +81,7 @@ bool ATHBlockTrapBase::ServerStopAllInterpWall_Validate()
 
 void ATHBlockTrapBase::MulticastStopAllInterpWall_Implementation()
 {
-	for (const auto& iter : InterpWallList)
+	for (const auto& iter : InterpToObstacleList)
 	{
 		iter->ServerStopWall();
 	}
